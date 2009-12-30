@@ -1,0 +1,43 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Install, update and uninstall functions for the Custom Formatters module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function custom_formatters_schema() {
+  $schema['formatters'] = array(
+    'fields' => array(
+      'cfid' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+      'name' => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''),
+      'label' => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''),
+      'field_types' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE, 'serialize' => TRUE),
+      'description' => array('type' => 'varchar', 'length' => '255', 'default' => ''),
+      'code' => array('type' => 'blob'),
+    ),
+    'primary key' => array('cfid'),
+    'unique keys' => array('name' => array('name')),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function custom_formatters_install() {
+  drupal_install_schema('custom_formatters');
+  // Example formatters.
+  db_query("INSERT INTO {formatters} (cfid, name, label, field_types, description, code) VALUES (%d, '%s', '%s', '%s', '%s', 0x72657475726e202824656c656d656e745b27236974656d275d5b2776616c7565275d290d0a20203f2024656c656d656e745b27236974656d275d5b2776616c7565275d202e20222022202e206c287428223c7375703e437573746f6d20466f726d6174746572204578616d706c653c2f7375703e22292c202761646d696e2f73657474696e67732f666f726d6174746572732f31272c206172726179282768746d6c27203d3e205452554529290d0a20203a2027273b)", 1, 'example_basic', 'Example - Basic', serialize(array('number_decimal', 'number_float', 'number_integer', 'text')), 'An example custom formatter for an assorted group of basic field types.');
+  db_query("INSERT INTO {formatters} (cfid, name, label, field_types, description, code) VALUES (%d, '%s', '%s', '%s', '%s', 0x72657475726e202824656c656d656e745b27236974656d275d5b2766696c6570617468275d290d0a20203f2024656c656d656e745b27236974656d275d5b2766696c6570617468275d202e20222022202e206c287428223c7375703e437573746f6d20466f726d6174746572204578616d706c653c2f7375703e22292c202761646d696e2f73657474696e67732f666f726d6174746572732f32272c206172726179282768746d6c27203d3e205452554529290d0a20203a2027273b)", 2, 'example_file', 'Example - File', serialize(array('filefield')), 'An example custom formatter for the "filefield" field type.');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function custom_formatters_uninstall() {
+  drupal_uninstall_schema('custom_formatters');
+}

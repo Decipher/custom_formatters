@@ -1,0 +1,218 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Contains core functions for the Custom Formatters module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function custom_formatters_theme() {
+  $theme = array();
+  foreach (custom_formatters_field_formatter_info() as $id => $details) {
+    $theme['custom_formatters_formatter_' . $id] = array(
+      'arguments' => array('element' => NULL),
+      'function' => 'theme_custom_formatters_formatter',
+    );
+  }
+  return $theme;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function custom_formatters_menu() {
+  $items = array();
+
+  $items['admin/settings/formatters'] = array(
+    'title' => 'Custom Formatters',
+    'file' => 'custom_formatters.admin.inc',
+    'page callback' => 'custom_formatters_overview',
+    'access arguments' => array('administer custom formatters'),
+  );
+  $items['admin/settings/formatters/list'] = array(
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['admin/settings/formatters/add'] = array(
+    'title' => 'Add new formatter',
+    'file' => 'custom_formatters.admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_formatters_formatter_form'),
+    'access arguments' => array('administer custom formatters'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/settings/formatters/%custom_formatters_cfid'] = array(
+    'title callback' => 'custom_formatters_formatter_title_callback',
+    'title arguments' => array('Edit formatter: !name', 3),
+    'file' => 'custom_formatters.admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_formatters_formatter_form', 3),
+    'access arguments' => array('administer custom formatters'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/settings/formatters/%custom_formatters_cfid/delete'] = array(
+    'title callback' => 'custom_formatters_formatter_title_callback',
+    'title arguments' => array('Delete formatter: !name', 3),
+    'file' => 'custom_formatters.admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_formatters_formatter_delete_form', 3),
+    'access arguments' => array('administer custom formatters'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['js/formatters/autocomplete'] = array(
+    'title' => 'Formatters autocomplete',
+    'page callback' => 'custom_formatters_autocomplete',
+    'access arguments' => array('administer custom formatters'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Menu wildcard loader.
+ */
+function custom_formatters_cfid_load($cfid) {
+  return custom_formatters_formatter($cfid, TRUE);
+}
+
+function custom_formatters_formatter_title_callback($title, $formatter = array()) {
+  $replacements = array();
+  if (!empty($formatter)) {
+    $replacements['!name'] = $formatter['name'];
+    $replacements['!cfid'] = $formatter['cfid'];
+  }
+  return t($title, $replacements);
+}
+
+/**
+ * Get an array of all custom formatters and their settings.
+ *
+ * @param reset
+ *   if set to TRUE it will clear the formatters cache.
+ *
+ * @return
+ *   array of formatters.
+ */
+function custom_formatters_formatters($reset = FALSE) {
+  static $formatters = array();
+
+  // Clear caches if $reset is TRUE;
+  if ($reset) {
+    $formatters = array();
+    custom_formatters_clear_cache();
+  }
+
+  // Return formatters if the array is populated.
+  if (!empty($formatters)) {
+    return $formatters;
+  }
+
+  // Build the array.
+  $result = db_query('SELECT * FROM {formatters} ORDER BY name');
+  while ($formatter = db_fetch_array($result)) {
+    $formatters[$formatter['cfid']] = $formatter;
+  }
+
+  return $formatters;
+}
+
+function custom_formatters_clear_cache() {
+  global $language;
+  cache_clear_all('content_type_info:' . $language->language, content_cache_tablename());
+  drupal_rebuild_theme_registry();
+}
+
+/**
+ * Load a formatter by cfid.
+ *
+ * @param cfid
+ *   The numeric id of a formatter.
+ *
+ * @return
+ *   formatter array.
+ *   empty array if cfid is an invalid formatter.
+ */
+function custom_formatters_formatter($cfid, $reset = FALSE) {
+  $formatters = custom_formatters_formatters($reset);
+  return (isset($formatters[$cfid])) ? $formatters[$cfid] : array();
+}
+
+/**
+ * Load a formatter by name.
+ *
+ * @param name.
+ *
+ * @return
+ *   formatter array.
+ *   empty array if name is an invalid formatter.
+ */
+function custom_formatters_formatter_by_name($name) {
+  static $formatters_by_name = array();
+  if (!$formatters_by_name && $formatters = custom_formatters_formatters()) {
+    foreach ($formatters as $formatter) {
+      $formatters_by_name[$formatter['name']] = $formatter;
+    }
+  }
+  return (isset($formatters_by_name[$name])) ? $formatters_by_name[$name] : array();
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function custom_formatters_field_formatter_info() {
+  $formatters = array();
+
+  foreach (custom_formatters_formatters() as $formatter) {
+    $formatters[$formatter['name']] = array(
+      'label' => t('Custom: !label', array('!label' => $formatter['label'])),
+      'field types' => unserialize($formatter['field_types']),
+      'description' => t($formatter['description']),
+    );
+  }
+
+  return $formatters;
+}
+
+function theme_custom_formatters_formatter($element) {
+  $formatter = custom_formatters_formatter_by_name($element['#formatter']);
+
+  ob_start();
+  print eval($formatter['code']);
+  $output = ob_get_contents();
+  ob_end_clean();
+
+  return $output;
+}
+
+/**
+ * Menu callback; Retrieve a JSON object containing autocomplete suggestions for cck widgets.
+ */
+function custom_formatters_autocomplete($string = '') {
+  // The user enters a comma-separated list of fields. We only autocomplete the last tag.
+  $array = drupal_explode_tags($string);
+
+  // Fetch last field.
+  $last_string = trim(array_pop($array));
+  $matches = array();
+  if ($last_string != '') {
+    $prefix = count($array) ? implode(', ', $array) .', ' : '';
+
+    $fields = array_keys(_content_field_types());
+    sort($fields);
+    foreach ($fields as $field) {
+      if (preg_match('/^' . drupal_strtolower($last_string) . '/', $field)) {
+        $matches[$prefix . $field] = check_plain($field);
+      }
+    }
+  }
+
+  drupal_json($matches);
+}

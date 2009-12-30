@@ -1,0 +1,6 @@
+; $Id$
+name = Custom Formatters
+description = Allows users to easily define custom CCK Formatters.
+dependencies[] = content
+package = CCK
+core = 6.x
