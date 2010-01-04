@@ -22,13 +22,13 @@ function custom_formatters_help($path, $arg) {
       $output .= '<p>&nbsp;</p><h2>' . t('Tips & Tricks') . '</h2>';
       $output .= '<ul><li>' . t('Before you can create a formatter you need to know what variables you have to work with, the easiest way to determine this information is by doing the following:');
       $output .= '<ol><li>' . t('Install and enable the !devel module.', array('!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))) . '</li>';
-      $output .= '<li>' . t('Create a new formatter containing the following code:') . '<br /><code>dpm($element);</code></li>';
+      $output .= '<li>' . t('Create a new formatter containing the following code:') . '<br /><code>dpm($variables);</code></li>';
       $output .= '<li>' . t('Setup a Content type with a CCK field type as defined in yout formatter and set the display of the field to use said formatter.') . '</li>';
       $output .= '<li>' . t('Create a node of the above content type, making sure that the CCK field used by your formatter is populated with sample data.') . '</li>';
-      $output .= '<li>' . t('On the new node you their will be an information display of the entire contents of the $element variable.') . '</li></ol></li>';
-      $output .= '<li>' . t('As mentioned above, the code for formatters with %multiple option disabled is different than with it enabled, this is due to the structure of the $element variable. The following code snippets are basic templates for handling these two variations:', array('%multiple' => t('Handle multiple values')));
-      $output .= '<br /><br /><strong>' . t('With %multiple disabled:', array('%multiple' => t('Handle multiple values'))) . '</strong><br /><code>$output = \'\';<br />if ($element[\'#item\']) {<br />&nbsp;&nbsp;// Formatter code goes here.<br />}<br />return $output;</code>';
-      $output .= '<br /><br /><strong>' . t('With %multiple enabled:', array('%multiple' => t('Handle multiple values'))) . '</strong><br /><code>$output = \'\';<br />foreach (element_children($element) as $key) {<br />&nbsp;&nbsp;if ($element[$key][\'#item\']) {<br />&nbsp;&nbsp;&nbsp;&nbsp;// Formatter code goes here.<br />&nbsp;&nbsp;}<br />}<br />return $output;</code>';
+      $output .= '<li>' . t('On the new node you their will be an information display of the entire contents of the $variables variable.') . '</li></ol></li>';
+      $output .= '<li>' . t('As mentioned above, the code for formatters with %multiple option disabled is different than with it enabled, this is due to the structure of the $variables variable. The following code snippets are basic templates for handling these two variations:', array('%multiple' => t('Handle multiple values')));
+      $output .= '<br /><br /><strong>' . t('With %multiple disabled:', array('%multiple' => t('Handle multiple values'))) . '</strong><br /><code>$output = \'\';<br />if ($variables[\'#item\']) {<br />&nbsp;&nbsp;// Formatter code goes here.<br />}<br />return $output;</code>';
+      $output .= '<br /><br /><strong>' . t('With %multiple enabled:', array('%multiple' => t('Handle multiple values'))) . '</strong><br /><code>$output = \'\';<br />foreach ($variables[\'#items\'] as $item) {<br />&nbsp;&nbsp;if ($item) {<br />&nbsp;&nbsp;&nbsp;&nbsp;// Formatter code goes here.<br />&nbsp;&nbsp;}<br />}<br />return $output;</code>';
       $output .= '<br /><br /><strong>' . t('Note') . ':</strong> ' . t('This code is only meant as an example of the differences and may not satisfy all users needs.') . '</li>';
       $output .= '</ul>';
       return $output;
@@ -38,8 +38,12 @@ function custom_formatters_help($path, $arg) {
 /**
  * Implements hook_perm().
  */
-function custom_formatters_perm() {
-  return array('administer custom formatters');
+function custom_formatters_permission() {
+  return array(
+    'administer custom formatters' => array(
+      'title' => t('Administer Custom Formatters'),
+    ),
+  );
 }
 
 /**
@@ -49,7 +53,7 @@ function custom_formatters_theme() {
   $theme = array();
 
   $theme['custom_formatters_export'] = array(
-    'arguments' => array(
+    'variables' => array(
       'formatter' => NULL,
       'name' => NULL,
     ),
@@ -58,7 +62,10 @@ function custom_formatters_theme() {
 
   foreach (custom_formatters_formatters() as $formatter) {
     $theme['custom_formatters_formatter_' . $formatter->name] = array(
-      'arguments' => array('element' => NULL),
+      'variables' => array(
+        '#formatter' => NULL,
+        '#item' . ($formatter->multiple ? 's' : '') => NULL,
+      ),
       'function' => 'theme_custom_formatters_formatter',
     );
   }
@@ -71,20 +78,20 @@ function custom_formatters_theme() {
 function custom_formatters_menu() {
   $items = array();
 
-  $items['admin/settings/formatters'] = array(
+  $items['admin/config/content/formatters'] = array(
     'title' => 'Custom Formatters',
     'description' => 'Configure custom CCK Formatter templates.',
     'file' => 'custom_formatters.admin.inc',
     'page callback' => 'custom_formatters_overview',
     'access arguments' => array('administer custom formatters'),
   );
-  $items['admin/settings/formatters/list'] = array(
+  $items['admin/config/content/formatters/list'] = array(
     'title' => 'List',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
 
-  $items['admin/settings/formatters/add'] = array(
+  $items['admin/config/content/formatters/add'] = array(
     'title' => 'Add new formatter',
     'file' => 'custom_formatters.admin.inc',
     'page callback' => 'drupal_get_form',
@@ -93,42 +100,42 @@ function custom_formatters_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
-  $items['admin/settings/formatters/edit/%custom_formatters_cfid'] = array(
+  $items['admin/config/content/formatters/edit/%custom_formatters_cfid'] = array(
     'title callback' => 'custom_formatters_formatter_title_callback',
-    'title arguments' => array('Edit formatter: !name', 4),
+    'title arguments' => array('Edit formatter: !name', 5),
     'file' => 'custom_formatters.admin.inc',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('custom_formatters_formatter_form', 4, 'edit'),
+    'page arguments' => array('custom_formatters_formatter_form', 5, 'edit'),
     'access arguments' => array('administer custom formatters'),
     'type' => MENU_CALLBACK,
   );
 
-  $items['admin/settings/formatters/delete/%custom_formatters_cfid'] = array(
+  $items['admin/config/content/formatters/delete/%custom_formatters_cfid'] = array(
     'title callback' => 'custom_formatters_formatter_title_callback',
-    'title arguments' => array('Delete formatter: !name', 4),
+    'title arguments' => array('Delete formatter: !name', 5),
     'file' => 'custom_formatters.admin.inc',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('custom_formatters_formatter_delete_form', 4),
+    'page arguments' => array('custom_formatters_formatter_delete_form', 5),
     'access arguments' => array('administer custom formatters'),
     'type' => MENU_CALLBACK,
   );
 
-  $items['admin/settings/formatters/clone/%custom_formatters_cfid'] = array(
+  $items['admin/config/content/formatters/clone/%custom_formatters_cfid'] = array(
     'title callback' => 'custom_formatters_formatter_title_callback',
-    'title arguments' => array('Clone formatter: !name', 4),
+    'title arguments' => array('Clone formatter: !name', 5),
     'file' => 'custom_formatters.admin.inc',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('custom_formatters_formatter_form', 4, 'clone'),
+    'page arguments' => array('custom_formatters_formatter_form', 5, 'clone'),
     'access arguments' => array('administer custom formatters'),
     'type' => MENU_CALLBACK,
   );
 
-  $items['admin/settings/formatters/export/%custom_formatters_cfid'] = array(
+  $items['admin/config/content/formatters/export/%custom_formatters_cfid'] = array(
     'title callback' => 'custom_formatters_formatter_title_callback',
-    'title arguments' => array('Export formatter: !name', 4),
+    'title arguments' => array('Export formatter: !name', 5),
     'file' => 'custom_formatters.admin.inc',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('custom_formatters_formatter_export_form', 4),
+    'page arguments' => array('custom_formatters_formatter_export_form', 5),
     'access arguments' => array('administer custom formatters'),
     'type' => MENU_CALLBACK,
   );
@@ -184,7 +191,7 @@ function custom_formatters_formatters($reset = FALSE) {
 
   // Build the array.
   $result = db_query('SELECT * FROM {formatters} ORDER BY name');
-  while ($formatter = db_fetch_object($result)) {
+  foreach ($result as $formatter) {
     $formatters[$formatter->cfid] = $formatter;
   }
 
@@ -193,8 +200,8 @@ function custom_formatters_formatters($reset = FALSE) {
 
 function custom_formatters_clear_cache() {
   global $language;
-  cache_clear_all('content_type_info:' . $language->language, content_cache_tablename());
-  drupal_rebuild_theme_registry();
+  field_cache_clear();
+  drupal_theme_rebuild();
 }
 
 /**
@@ -242,15 +249,43 @@ function custom_formatters_field_formatter_info() {
       'label' => t('Custom: !label', array('!label' => $formatter->label)),
       'description' => t($formatter->description),
       'field types' => unserialize($formatter->field_types),
-      'multiple values' => $formatter->multiple ? CONTENT_HANDLE_MODULE : CONTENT_HANDLE_CORE,
     );
   }
 
   return $formatters;
 }
 
-function theme_custom_formatters_formatter($element) {
-  $formatter = custom_formatters_formatter_by_name($element['#formatter']);
+/**
+ * Implements hook_field_formatter_view().
+ */
+function custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display) {
+  $formatter = custom_formatters_formatter_by_name($display['type']);
+
+  // Format each item individually.
+  if (!$formatter->multiple) {
+    foreach ($items as $delta => $item) {
+      $element[$delta] = array(
+        '#theme' => 'custom_formatters_formatter_' . $display['type'],
+        '##formatter' => $display['type'],
+        '##item' => $item,
+      );
+    }
+  }
+
+  // Format all items together.
+  else {
+    $element[0] = array(
+      '#theme' => 'custom_formatters_formatter_' . $display['type'],
+      '##formatter' => $display['type'],
+      '##items' => $items,
+    );
+  }
+
+  return $element;
+}
+
+function theme_custom_formatters_formatter($variables) {
+  $formatter = custom_formatters_formatter_by_name($variables['#formatter']);
 
   ob_start();
   print eval($formatter->code);
@@ -273,7 +308,7 @@ function custom_formatters_autocomplete($string = '') {
   if ($last_string != '') {
     $prefix = count($array) ? implode(', ', $array) . ', ' : '';
 
-    $fields = array_keys(_content_field_types());
+    $fields = array_keys(field_info_field_types());
     sort($fields);
     foreach ($fields as $field) {
       if (preg_match('/^' . drupal_strtolower($last_string) . '/', $field)) {
@@ -282,5 +317,5 @@ function custom_formatters_autocomplete($string = '') {
     }
   }
 
-  drupal_json($matches);
+  drupal_json_output($matches);
 }

@@ -11,22 +11,22 @@ function custom_formatters_overview() {
 
   foreach (custom_formatters_formatters() as $formatter) {
     $row = array();
-    $row[] = l($formatter->label, 'admin/settings/formatters/edit/' . $formatter->cfid);
+    $row[] = l($formatter->label, 'admin/config/content/formatters/edit/' . $formatter->cfid);
     $row[] = implode(', ', unserialize($formatter->field_types));
     $row[] = implode('&nbsp;&nbsp;&nbsp;&nbsp;', array(
-      l(t('Edit'), 'admin/settings/formatters/edit/' . $formatter->cfid),
-      l(t('Delete'), 'admin/settings/formatters/delete/' . $formatter->cfid),
-      l(t('Clone'), 'admin/settings/formatters/clone/' . $formatter->cfid),
-      l(t('Export'), 'admin/settings/formatters/export/' . $formatter->cfid),
+      l(t('Edit'), 'admin/config/content/formatters/edit/' . $formatter->cfid),
+      l(t('Delete'), 'admin/config/content/formatters/delete/' . $formatter->cfid),
+      l(t('Clone'), 'admin/config/content/formatters/clone/' . $formatter->cfid),
+      l(t('Export'), 'admin/config/content/formatters/export/' . $formatter->cfid),
     ));
     $rows[] = $row;
   }
 
-  $output = theme('table', $header, $rows);
+  $output = theme('table', array('header' => $header, 'rows' => $rows));
   return $output;
 }
 
-function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 'add') {
+function custom_formatters_formatter_form($form, &$form_state, $formatter = NULL, $op = 'add') {
   $form = array();
 
   if ($op == 'clone') {
@@ -87,7 +87,7 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
     '#title' => t('Code'),
     '#rows' => 10,
     '#default_value' => !is_null($formatter) ? $formatter->code : '',
-    '#description' => t('Enter the php code that will be evaluated. You do not need to use enclose the code between %php. The $element variable provides information about the field being formatted. The code should return a string.', array('%php' => '<?php ?>')),
+    '#description' => t('Enter the php code that will be evaluated. You do not need to use enclose the code between %php. The $variables variable provides information about the field being formatted. The code should return a string.', array('%php' => '<?php ?>')),
     '#required' => TRUE,
   );
 
@@ -137,17 +137,17 @@ function custom_formatters_formatter_form_save($form, &$form_state) {
   }
 
   custom_formatters_clear_cache();
-  $form_state['redirect'] = 'admin/settings/formatters';
+  $form_state['redirect'] = 'admin/config/content/formatters';
 }
 
 function custom_formatters_formatter_form_delete($form, &$form_state) {
-  drupal_goto('admin/settings/formatters/delete/' . $form_state['values']['cfid']);
+  drupal_goto('admin/config/content/formatters/delete/' . $form_state['values']['cfid']);
 }
 
-function custom_formatters_formatter_delete_form($form_state, $formatter = array()) {
+function custom_formatters_formatter_delete_form($form, &$form_state, $formatter = array()) {
   if (empty($formatter)) {
     drupal_set_message(t('The specified formatter was not found'), 'error');
-    drupal_goto('admin/settings/formatters');
+    drupal_goto('admin/config/content/formatters');
   }
 
   $form = array();
@@ -170,17 +170,19 @@ function custom_formatters_formatter_delete_form($form_state, $formatter = array
 function custom_formatters_formatter_delete_form_submit($form, &$form_state) {
   $formatter = custom_formatters_formatter($form_state['values']['cfid']);
 
-  db_query("DELETE FROM {formatters} WHERE cfid = %d", $form_state['values']['cfid']);
+  db_delete('formatters')
+    ->condition('cfid', $form_state['values']['cfid'])
+    ->execute();
   custom_formatters_clear_cache();
 
   drupal_set_message(t('Formatter %name (ID: @id) was deleted.', array('%name' => $formatter->name, '@id' => $formatter->cfid)));
-  $form_state['redirect'] = 'admin/settings/formatters';
+  $form_state['redirect'] = 'admin/config/content/formatters';
 }
 
-function custom_formatters_formatter_export_form($form_state, $formatter = array()) {
+function custom_formatters_formatter_export_form($form, &$form_state, $formatter = array()) {
   if (empty($formatter)) {
     drupal_set_message(t('The specified formatter was not found'), 'error');
-    drupal_goto('admin/settings/formatters');
+    drupal_goto('admin/config/content/formatters');
   }
 
   $form = array();
@@ -190,13 +192,13 @@ function custom_formatters_formatter_export_form($form_state, $formatter = array
   $form['extra']['module'] = array(
     '#type' => 'textfield',
     '#title' => t('Module name'),
-    '#default_value' => !empty($form_state['storage']) ? $form_state['storage']['module'] : 'mymodule',
+    '#default_value' => !empty($form_state['input']) ? $form_state['input']['module'] : 'mymodule',
   );
   $form['extra']['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Update',
   );
-  $export = theme('custom_formatters_export', $formatter, $form['extra']['module']['#default_value']);
+  $export = theme('custom_formatters_export', array('formatter' => $formatter, 'name' => $form['extra']['module']['#default_value']));
   $form['export']['output'] = array(
     '#type' => 'textarea',
     '#title' => t('Export'),
@@ -208,5 +210,5 @@ function custom_formatters_formatter_export_form($form_state, $formatter = array
 }
 
 function custom_formatters_formatter_export_form_submit($form, &$form_state) {
-  $form_state['storage']['module'] = $form_state['values']['module'];
+  $form_state['rebuild'] = TRUE;
 }

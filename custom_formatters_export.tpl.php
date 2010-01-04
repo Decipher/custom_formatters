@@ -11,7 +11,10 @@
 function <?php print $name ?>_theme() {
   return array(
     '<?php print $name ?>_formatter_<?php print $formatter->name ?>' => array(
-      'arguments' => array('element' => NULL),
+      'variables' => array(
+        '#formatter' => NULL,
+        '#item<?php print $formatter->multiple ? 's' : '' ?>' => NULL,
+      ),
     ),
   );
 }
@@ -25,12 +28,34 @@ function <?php print $name ?>_field_formatter_info() {
       'label' => '<?php print addslashes($formatter->label) ?>',
       'description' => t('<?php print addslashes($formatter->description) ?>'),
       'field types' => array('<?php print implode("', '", unserialize($formatter->field_types)) ?>'),
-      'multiple values' => <?php print $formatter->multiple ? 'CONTENT_HANDLE_MODULE' : 'CONTENT_HANDLE_CORE' ?>,
     ),
   );
 }
 
-function theme_<?php print $name ?>_formatter_<?php print $formatter->name ?>($element) {
+/**
+ * Implements hook_field_formatter_view().
+ */
+function <?php print $name ?>_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display) {
+<?php if (!$formatter->multiple) : ?>
+  foreach ($items as $delta => $item) {
+    $element[$delta] = array(
+      '#theme' => '<?php print $name ?>_formatter_' . $display['type'],
+      '##formatter' => $display['type'],
+      '##item' => $item,
+    );
+  }
+<?php else: ?>
+  $element[0] = array(
+    '#theme' => '<?php print $name ?>_formatter_' . $display['type'],
+    '##formatter' => $display['type'],
+    '##items' => $items,
+  );
+<?php endif; ?>
+
+  return $element;
+}
+
+function theme_<?php print $name ?>_formatter_<?php print $formatter->name ?>($variables) {
 <?php foreach (split("\n", $formatter->code) as $line) { ?>
   <?php print $line . "\n" ?><?php } ?>
 }

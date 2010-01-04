@@ -24,8 +24,9 @@ Usage
 ----------------
 
 Custom Formatters can be added, edited or deleted on the 'Custom Formatters'
-overview page: 'Administer > Site configuration > Custom Formatters'.
-http://[www.yoursite.com/path/to/drupal]/admin/settings/formatters
+overview page: 'Administer > Configuration and modules > Content authoring >
+Custom Formatters'.
+http://[www.yoursite.com/path/to/drupal]/admin/config/content/formatters
 
 More information on usage, including tips & tricks, can be found in help:
 http://[www.yoursite.com/path/to/drupal]/admin/help/custom_formatters
