@@ -11,11 +11,13 @@ function custom_formatters_overview() {
 
   foreach (custom_formatters_formatters() as $formatter) {
     $row = array();
-    $row[] = l($formatter['label'], 'admin/settings/formatters/' . $formatter['cfid']);
-    $row[] = implode(', ', unserialize($formatter['field_types']));
+    $row[] = l($formatter->label, 'admin/settings/formatters/edit/' . $formatter->cfid);
+    $row[] = implode(', ', unserialize($formatter->field_types));
     $row[] = implode('&nbsp;&nbsp;&nbsp;&nbsp;', array(
-      l(t('Edit'), 'admin/settings/formatters/' . $formatter['cfid']),
-      l(t('Delete'), 'admin/settings/formatters/' . $formatter['cfid'] . '/delete'),
+      l(t('Edit'), 'admin/settings/formatters/edit/' . $formatter->cfid),
+      l(t('Delete'), 'admin/settings/formatters/delete/' . $formatter->cfid),
+      l(t('Clone'), 'admin/settings/formatters/clone/' . $formatter->cfid),
+      l(t('Export'), 'admin/settings/formatters/export/' . $formatter->cfid),
     ));
     $rows[] = $row;
   }
@@ -24,57 +26,67 @@ function custom_formatters_overview() {
   return $output;
 }
 
-function custom_formatters_formatter_form($form_state, $formatter = array()) {
+function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 'add') {
   $form = array();
+
+  if ($op == 'clone') {
+    drupal_set_message(t('Be sure to change the formatter %name when cloning.', array('%name' => 'Name')), 'warning');
+  }
 
   $form['cfid'] = array(
     '#type' => 'value',
-    '#value' => $formatter['cfid'],
+    '#value' => ($op == 'edit') ? $formatter->cfid : NULL,
   );
 
   $form['basic'] = array(
     '#type' => 'fieldset',
     '#title' => t('Basic information'),
     '#collapsible' => TRUE,
-    '#collapsed' => !empty($formatter),
+    '#collapsed' => ($op == 'edit'),
   );
   $form['basic']['name'] = array(
     '#type' => 'textfield',
     '#size' => '32',
     '#title' => t('Name'),
-    '#default_value' => $formatter['name'],
-    '#description' => t('Please only use alphanumeric characters and underscores (_) for formatter names.'),
+    '#default_value' => !is_null($formatter) ? $formatter->name : '',
+    '#description' => t('For internal use, must be unique and only use alphanumeric characters and underscores (_).'),
     '#required' => TRUE,
   );
   $form['basic']['label'] = array(
     '#type' => 'textfield',
     '#size' => '32',
     '#title' => t('Label'),
-    '#default_value' => $formatter['label'],
+    '#default_value' => !is_null($formatter) ? $formatter->label : '',
+    '#description' => t('Human readable name, displayed on Custom Formatters overview page and when selecting your CCK Formatter (prefixed with "!custom").', array('!custom' => t('Custom:'))),
     '#required' => TRUE,
   );
   $form['basic']['description'] = array(
     '#type' => 'textfield',
-    '#size' => '128',
     '#title' => t('Description'),
-    '#default_value' => $formatter['description'],
-    '#required' => TRUE,
+    '#default_value' => !is_null($formatter) ? $formatter->description : '',
   );
 
-  $form['field_types'] = array(
+  $form['advanced'] = array(
+    '#type' => 'fieldset'
+  );
+  $form['advanced']['field_types'] = array(
     '#type' => 'textfield',
     '#title' => t('Field types'),
     '#autocomplete_path'  => 'js/formatters/autocomplete',
-    '#default_value' => implode(', ', unserialize($formatter['field_types'])),
+    '#default_value' => !is_null($formatter) ? implode(', ', unserialize($formatter->field_types)) : '',
     '#description' => t('A comma-separated list of CCK fields. Example: number_integer, number_decimal.'),
     '#required' => TRUE,
   );
-
-  $form['code'] = array(
+  $form['advanced']['multiple'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Handle multiple values'),
+    '#default_value' => !is_null($formatter) ? $formatter->multiple : 0,
+  );
+  $form['advanced']['code'] = array(
     '#type' => 'textarea',
     '#title' => t('Code'),
     '#rows' => 10,
-    '#default_value' => $formatter['code'],
+    '#default_value' => !is_null($formatter) ? $formatter->code : '',
     '#description' => t('Enter the php code that will be evaluated. You do not need to use enclose the code between %php. The $element variable provides information about the field being formatted. The code should return a string.', array('%php' => '<?php ?>')),
     '#required' => TRUE,
   );
@@ -104,7 +116,7 @@ function custom_formatters_formatter_form_validate($form, &$form_state) {
 
   // Make sure formatter name isn't already in use by another formatter.
   $formatter = custom_formatters_formatter_by_name($form_state['values']['name']);
-  if (!empty($formatter) && $formatter['cfid'] !== $form_state['values']['cfid']) {
+  if (!empty($formatter) && $formatter->cfid !== $form_state['values']['cfid']) {
     form_error($form['basic']['name'], t('A formatter with the name %name already exists.', array('%name' => $form_state['values']['name'])));
   }
 }
@@ -129,7 +141,7 @@ function custom_formatters_formatter_form_save($form, &$form_state) {
 }
 
 function custom_formatters_formatter_form_delete($form, &$form_state) {
-  drupal_goto('admin/settings/formatters/' . $form_state['values']['cfid'] . '/delete');
+  drupal_goto('admin/settings/formatters/delete/' . $form_state['values']['cfid']);
 }
 
 function custom_formatters_formatter_delete_form($form_state, $formatter = array()) {
@@ -142,12 +154,12 @@ function custom_formatters_formatter_delete_form($form_state, $formatter = array
 
   $form['cfid'] = array(
     '#type' => 'value',
-    '#value' => $formatter['cfid']
+    '#value' => $formatter->cfid
   );
 
   return confirm_form(
     $form,
-    t('Are you sure you want to delete the formatter %name?', array('%name' => $formatter['name'])),
+    t('Are you sure you want to delete the formatter %name?', array('%name' => $formatter->name)),
     'admin/settings/formatters',
     t('This action cannot be undone.'),
     t('Delete'),
@@ -161,6 +173,40 @@ function custom_formatters_formatter_delete_form_submit($form, &$form_state) {
   db_query("DELETE FROM {formatters} WHERE cfid = %d", $form_state['values']['cfid']);
   custom_formatters_clear_cache();
 
-  drupal_set_message(t('Formatter %name (ID: @id) was deleted.', array('%name' => $formatter['name'], '@id' => $formatter['cfid'])));
+  drupal_set_message(t('Formatter %name (ID: @id) was deleted.', array('%name' => $formatter->name, '@id' => $formatter->cfid)));
   $form_state['redirect'] = 'admin/settings/formatters';
+}
+
+function custom_formatters_formatter_export_form($form_state, $formatter = array()) {
+  if (empty($formatter)) {
+    drupal_set_message(t('The specified formatter was not found'), 'error');
+    drupal_goto('admin/settings/formatters');
+  }
+
+  $form = array();
+  $form['extra'] = array(
+    '#type' => 'fieldset',
+  );
+  $form['extra']['module'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Module name'),
+    '#default_value' => !empty($form_state['storage']) ? $form_state['storage']['module'] : 'mymodule',
+  );
+  $form['extra']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Update',
+  );
+  $export = theme('custom_formatters_export', $formatter, $form['extra']['module']['#default_value']);
+  $form['export']['output'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Export'),
+    '#value' => $export,
+    '#rows' => count(split("\n", $export)),
+  );
+
+  return $form;
+}
+
+function custom_formatters_formatter_export_form_submit($form, &$form_state) {
+  $form_state['storage']['module'] = $form_state['values']['module'];
 }

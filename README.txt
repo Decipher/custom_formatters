@@ -7,10 +7,17 @@ Custom Formatters was written and is maintained by Stuart Clark (deciphered).
 - http://stuar.tc/lark
 
 
+Features
+----------------
+
+* Clone an existing custom formatter.
+* Export custom formatters.
+
+
 Required Modules
 ----------------
 
-* Content Construction Kit - http://drupal.org/project/cck
+* Content Construction Kit (CCK) - http://drupal.org/project/cck
 
 
 Usage
@@ -19,4 +26,7 @@ Usage
 Custom Formatters can be added, edited or deleted on the 'Custom Formatters'
 overview page: 'Administer > Site configuration > Custom Formatters'.
 http://[www.yoursite.com/path/to/drupal]/admin/settings/formatters
+
+More information on usage, including tips & tricks, can be found in help:
+http://[www.yoursite.com/path/to/drupal]/admin/help/custom_formatters
 

@@ -1,5 +1,17 @@
 // $Id$
 
+Custom Formatters 6.x-1.1, 2010-01-04
+-------------------------------------
+
+- #671532: Fixed multiple warnings.
+- Added Clone feature.
+- Added Export feature.
+- Added support for multiple value formatters.
+- Added missing implementation of hook_perm().
+- Added basic help documentation.
+- Changed 'description' field to optional.
+
+
 Custom Formatters 6.x-1.0, 2009-12-30
 -------------------------------------
 

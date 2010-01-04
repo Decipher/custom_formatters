@@ -15,7 +15,8 @@ function custom_formatters_schema() {
       'name' => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''),
       'label' => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''),
       'field_types' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE, 'serialize' => TRUE),
-      'description' => array('type' => 'varchar', 'length' => '255', 'default' => ''),
+      'multiple' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'description' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE, 'default' => ''),
       'code' => array('type' => 'blob'),
     ),
     'primary key' => array('cfid'),
@@ -31,8 +32,9 @@ function custom_formatters_schema() {
 function custom_formatters_install() {
   drupal_install_schema('custom_formatters');
   // Example formatters.
-  db_query("INSERT INTO {formatters} (cfid, name, label, field_types, description, code) VALUES (%d, '%s', '%s', '%s', '%s', 0x72657475726e202824656c656d656e745b27236974656d275d5b2776616c7565275d290d0a20203f2024656c656d656e745b27236974656d275d5b2776616c7565275d202e20222022202e206c287428223c7375703e437573746f6d20466f726d6174746572204578616d706c653c2f7375703e22292c202761646d696e2f73657474696e67732f666f726d6174746572732f31272c206172726179282768746d6c27203d3e205452554529290d0a20203a2027273b)", 1, 'example_basic', 'Example - Basic', serialize(array('number_decimal', 'number_float', 'number_integer', 'text')), 'An example custom formatter for an assorted group of basic field types.');
-  db_query("INSERT INTO {formatters} (cfid, name, label, field_types, description, code) VALUES (%d, '%s', '%s', '%s', '%s', 0x72657475726e202824656c656d656e745b27236974656d275d5b2766696c6570617468275d290d0a20203f2024656c656d656e745b27236974656d275d5b2766696c6570617468275d202e20222022202e206c287428223c7375703e437573746f6d20466f726d6174746572204578616d706c653c2f7375703e22292c202761646d696e2f73657474696e67732f666f726d6174746572732f32272c206172726179282768746d6c27203d3e205452554529290d0a20203a2027273b)", 2, 'example_file', 'Example - File', serialize(array('filefield')), 'An example custom formatter for the "filefield" field type.');
+  db_query("INSERT INTO {formatters} (name, label, field_types, multiple, description, code) VALUES ('%s', '%s', '%s', %d, '%s', %b)", 'example_basic', 'Example - Basic', serialize(array('number_decimal', 'number_float', 'number_integer', 'text')), 0, 'An example custom formatter for an assorted group of basic field types.', pack('H*', '72657475726e202824656c656d656e745b27236974656d275d5b2776616c7565275d290d0a20203f2024656c656d656e745b27236974656d275d5b2776616c7565275d202e20222022202e206c287428223c7375703e437573746f6d20466f726d6174746572204578616d706c653c2f7375703e22292c202761646d696e2f73657474696e67732f666f726d617474657273272c206172726179282768746d6c27203d3e205452554529290d0a20203a2027273b'));
+  db_query("INSERT INTO {formatters} (name, label, field_types, multiple, description, code) VALUES ('%s', '%s', '%s', %d, '%s', %b)", 'example_basic_multiples', 'Example - Basic (multiples)', serialize(array('number_decimal', 'number_float', 'number_integer', 'text')), 1, 'An example custom formatter for an assorted group of basic field types, with support for multiple values.', pack('H*', '246f7574707574203d2027273b0d0a666f72656163682028656c656d656e745f6368696c6472656e2824656c656d656e742920617320246b657929207b0d0a2020246f7574707574202e3d20273c6469763e27202e2024656c656d656e745b246b65795d5b27236974656d275d5b2776616c7565275d202e20222022202e206c287428223c7375703e437573746f6d20466f726d6174746572204578616d706c653c2f7375703e22292c202761646d696e2f73657474696e67732f666f726d617474657273272c206172726179282768746d6c27203d3e20545255452929202e20273c2f6469763e273b0d0a7d0d0a72657475726e20246f75747075743b'));
+  db_query("INSERT INTO {formatters} (name, label, field_types, multiple, description, code) VALUES ('%s', '%s', '%s', %d, '%s', %b)", 'example_file', 'Example - File', serialize(array('filefield')), 0, 'An example custom formatter for the "filefield" field type.', pack('H*', '72657475726e202824656c656d656e745b27236974656d275d5b2766696c6570617468275d290d0a20203f2024656c656d656e745b27236974656d275d5b2766696c6570617468275d202e20222022202e206c287428223c7375703e437573746f6d20466f726d6174746572204578616d706c653c2f7375703e22292c202761646d696e2f73657474696e67732f666f726d617474657273272c206172726179282768746d6c27203d3e205452554529290d0a20203a2027273b'));
 }
 
 /**
@@ -40,4 +42,14 @@ function custom_formatters_install() {
  */
 function custom_formatters_uninstall() {
   drupal_uninstall_schema('custom_formatters');
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function custom_formatters_update_6100() {
+  $ret = array();
+  db_add_field($ret, 'formatters', 'multiple', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
+  db_query("INSERT INTO {formatters} (name, label, field_types, multiple, description, code) VALUES ('%s', '%s', '%s', %d, '%s', 0x246f7574707574203d2027273b0d0a666f72656163682028656c656d656e745f6368696c6472656e2824656c656d656e742920617320246b657929207b0d0a2020246f7574707574202e3d20273c6469763e27202e2024656c656d656e745b246b65795d5b27236974656d275d5b2776616c7565275d202e20222022202e206c287428223c7375703e437573746f6d20466f726d6174746572204578616d706c653c2f7375703e22292c202761646d696e2f73657474696e67732f666f726d617474657273272c206172726179282768746d6c27203d3e20545255452929202e20273c2f6469763e273b0d0a7d0d0a72657475726e20246f75747075743b)", 'example_basic_multiples', 'Example - Basic (multiples)', serialize(array('number_decimal', 'number_float', 'number_integer', 'text')), 1, 'An example custom formatter for an assorted group of basic field types, with support for multiple values.');
+  return $ret;
 }
