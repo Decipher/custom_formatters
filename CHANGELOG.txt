@@ -1,5 +1,11 @@
 // $Id$
 
+Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
+-------------------------------------
+
+- Added support for the Insert module.
+
+
 Custom Formatters 6.x-1.1, 2010-01-04
 -------------------------------------
 

@@ -43,6 +43,17 @@ function custom_formatters_perm() {
 }
 
 /**
+ * Implements hook_init().
+ */
+function custom_formatters_init() {
+  foreach (module_list() as $module) {
+    if (file_exists($file = drupal_get_path('module', 'custom_formatters') . '/modules/' . $module . '.inc')) {
+      require_once $file;
+    }
+  }
+}
+
+/**
  * Implements hook_theme().
  */
 function custom_formatters_theme() {

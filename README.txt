@@ -23,7 +23,7 @@ Required Modules
 Usage
 ----------------
 
-Custom Formatters can be added, edited or deleted on the 'Custom Formatters'
+Custom Formatters can be managed on the 'Custom Formatters'
 overview page: 'Administer > Site configuration > Custom Formatters'.
 http://[www.yoursite.com/path/to/drupal]/admin/settings/formatters
 

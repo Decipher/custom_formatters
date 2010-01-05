@@ -4,10 +4,3 @@ description = Allows users to easily define custom CCK Formatters.
 dependencies[] = content
 package = CCK
 core = 6.x
-
-; Information added by drupal.org packaging script on 2009-12-30
-version = "6.x-1.0"
-core = "6.x"
-project = "custom_formatters"
-datestamp = "1262154618"
-
