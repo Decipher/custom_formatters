@@ -2,5 +2,6 @@
 name = Custom Formatters
 description = Allows users to easily define custom CCK Formatters.
 dependencies[] = content
+dependencies[] = token
 package = CCK
 core = 6.x

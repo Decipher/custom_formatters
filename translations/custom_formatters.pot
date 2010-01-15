@@ -3,15 +3,16 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  custom_formatters.admin.inc,v 1.1 2009/12/30 06:22:57 deciphered
-#  custom_formatters.module,v 1.1 2009/12/30 06:22:57 deciphered
-#  custom_formatters.info,v 1.1 2009/12/30 06:22:57 deciphered
+#  custom_formatters.admin.inc,v 1.2 2010/01/04 06:05:51 deciphered
+#  custom_formatters.module,v 1.2.2.1 2010/01/05 06:15:50 deciphered
+#  insert.inc,v 1.1.2.1 2010/01/05 06:15:50 deciphered
+#  custom_formatters.info,v 1.2.2.1 2010/01/05 06:15:50 deciphered
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2010-01-04 13:32+1100\n"
+"POT-Creation-Date: 2010-01-15 14:48+1100\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -20,11 +21,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: custom_formatters.admin.inc:9;58 custom_formatters.module:17
+#: custom_formatters.admin.inc:9;60
 msgid "Label"
 msgstr ""
 
-#: custom_formatters.admin.inc:9 custom_formatters.module:19
+#: custom_formatters.admin.inc:9
 msgid "Field Types"
 msgstr ""
 
@@ -36,7 +37,7 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: custom_formatters.admin.inc:18;103;165
+#: custom_formatters.admin.inc:18;116;259
 msgid "Delete"
 msgstr ""
 
@@ -44,220 +45,248 @@ msgstr ""
 msgid "Clone"
 msgstr ""
 
-#: custom_formatters.admin.inc:20;202
+#: custom_formatters.admin.inc:23;296
 msgid "Export"
 msgstr ""
 
-#: custom_formatters.admin.inc:33
+#: custom_formatters.admin.inc:37
 msgid "Be sure to change the formatter %name when cloning."
 msgstr ""
 
-#: custom_formatters.admin.inc:43
+#: custom_formatters.admin.inc:47
 msgid "Basic information"
 msgstr ""
 
-#: custom_formatters.admin.inc:50 custom_formatters.module:16;17
+#: custom_formatters.admin.inc:52
 msgid "Name"
 msgstr ""
 
-#: custom_formatters.admin.inc:52
+#: custom_formatters.admin.inc:54
 msgid "For internal use, must be unique and only use alphanumeric characters and underscores (_)."
 msgstr ""
 
-#: custom_formatters.admin.inc:60
+#: custom_formatters.admin.inc:62
 msgid "Human readable name, displayed on Custom Formatters overview page and when selecting your CCK Formatter (prefixed with \"!custom\")."
 msgstr ""
 
-#: custom_formatters.admin.inc:60 custom_formatters.module:17
+#: custom_formatters.admin.inc:62
 msgid "Custom:"
 msgstr ""
 
-#: custom_formatters.admin.inc:65 custom_formatters.module:18
+#: custom_formatters.admin.inc:67
 msgid "Description"
 msgstr ""
 
-#: custom_formatters.admin.inc:74
-msgid "Field types"
+#: custom_formatters.admin.inc:72
+msgid "Editor mode"
 msgstr ""
 
-#: custom_formatters.admin.inc:77
-msgid "A comma-separated list of CCK fields. Example: number_integer, number_decimal."
+#: custom_formatters.admin.inc:74 custom_formatters.module:16
+msgid "Basic"
 msgstr ""
 
-#: custom_formatters.admin.inc:82 custom_formatters.module:20;29;30;31
-msgid "Handle multiple values"
+#: custom_formatters.admin.inc:75 custom_formatters.module:18
+msgid "Advanced"
 msgstr ""
 
-#: custom_formatters.admin.inc:87 custom_formatters.module:21
-msgid "Code"
+#: custom_formatters.admin.inc:83;88;212
+msgid "Next"
 msgstr ""
 
-#: custom_formatters.admin.inc:90
-msgid "Enter the php code that will be evaluated. You do not need to use enclose the code between %php. The $element variable provides information about the field being formatted. The code should return a string."
+#: custom_formatters.admin.inc:101
+msgid "!mode editor"
 msgstr ""
 
-#: custom_formatters.admin.inc:96
+#: custom_formatters.admin.inc:109
 msgid "Save"
 msgstr ""
 
-#: custom_formatters.admin.inc:114
-msgid "Formatter name must be alphanumeric characters and underscores (_) only."
+#: custom_formatters.admin.inc:138
+msgid "Field type"
 msgstr ""
 
-#: custom_formatters.admin.inc:120
-msgid "A formatter with the name %name already exists."
+#: custom_formatters.admin.inc:153
+msgid "HTML"
 msgstr ""
 
-#: custom_formatters.admin.inc:130
-msgid "Formatter %name was added."
+#: custom_formatters.admin.inc:160
+msgid "Tokens"
 msgstr ""
 
-#: custom_formatters.admin.inc:136
-msgid "Formatter %name (ID: @id) was updated."
+#: custom_formatters.admin.inc:175
+msgid "Field type(s)"
 msgstr ""
 
-#: custom_formatters.admin.inc:149;182
-msgid "The specified formatter was not found"
+#: custom_formatters.admin.inc:178
+msgid "A comma-separated list of CCK fields. Example: number_integer, number_decimal."
 msgstr ""
 
-#: custom_formatters.admin.inc:162
-msgid "Are you sure you want to delete the formatter %name?"
+#: custom_formatters.admin.inc:183 custom_formatters.module:27;28;29
+msgid "Handle multiple values"
 msgstr ""
 
-#: custom_formatters.admin.inc:164
-msgid "This action cannot be undone."
-msgstr ""
-
-#: custom_formatters.admin.inc:166
-msgid "Cancel"
-msgstr ""
-
-#: custom_formatters.admin.inc:176
-msgid "Formatter %name (ID: @id) was deleted."
-msgstr ""
-
-#: custom_formatters.admin.inc:192
-msgid "Module name"
-msgstr ""
-
-#: custom_formatters.module:14
-msgid "The Custom Formatters module is a simple interface for creating CCK Formatters which are used to theme the output of CCK fields."
-msgstr ""
-
-#: custom_formatters.module:15
-msgid "When creating or editing a Custom Formatter you will be presented with six (6) form fields:"
-msgstr ""
-
-#: custom_formatters.module:16
-msgid "This is used internally, it must be unique and contain only alphanumeric characters (a-z, A-Z, 0-9) and underscores (_)."
-msgstr ""
-
-#: custom_formatters.module:17
-msgid "This is the human readable version of the %name field, visible on the Custom Formatters overview page and when selecting your CCK Formatter (prefixed with \"!custom\")."
-msgstr ""
-
-#: custom_formatters.module:18
-msgid "This is an optional field, used to describe the formatter."
-msgstr ""
-
-#: custom_formatters.module:19
-msgid "This is an auto-completing, comma-separated list of field types that can use your formatter. Different fields will return different variables, so be sure to pick fields of a similar type. Only currently available field types will be displayed in the auto-complete list."
-msgstr ""
-
-#: custom_formatters.module:20
-msgid "By default, fields that contain multiple values will be formatted individually. Enabling this option will group all the values into a single object to be formatted as such. The code to format the fields will need to modified if you turn this option on after creating a formatter."
-msgstr ""
-
-#: custom_formatters.module:21
-msgid "This is the code that does the actual formatting of the fields. The code is PHP, so a basic knowledge of !php and/or the !drupalapi is a must. The code does NOT need to be wrapped in @phptag. The code must return a string value for output."
-msgstr ""
-
-#: custom_formatters.module:21
+#: custom_formatters.admin.inc:188 custom_formatters.module:19
 msgid "PHP"
 msgstr ""
 
-#: custom_formatters.module:21
+#: custom_formatters.admin.inc:191
+msgid "Enter the php code that will be evaluated. You do not need to use enclose the code between %php. The $element variable provides information about the field being formatted. The code should return a string."
+msgstr ""
+
+#: custom_formatters.admin.inc:201
+msgid "Formatter name must be alphanumeric characters and underscores (_) only."
+msgstr ""
+
+#: custom_formatters.admin.inc:207
+msgid "A formatter with the name %name already exists."
+msgstr ""
+
+#: custom_formatters.admin.inc:223
+msgid "Formatter %name was added."
+msgstr ""
+
+#: custom_formatters.admin.inc:229
+msgid "Formatter %name (ID: @id) was updated."
+msgstr ""
+
+#: custom_formatters.admin.inc:243;276
+msgid "The specified formatter was not found"
+msgstr ""
+
+#: custom_formatters.admin.inc:256
+msgid "Are you sure you want to delete the formatter %name?"
+msgstr ""
+
+#: custom_formatters.admin.inc:258
+msgid "This action cannot be undone."
+msgstr ""
+
+#: custom_formatters.admin.inc:260
+msgid "Cancel"
+msgstr ""
+
+#: custom_formatters.admin.inc:270
+msgid "Formatter %name (ID: @id) was deleted."
+msgstr ""
+
+#: custom_formatters.admin.inc:286
+msgid "Module name"
+msgstr ""
+
+#: custom_formatters.admin.inc:336 custom_formatters.module:17
+msgid "Token"
+msgstr ""
+
+#: custom_formatters.admin.inc:336
+msgid "Replacement value"
+msgstr ""
+
+#: custom_formatters.admin.inc:339
+msgid "tokens"
+msgstr ""
+
+#: custom_formatters.module:14
+msgid "The Custom Formatters module is a simple utility for creating CCK Formatters which are used to theme the output of CCK fields."
+msgstr ""
+
+#: custom_formatters.module:15
+msgid "There are two different modes available for creating a custom formatter, each with their own pros and cons:"
+msgstr ""
+
+#: custom_formatters.module:17
+msgid "The basic formatter editor offers a simple HTML editor with support for the !token module for extremely easy custom formatter creation, but your formatter can only be created for a single CCK field type and can not support multiple values."
+msgstr ""
+
+#: custom_formatters.module:19
+msgid "The advanced formatter editor supports multiple CCK field types and multiple values in a single formatter, but as it is PHP based the user will require a basic knowledge of !php and the !drupalapi."
+msgstr ""
+
+#: custom_formatters.module:19
 msgid "Drupal API"
 msgstr ""
 
+#: custom_formatters.module:20
+msgid "Tips & Tricks for Advanced formatters"
+msgstr ""
+
+#: custom_formatters.module:21
+msgid "Before you can create an advanced formatter, you need to know what variables you have to work with, the easiest way to determine this information is by doing the following:"
+msgstr ""
+
 #: custom_formatters.module:22
-msgid "Tips & Tricks"
-msgstr ""
-
-#: custom_formatters.module:23
-msgid "Before you can create a formatter you need to know what variables you have to work with, the easiest way to determine this information is by doing the following:"
-msgstr ""
-
-#: custom_formatters.module:24
 msgid "Install and enable the !devel module."
 msgstr ""
 
-#: custom_formatters.module:24
+#: custom_formatters.module:22
 msgid "Devel"
 msgstr ""
 
-#: custom_formatters.module:25
+#: custom_formatters.module:23
 msgid "Create a new formatter containing the following code:"
 msgstr ""
 
-#: custom_formatters.module:26
+#: custom_formatters.module:24
 msgid "Setup a Content type with a CCK field type as defined in yout formatter and set the display of the field to use said formatter."
 msgstr ""
 
-#: custom_formatters.module:27
+#: custom_formatters.module:25
 msgid "Create a node of the above content type, making sure that the CCK field used by your formatter is populated with sample data."
 msgstr ""
 
-#: custom_formatters.module:28
+#: custom_formatters.module:26
 msgid "On the new node you their will be an information display of the entire contents of the $element variable."
 msgstr ""
 
-#: custom_formatters.module:29
+#: custom_formatters.module:27
 msgid "As mentioned above, the code for formatters with %multiple option disabled is different than with it enabled, this is due to the structure of the $element variable. The following code snippets are basic templates for handling these two variations:"
 msgstr ""
 
-#: custom_formatters.module:30
+#: custom_formatters.module:28
 msgid "With %multiple disabled:"
 msgstr ""
 
-#: custom_formatters.module:31
+#: custom_formatters.module:29
 msgid "With %multiple enabled:"
 msgstr ""
 
-#: custom_formatters.module:32
+#: custom_formatters.module:30
 msgid "Note"
 msgstr ""
 
-#: custom_formatters.module:32
+#: custom_formatters.module:30
 msgid "This code is only meant as an example of the differences and may not satisfy all users needs."
 msgstr ""
 
-#: custom_formatters.module:242
+#: custom_formatters.module:266 modules/insert.inc:17
 msgid "Custom: !label"
 msgstr ""
 
-#: custom_formatters.module:42
+#: custom_formatters.module:40
 msgid "administer custom formatters"
 msgstr ""
 
-#: custom_formatters.module:75 custom_formatters.info:0
+#: custom_formatters.module:89 custom_formatters.info:0
 msgid "Custom Formatters"
 msgstr ""
 
-#: custom_formatters.module:76
+#: custom_formatters.module:90
 msgid "Configure custom CCK Formatter templates."
 msgstr ""
 
-#: custom_formatters.module:82
+#: custom_formatters.module:96
 msgid "List"
 msgstr ""
 
-#: custom_formatters.module:88
+#: custom_formatters.module:102
 msgid "Add new formatter"
 msgstr ""
 
-#: custom_formatters.module:137
+#: custom_formatters.module:151
 msgid "Formatters autocomplete"
+msgstr ""
+
+#: custom_formatters.module:158
+msgid "Formatters tokens"
 msgstr ""
 
 #: custom_formatters.info:0

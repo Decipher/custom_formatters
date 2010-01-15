@@ -1,8 +1,9 @@
 // $Id$
 
-Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
+Custom Formatters 6.x-1.2, 2010-01-15
 -------------------------------------
 
+- Added a basic HTML editor with Token support.
 - Added support for the Insert module.
 
 

@@ -13,12 +13,16 @@ function custom_formatters_overview() {
     $row = array();
     $row[] = l($formatter->label, 'admin/settings/formatters/edit/' . $formatter->cfid);
     $row[] = implode(', ', unserialize($formatter->field_types));
-    $row[] = implode('&nbsp;&nbsp;&nbsp;&nbsp;', array(
+    $links = array(
       l(t('Edit'), 'admin/settings/formatters/edit/' . $formatter->cfid),
       l(t('Delete'), 'admin/settings/formatters/delete/' . $formatter->cfid),
       l(t('Clone'), 'admin/settings/formatters/clone/' . $formatter->cfid),
-      l(t('Export'), 'admin/settings/formatters/export/' . $formatter->cfid),
-    ));
+    );
+    // Export can only be done for 'advanced' formatters.
+    if ($formatter->mode == 'advanced') {
+      $links[] = l(t('Export'), 'admin/settings/formatters/export/' . $formatter->cfid);
+    }
+    $row[] = implode('&nbsp;&nbsp;&nbsp;&nbsp;', $links);
     $rows[] = $row;
   }
 
@@ -29,7 +33,7 @@ function custom_formatters_overview() {
 function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 'add') {
   $form = array();
 
-  if ($op == 'clone') {
+  if ($op == 'clone' && empty($form_state['post'])) {
     drupal_set_message(t('Be sure to change the formatter %name when cloning.', array('%name' => 'Name')), 'warning');
   }
 
@@ -41,8 +45,6 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
   $form['basic'] = array(
     '#type' => 'fieldset',
     '#title' => t('Basic information'),
-    '#collapsible' => TRUE,
-    '#collapsed' => ($op == 'edit'),
   );
   $form['basic']['name'] = array(
     '#type' => 'textfield',
@@ -65,45 +67,130 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
     '#title' => t('Description'),
     '#default_value' => !is_null($formatter) ? $formatter->description : '',
   );
-
-  $form['advanced'] = array(
-    '#type' => 'fieldset'
+  $form['basic']['mode'] = array(
+    '#type' => 'radios',
+    '#title' => t('Editor mode'),
+    '#options' => array(
+      'basic' => t('Basic'),
+      'advanced' => t('Advanced'),
+    ),
+    '#default_value' => !is_null($formatter) ? $formatter->mode : 'basic',
   );
-  $form['advanced']['field_types'] = array(
+
+  if ($op == 'add' && !isset($form_state['storage']['op'])) {
+    $form['buttons']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Next'),
+    );
+  }
+
+  else {
+    if ($op == 'add' && $form_state['storage']['op'] == t('Next')) {
+      $form['basic']['name']['#default_value'] = $form_state['values']['name'];
+      $form['basic']['label']['#default_value'] = $form_state['values']['label'];
+      $form['basic']['description']['#default_value'] = $form_state['values']['description'];
+      $form['basic']['mode']['#default_value'] = $form_state['values']['mode'];
+    }
+
+    $form['basic']['#collapsible'] = ($op != 'clone');
+    $form['basic']['#collapsed'] = ($op != 'clone');
+    $form['basic']['mode']['#disabled'] = TRUE;
+
+    $form['editor'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('!mode editor', array('!mode' => $form['basic']['mode']['#options'][$form['basic']['mode']['#default_value']])),
+    );
+
+    $function = "custom_formatters_formatter_{$form['basic']['mode']['#default_value']}_editor_form";
+    $form['editor'] = array_merge($form['editor'], $function($form_state, $formatter));
+
+    $form['buttons']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+      '#submit' => array('custom_formatters_formatter_form_save'),
+    );
+  
+    if (!empty($formatter)) {
+      $form['buttons']['delete'] = array(
+        '#type' => 'submit',
+        '#value' => t('Delete'),
+        '#submit' => array('custom_formatters_formatter_form_delete'),
+      );
+    }
+  }
+
+  return $form;
+}
+
+function custom_formatters_formatter_basic_editor_form($form_state, $formatter = NULL) {
+  $form = array();
+
+  $options = array();
+  $fields = _content_field_types();
+  ksort($fields);
+  foreach ($fields as $id => $field) {
+    $options[$field['module']][$id] = $field['label'];
+  }
+  ksort($options);
+
+  $form['field_types'] = array(
+    '#type' => 'select',
+    '#title' => t('Field type'),
+    '#options' => $options,
+    '#default_value' => !is_null($formatter) ? implode(unserialize($formatter->field_types)) : '',
+    '#ahah' => array(
+      'path' => 'js/formatters/tokens',
+      'wrapper' => 'tokens-wrapper',
+    ),
+    '#required' => TRUE,
+  );
+  $form['multiple'] = array(
+    '#type' => 'value',
+    '#value' => 0,
+  );
+  $form['code'] = array(
+    '#type' => 'textarea',
+    '#title' => t('HTML'),
+    '#rows' => 10,
+    '#default_value' => !is_null($formatter) ? $formatter->code : '',
+    '#required' => TRUE,
+  );
+  $form['tokens'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Tokens'),
+    '#description' =>
+      '<div id="tokens-wrapper">' . theme_custom_formatter_token_help($form['field_types']['#default_value']) . '</div>',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  return $form;
+}
+
+function custom_formatters_formatter_advanced_editor_form($form_state, $formatter = NULL) {
+  $form = array();
+
+  $form['field_types'] = array(
     '#type' => 'textfield',
-    '#title' => t('Field types'),
+    '#title' => t('Field type(s)'),
     '#autocomplete_path'  => 'js/formatters/autocomplete',
     '#default_value' => !is_null($formatter) ? implode(', ', unserialize($formatter->field_types)) : '',
     '#description' => t('A comma-separated list of CCK fields. Example: number_integer, number_decimal.'),
     '#required' => TRUE,
   );
-  $form['advanced']['multiple'] = array(
+  $form['multiple'] = array(
     '#type' => 'checkbox',
     '#title' => t('Handle multiple values'),
     '#default_value' => !is_null($formatter) ? $formatter->multiple : 0,
   );
-  $form['advanced']['code'] = array(
+  $form['code'] = array(
     '#type' => 'textarea',
-    '#title' => t('Code'),
+    '#title' => t('PHP'),
     '#rows' => 10,
     '#default_value' => !is_null($formatter) ? $formatter->code : '',
     '#description' => t('Enter the php code that will be evaluated. You do not need to use enclose the code between %php. The $element variable provides information about the field being formatted. The code should return a string.', array('%php' => '<?php ?>')),
     '#required' => TRUE,
   );
-
-  $form['buttons']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save'),
-    '#submit' => array('custom_formatters_formatter_form_save'),
-  );
-
-  if (!empty($formatter)) {
-    $form['buttons']['delete'] = array(
-      '#type' => 'submit',
-      '#value' => t('Delete'),
-      '#submit' => array('custom_formatters_formatter_form_delete'),
-    );
-  }
 
   return $form;
 }
@@ -118,6 +205,12 @@ function custom_formatters_formatter_form_validate($form, &$form_state) {
   $formatter = custom_formatters_formatter_by_name($form_state['values']['name']);
   if (!empty($formatter) && $formatter->cfid !== $form_state['values']['cfid']) {
     form_error($form['basic']['name'], t('A formatter with the name %name already exists.', array('%name' => $form_state['values']['name'])));
+  }
+}
+
+function custom_formatters_formatter_form_submit($form, &$form_state) {
+  if ($form_state['clicked_button']['#value'] == t('Next')) {
+    $form_state['storage'] = $form_state['values'];
   }
 }
 
@@ -138,6 +231,7 @@ function custom_formatters_formatter_form_save($form, &$form_state) {
 
   custom_formatters_clear_cache();
   $form_state['redirect'] = 'admin/settings/formatters';
+  unset($form_state['storage']);
 }
 
 function custom_formatters_formatter_form_delete($form, &$form_state) {
@@ -209,4 +303,72 @@ function custom_formatters_formatter_export_form($form_state, $formatter = array
 
 function custom_formatters_formatter_export_form_submit($form, &$form_state) {
   $form_state['storage']['module'] = $form_state['values']['module'];
+}
+
+function custom_formatter_token_help() {
+  drupal_json(array(
+    'status' => TRUE,
+    'data' => theme_custom_formatter_token_help($_POST['field_types'])
+  ));
+}
+
+/**
+ * For a given context, builds a formatted list of tokens and descriptions
+ * of their replacement values.
+ *
+ * @param formatter
+ *    The formatter the token display documentation is required for.
+ * @param prefix
+ *    The prefix your module will use when parsing tokens. Defaults to '['
+ * @param suffix
+ *    The suffix your module will use when parsing tokens. Defaults to ']'
+ * @return An HTML table containing the formatting docs.
+ */
+function theme_custom_formatter_token_help($formatter = NULL, $prefix = '[', $suffix = ']') {
+  token_include();
+  $fields = _content_field_types();
+  $module = $fields[$formatter]['module'];
+  if (function_exists($function = $module . '_token_list')) {
+    $tokens = $function('field');
+    $tokens += token_get_list('global');
+  }
+
+  $headers = array(t('Token'), t('Replacement value'));
+  $rows = array();
+  foreach ($tokens as $key => $category) {
+    $rows[] = array(array('data' => drupal_ucfirst($key) .' '. t('tokens'), 'class' => 'region', 'colspan' => 2));
+    foreach ($category as $token => $description) {
+      $row = array();
+      $row[] = $prefix . $token . $suffix;
+      $row[] = $description;
+      $rows[] = $row;
+    }
+  }
+
+  return theme('table', $headers, $rows, array('class' => 'description'));
+}
+
+/**
+ * Menu callback; Retrieve a JSON object containing autocomplete suggestions for cck widgets.
+ */
+function custom_formatters_autocomplete($string = '') {
+  // The user enters a comma-separated list of fields. We only autocomplete the last tag.
+  $array = drupal_explode_tags($string);
+
+  // Fetch last field.
+  $last_string = trim(array_pop($array));
+  $matches = array();
+  if ($last_string != '') {
+    $prefix = count($array) ? implode(', ', $array) . ', ' : '';
+
+    $fields = array_keys(_content_field_types());
+    sort($fields);
+    foreach ($fields as $field) {
+      if (preg_match('/^' . drupal_strtolower($last_string) . '/', $field)) {
+        $matches[$prefix . $field] = check_plain($field);
+      }
+    }
+  }
+
+  drupal_json($matches);
 }

@@ -26,7 +26,7 @@ function custom_formatters_insert_styles() {
  */
 function custom_formatters_insert_content($item, $style, $widget) {
   $element = array(
-    '#formatter' => preg_replace('/^custom_formatters_/', '', $style['name']),
+    '#formatter' => $style['name'],
     '#item' => $item,
   );
 
