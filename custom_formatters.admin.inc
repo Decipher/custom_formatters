@@ -95,12 +95,35 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
     $form['basic']['#collapsible'] = ($op != 'clone');
     $form['basic']['#collapsed'] = ($op != 'clone');
     $form['basic']['mode']['#disabled'] = TRUE;
+    $form['basic']['mode_value'] = array(
+      '#type' => 'hidden',
+      '#value' => $form['basic']['mode']['#default_value'],
+    );
 
     $form['editor'] = array(
       '#type' => 'fieldset',
       '#title' => t('!mode editor', array('!mode' => $form['basic']['mode']['#options'][$form['basic']['mode']['#default_value']])),
     );
 
+    // Custom Formatter preview.
+    if (module_exists('devel_generate')) {
+      $form['preview'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Preview'),
+        '#description' => '<div id="preview-wrapper">' . theme('custom_formatters_preview', $formatter) . '</div>',
+        '#collapsible' => TRUE,
+      );
+      $form['buttons']['preview'] = array(
+        '#type' => 'button',
+        '#value' => t('Preview'),
+        '#ahah' => array(
+          'path' => 'js/formatters/preview',
+          'wrapper' => 'preview-wrapper',
+        ),
+      );
+    }
+
+    // Invoke selected editor form.
     $function = "custom_formatters_formatter_{$form['basic']['mode']['#default_value']}_editor_form";
     $form['editor'] = array_merge($form['editor'], $function($form_state, $formatter));
 
@@ -109,7 +132,7 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
       '#value' => t('Save'),
       '#submit' => array('custom_formatters_formatter_form_save'),
     );
-  
+
     if (!empty($formatter)) {
       $form['buttons']['delete'] = array(
         '#type' => 'submit',
@@ -159,7 +182,7 @@ function custom_formatters_formatter_basic_editor_form($form_state, $formatter =
     '#type' => 'fieldset',
     '#title' => t('Tokens'),
     '#description' =>
-      '<div id="tokens-wrapper">' . theme_custom_formatter_token_help($form['field_types']['#default_value']) . '</div>',
+      '<div id="tokens-wrapper">' . theme('custom_formatters_token_help', $form['field_types']['#default_value']) . '</div>',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
@@ -305,10 +328,10 @@ function custom_formatters_formatter_export_form_submit($form, &$form_state) {
   $form_state['storage']['module'] = $form_state['values']['module'];
 }
 
-function custom_formatter_token_help() {
+function custom_formatters_token_help() {
   drupal_json(array(
     'status' => TRUE,
-    'data' => theme_custom_formatter_token_help($_POST['field_types'])
+    'data' => theme_custom_formatters_token_help($_POST['field_types'])
   ));
 }
 
@@ -324,11 +347,11 @@ function custom_formatter_token_help() {
  *    The suffix your module will use when parsing tokens. Defaults to ']'
  * @return An HTML table containing the formatting docs.
  */
-function theme_custom_formatter_token_help($formatter = NULL, $prefix = '[', $suffix = ']') {
+function theme_custom_formatters_token_help($formatter = NULL, $prefix = '[', $suffix = ']') {
   token_include();
   $fields = _content_field_types();
   $module = $fields[$formatter]['module'];
-  if (function_exists($function = $module . '_token_list')) {
+  if (function_exists($function = "{$module}_token_list")) {
     $tokens = $function('field');
     $tokens += token_get_list('global');
   }
@@ -346,6 +369,117 @@ function theme_custom_formatter_token_help($formatter = NULL, $prefix = '[', $su
   }
 
   return theme('table', $headers, $rows, array('class' => 'description'));
+}
+
+/**
+ * Menu callback; Retrieve a JSON object containing Custom Formatter preview.
+ */
+function custom_formatters_preview() {
+  $_POST['field_types'] = serialize(explode(', ', $_POST['field_types']));
+  $_POST['mode'] = $_POST['mode_value'];
+  unset($_POST['form_build_id'], $_POST['form_token'], $_POST['form_id'], $_POST['op'], $_POST['mode_value']);
+
+  $output = theme('custom_formatters_preview', (object) $_POST);
+  drupal_json(array(
+    'status' => TRUE,
+    'data' => theme('status_messages') . $output,
+  ));
+}
+
+function theme_custom_formatters_preview($formatter) {
+  module_load_include('inc', 'devel_generate');
+  include_once(drupal_get_path('module', 'content') . '/includes/content.devel.inc');
+  $output = '';
+
+  $fields = _content_field_types();
+  foreach (unserialize($formatter->field_types) as $field_type) {
+    $module = $fields[$field_type]['module'];
+
+    $field = array(
+      'type' => $field_type,
+      'widget' => array(
+        'module' => '_custom_formatters',
+        'type' => $formatter->multiple ? 'multiple' : 'single',
+      ),
+      'multiple' => 1,
+    );
+    // Invoke hook_custom_formatters_field_prepare().
+    if (function_exists($function = "{$module}_custom_formatters_{$field_type}_prepare")) {
+      $field = _custom_formatters_array_merge_recursive($function(), $field);
+    }
+
+    // Invoke hook_content_generate().
+    if (function_exists($function = "{$module}_content_generate")) {
+      $items = $function(array(), $field);
+    }
+
+    $element = array(
+      'items' => array(),
+      '#type' => 'content_field',
+      '#title' => $fields[$field_type]['label'],
+      '#custom_formatters' => TRUE,
+    );
+
+    if (!$formatter->multiple) {
+      $element['items'] = array(
+        '#formatter' => $formatter,
+        '#theme' => 'custom_formatters_formatter',
+        '#item' => $items,
+      );
+    }
+
+    else {
+      $element['items'] = array(
+        '#formatter' => $formatter,
+        '#theme' => 'custom_formatters_formatter',
+      );
+      foreach ($items as $item) {
+        $element['items'][] = array(
+          '#item' => $item,
+        );
+      }
+    }
+
+    $output .= drupal_render($element);
+  }
+
+  return $output;
+}
+
+function custom_formatters_preprocess_content_field(&$variables) {
+  if ($variables['element']['#custom_formatters']) {
+    $variables['field_type_css'] = 'custom_formatter-preview';
+    $variables['field_name_css'] = 'custom_formatter-preview';
+    $variables['label'] = $variables['element']['#title'];
+    $variables['label_display'] = 'above';
+  }
+}
+
+function _custom_formatters_array_merge_recursive() {
+  $args = func_get_args();
+  $a = array_shift($args);
+
+  foreach ($args as $b) {
+    foreach ($b as $key => $val) {
+      if (is_array($val) && is_array($a[$key])) {
+        $b[$key] = _custom_formatters_array_merge_recursive($a[$key], $val);
+      }
+    }
+    $a = array_merge($a, $b);
+  }
+
+  return $a;
+}
+
+function _custom_formatters_widget_info() {
+  return array(
+    'single' => array(
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+    'multiple' => array(
+      'multiple values' => CONTENT_HANDLE_MODULE,
+    ),
+  );
 }
 
 /**

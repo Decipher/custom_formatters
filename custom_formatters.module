@@ -19,11 +19,9 @@ function custom_formatters_help($path, $arg) {
       $output .= '<p>' . t('The advanced formatter editor supports multiple CCK field types and multiple values in a single formatter, but as it is PHP based the user will require a basic knowledge of !php and the !drupalapi.', array('!php' => l(t('PHP'), 'http://www.php.net'), '!drupalapi' => l(t('Drupal API'), 'http://api.drupal.org'))) . '</p>';
       $output .= '<p>&nbsp;</p><h2>' . t('Tips & Tricks for Advanced formatters') . '</h2>';
       $output .= '<ul><li>' . t('Before you can create an advanced formatter, you need to know what variables you have to work with, the easiest way to determine this information is by doing the following:');
-      $output .= '<ol><li>' . t('Install and enable the !devel module.', array('!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))) . '</li>';
+      $output .= '<ol><li>' . t('Install and enable the !devel module and the !devel_generate sub-module.', array('!devel' => l(t('Devel'), 'http://drupal.org/project/devel'), '!devel_generate' => '<strong>' . t('Devel generate') . '</strong>')) . '</li>';
       $output .= '<li>' . t('Create a new formatter containing the following code:') . '<br /><code>dpm($element);</code></li>';
-      $output .= '<li>' . t('Setup a Content type with a CCK field type as defined in yout formatter and set the display of the field to use said formatter.') . '</li>';
-      $output .= '<li>' . t('Create a node of the above content type, making sure that the CCK field used by your formatter is populated with sample data.') . '</li>';
-      $output .= '<li>' . t('On the new node you their will be an information display of the entire contents of the $element variable.') . '</li></ol></li>';
+      $output .= '<li>' . t('Hit the !preview button.', array('!preview' => '<strong>' . t('Preview') . '</strong>')) . '</li></ol></li>';
       $output .= '<li>' . t('As mentioned above, the code for formatters with %multiple option disabled is different than with it enabled, this is due to the structure of the $element variable. The following code snippets are basic templates for handling these two variations:', array('%multiple' => t('Handle multiple values')));
       $output .= '<br /><br /><strong>' . t('With %multiple disabled:', array('%multiple' => t('Handle multiple values'))) . '</strong><br /><code>$output = \'\';<br />if ($element[\'#item\']) {<br />&nbsp;&nbsp;// Formatter code goes here.<br />}<br />return $output;</code>';
       $output .= '<br /><br /><strong>' . t('With %multiple enabled:', array('%multiple' => t('Handle multiple values'))) . '</strong><br /><code>$output = \'\';<br />foreach (element_children($element) as $key) {<br />&nbsp;&nbsp;if ($element[$key][\'#item\']) {<br />&nbsp;&nbsp;&nbsp;&nbsp;// Formatter code goes here.<br />&nbsp;&nbsp;}<br />}<br />return $output;</code>';
@@ -56,6 +54,12 @@ function custom_formatters_init() {
  */
 function custom_formatters_theme() {
   $theme = array(
+    'custom_formatters_formatter' => array(
+      'arguments' => array(
+        'element' => NULL
+      ),
+    ),
+
     'custom_formatters_export' => array(
       'arguments' => array(
         'formatter' => NULL,
@@ -66,6 +70,11 @@ function custom_formatters_theme() {
 
     'custom_formatters_token_help' => array(
       'arguments' => array('formatter' => NULL, 'prefix' => '[', 'suffix' => ']'),
+      'file' => 'custom_formatters.admin.inc',
+    ),
+
+    'custom_formatters_preview' => array(
+      'arguments' => array('formatter' => NULL),
       'file' => 'custom_formatters.admin.inc',
     ),
   );
@@ -157,7 +166,14 @@ function custom_formatters_menu() {
   $items['js/formatters/tokens'] = array(
     'title' => 'Formatters tokens',
     'file' => 'custom_formatters.admin.inc',
-    'page callback' => 'custom_formatter_token_help',
+    'page callback' => 'custom_formatters_token_help',
+    'access arguments' => array('administer custom formatters'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['js/formatters/preview'] = array(
+    'title' => 'Formatters preview',
+    'file' => 'custom_formatters.admin.inc',
+    'page callback' => 'custom_formatters_preview',
     'access arguments' => array('administer custom formatters'),
     'type' => MENU_CALLBACK,
   );
@@ -274,11 +290,11 @@ function custom_formatters_field_formatter_info() {
 }
 
 function theme_custom_formatters_formatter($element) {
-  $formatter = custom_formatters_formatter_by_name($element['#formatter']);
+  $formatter = is_object($element['#formatter']) ? $element['#formatter'] : custom_formatters_formatter_by_name($element['#formatter']);
 
   switch ($formatter->mode) {
     case 'basic':
-      $output = token_replace($formatter->code, 'field', array($element['#item']));
+      $output = _custom_formatters_token_replace($formatter->code, 'field', array($element['#item']));
       break;
 
     case 'advanced':
@@ -290,4 +306,12 @@ function theme_custom_formatters_formatter($element) {
   }
 
   return $output;
+}
+
+function _custom_formatters_token_replace($original, $type = 'global', $object = NULL, $leading = '[', $trailing = ']', $options = array()) {
+  $full = token_get_values($type, $object, FALSE, $options);
+  foreach ($full->values as &$value) {
+    $value = is_array($value) ? $value[count($value) - 1] : $value;
+  }
+  return _token_replace_tokens($original, $full->tokens, $full->values, $leading, $trailing);
 }
