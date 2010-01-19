@@ -17,3 +17,13 @@ function filefield_custom_formatters_filefield_prepare() {
     ),
   );
 }
+
+/**
+ * Implements hook_custom_formatters_field_tokens().
+ */
+function filefield_custom_formatters_filefield_tokens() {
+  return array(
+    'filefield_paths',
+    'file_aliases',
+  );
+}

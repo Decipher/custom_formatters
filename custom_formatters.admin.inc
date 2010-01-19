@@ -339,22 +339,32 @@ function custom_formatters_token_help() {
  * For a given context, builds a formatted list of tokens and descriptions
  * of their replacement values.
  *
- * @param formatter
- *    The formatter the token display documentation is required for.
+ * @param field
+ *    The field type the token display documentation is required for.
  * @param prefix
  *    The prefix your module will use when parsing tokens. Defaults to '['
  * @param suffix
  *    The suffix your module will use when parsing tokens. Defaults to ']'
  * @return An HTML table containing the formatting docs.
  */
-function theme_custom_formatters_token_help($formatter = NULL, $prefix = '[', $suffix = ']') {
-  token_include();
+function theme_custom_formatters_token_help($field = NULL, $prefix = '[', $suffix = ']') {
+  $tokens = array();
   $fields = _content_field_types();
-  $module = $fields[$formatter]['module'];
-  if (function_exists($function = "{$module}_token_list")) {
-    $tokens = $function('field');
-    $tokens += token_get_list('global');
+  $module = $fields[$field]['module'];
+
+  // Build tokens list.
+  foreach (_custom_formatters_tokens_list($field) as $module) {
+    if (function_exists($function = "{$module}_token_list")) {
+      $tokens = array_merge_recursive($tokens, $function('field'));
+    }
   }
+  $tokens = array_merge($tokens, token_get_list('node'));
+  // Prepend node tokens with 'node-' to prevent namespace conflicts.
+  $tokens['node'] = array_flip($tokens['node']);
+  foreach ($tokens['node'] as &$token) {
+    $token = 'node-' . $token;
+  }
+  $tokens['node'] = array_flip($tokens['node']);
 
   $headers = array(t('Token'), t('Replacement value'));
   $rows = array();
@@ -391,6 +401,23 @@ function theme_custom_formatters_preview($formatter) {
   include_once(drupal_get_path('module', 'content') . '/includes/content.devel.inc');
   $output = '';
 
+  // Build temporary node object.
+  $node = new stdClass;
+  $node->type = array_rand(devel_generate_content_types());
+  module_load_include('inc', 'node', 'node.pages');
+  node_object_prepare($node);
+  $users = $results['users'];
+  $node->uid = $users[array_rand($users)];
+  $node->title = devel_create_greeking(mt_rand(1, $results['title_length']), TRUE);
+  $node->body = "node ($node->type) - ". devel_create_content();
+  $node->teaser = node_teaser($node->body);
+  $node->filter = variable_get('filter_default_format', 1);
+  $node->format = FILTER_FORMAT_DEFAULT;
+  $node->language = '';
+  $node->revision = mt_rand(0,1);
+  $node->promote = mt_rand(0, 1);
+  $node->created = time() - mt_rand(0, $results['time_range']);
+
   $fields = _content_field_types();
   foreach (unserialize($formatter->field_types) as $field_type) {
     $module = $fields[$field_type]['module'];
@@ -410,7 +437,7 @@ function theme_custom_formatters_preview($formatter) {
 
     // Invoke hook_content_generate().
     if (function_exists($function = "{$module}_content_generate")) {
-      $items = $function(array(), $field);
+      $items = $function((array) $node, $field);
     }
 
     $element = array(
@@ -425,6 +452,7 @@ function theme_custom_formatters_preview($formatter) {
         '#formatter' => $formatter,
         '#theme' => 'custom_formatters_formatter',
         '#item' => $items,
+        '#node' => $node,
       );
     }
 
@@ -432,6 +460,7 @@ function theme_custom_formatters_preview($formatter) {
       $element['items'] = array(
         '#formatter' => $formatter,
         '#theme' => 'custom_formatters_formatter',
+        '#node' => $node,
       );
       foreach ($items as $item) {
         $element['items'][] = array(

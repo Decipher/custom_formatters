@@ -4,6 +4,8 @@ Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
 -------------------------------------
 
 - #686030: Added Preview feature.
+- Added hook to display additional tokens in the basic editor tokens list.
+- Added node tokens to basic editor.
 
 
 Custom Formatters 6.x-1.2, 2010-01-15

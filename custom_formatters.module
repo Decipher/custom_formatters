@@ -294,7 +294,7 @@ function theme_custom_formatters_formatter($element) {
 
   switch ($formatter->mode) {
     case 'basic':
-      $output = _custom_formatters_token_replace($formatter->code, 'field', array($element['#item']));
+      $output = _custom_formatters_token_replace($formatter, $element);
       break;
 
     case 'advanced':
@@ -308,10 +308,38 @@ function theme_custom_formatters_formatter($element) {
   return $output;
 }
 
-function _custom_formatters_token_replace($original, $type = 'global', $object = NULL, $leading = '[', $trailing = ']', $options = array()) {
-  $full = token_get_values($type, $object, FALSE, $options);
-  foreach ($full->values as &$value) {
-    $value = is_array($value) ? $value[count($value) - 1] : $value;
+function _custom_formatters_token_replace($formatter, $element) {
+  $tokens = array();
+  $full = token_get_values('node', $element['#node']);
+  $node_tokens = node_token_values('node', $element['#node']);
+  // Prepend node tokens with 'node-' to prevent namespace conflicts.
+  foreach ($node_tokens as $token => $value) {
+   $full->tokens[array_search($token, $full->tokens)] = 'node-' . $token;
   }
-  return _token_replace_tokens($original, $full->tokens, $full->values, $leading, $trailing);
+  foreach (_custom_formatters_tokens_list(implode(unserialize($formatter->field_types))) as $module) {
+    // Invoke hook_token_values().
+    if (function_exists($function = "{$module}_token_values")) {
+      $tokens = array_merge($tokens, $function('field', array($element['#item'])));
+    }
+  }
+  $full->tokens = array_merge($full->tokens, array_keys($tokens));
+  $full->values = array_merge($full->values, array_values($tokens));
+
+  return _token_replace_tokens($formatter->code, $full->tokens, $full->values, '[', ']');
+}
+
+function _custom_formatters_tokens_list($field, $fields, $module) {
+  token_include();
+  $tokens_list = array();
+  $fields = _content_field_types();
+  $module = $fields[$field]['module'];
+
+  // Build list of modules with supported tokens.
+  if (function_exists("{$module}_token_list")) {
+    $tokens_list[] = $module;
+  }
+  // Invoke hook_custom_formatters_field_tokens().
+  $tokens_list = array_merge($tokens_list, module_invoke_all("custom_formatters_{$field}_tokens"));
+
+  return array_unique($tokens_list);
 }
