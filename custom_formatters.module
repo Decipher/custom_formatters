@@ -69,7 +69,7 @@ function custom_formatters_theme() {
     ),
 
     'custom_formatters_token_help' => array(
-      'arguments' => array('formatter' => NULL, 'prefix' => '[', 'suffix' => ']'),
+      'arguments' => array('field' => NULL, 'prefix' => '[', 'suffix' => ']'),
       'file' => 'custom_formatters.admin.inc',
     ),
 
@@ -310,25 +310,26 @@ function theme_custom_formatters_formatter($element) {
 
 function _custom_formatters_token_replace($formatter, $element) {
   $tokens = array();
+  unset($element['#node']->content);
   $full = token_get_values('node', $element['#node']);
   $node_tokens = node_token_values('node', $element['#node']);
   // Prepend node tokens with 'node-' to prevent namespace conflicts.
   foreach ($node_tokens as $token => $value) {
-   $full->tokens[array_search($token, $full->tokens)] = 'node-' . $token;
+    $full->tokens[array_search($token, $full->tokens)] = 'node-' . $token;
   }
   foreach (_custom_formatters_tokens_list(implode(unserialize($formatter->field_types))) as $module) {
     // Invoke hook_token_values().
-    if (function_exists($function = "{$module}_token_values")) {
+    if (function_exists($function = "{$module}_token_values") && $function('field', array($element['#item'])) != $function('field', array(array()))) {
       $tokens = array_merge($tokens, $function('field', array($element['#item'])));
     }
   }
   $full->tokens = array_merge($full->tokens, array_keys($tokens));
   $full->values = array_merge($full->values, array_values($tokens));
 
-  return _token_replace_tokens($formatter->code, $full->tokens, $full->values, '[', ']');
+  return count($tokens) != 0 ? _token_replace_tokens($formatter->code, $full->tokens, $full->values, '[', ']') : '';
 }
 
-function _custom_formatters_tokens_list($field, $fields, $module) {
+function _custom_formatters_tokens_list($field) {
   token_include();
   $tokens_list = array();
   $fields = _content_field_types();

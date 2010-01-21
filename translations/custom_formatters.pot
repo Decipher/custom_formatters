@@ -3,8 +3,8 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  custom_formatters.admin.inc,v 1.2.2.1 2010/01/15 06:05:39 deciphered
-#  custom_formatters.module,v 1.2.2.2 2010/01/15 06:05:39 deciphered
+#  custom_formatters.admin.inc,v 1.2.2.3 2010/01/19 05:47:19 deciphered
+#  custom_formatters.module,v 1.2.2.4 2010/01/19 05:47:19 deciphered
 #  insert.inc,v 1.1.2.2 2010/01/15 06:05:39 deciphered
 #  custom_formatters.info,v 1.2.2.2 2010/01/15 06:05:39 deciphered
 #
@@ -12,7 +12,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2010-01-18 15:06+1100\n"
+"POT-Creation-Date: 2010-01-21 15:36+1100\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -177,15 +177,15 @@ msgstr ""
 msgid "Module name"
 msgstr ""
 
-#: custom_formatters.admin.inc:359 custom_formatters.module:17
+#: custom_formatters.admin.inc:369 custom_formatters.module:17
 msgid "Token"
 msgstr ""
 
-#: custom_formatters.admin.inc:359
+#: custom_formatters.admin.inc:369
 msgid "Replacement value"
 msgstr ""
 
-#: custom_formatters.admin.inc:362
+#: custom_formatters.admin.inc:372
 msgid "tokens"
 msgstr ""
 

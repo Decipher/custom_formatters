@@ -3,9 +3,13 @@
 Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
 -------------------------------------
 
+- #690948: Fixed issue where basic formatters where processed when fields were empty.
 - #686030: Added Preview feature.
+- #671532: Fixed issue with overly argumentative function.
 - Added hook to display additional tokens in the basic editor tokens list.
 - Added node tokens to basic editor.
+- Fixed issue where using a basic formatter prevented further fields being formatted.
+- Improved node tokens preview.
 
 
 Custom Formatters 6.x-1.2, 2010-01-15

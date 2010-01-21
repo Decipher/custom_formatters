@@ -406,7 +406,9 @@ function theme_custom_formatters_preview($formatter) {
   $node->type = array_rand(devel_generate_content_types());
   module_load_include('inc', 'node', 'node.pages');
   node_object_prepare($node);
+  devel_generate_content_pre_node($results);
   $users = $results['users'];
+  $node->nid = rand(1, 3);
   $node->uid = $users[array_rand($users)];
   $node->title = devel_create_greeking(mt_rand(1, $results['title_length']), TRUE);
   $node->body = "node ($node->type) - ". devel_create_content();
@@ -414,7 +416,7 @@ function theme_custom_formatters_preview($formatter) {
   $node->filter = variable_get('filter_default_format', 1);
   $node->format = FILTER_FORMAT_DEFAULT;
   $node->language = '';
-  $node->revision = mt_rand(0,1);
+  $node->revision = mt_rand(0, 1);
   $node->promote = mt_rand(0, 1);
   $node->created = time() - mt_rand(0, $results['time_range']);
 
