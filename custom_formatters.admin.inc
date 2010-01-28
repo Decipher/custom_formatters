@@ -6,7 +6,7 @@
  */
 
 function custom_formatters_overview() {
-  $header = array(t('Label'), t('Field Types'), t('Actions'));
+  $header = array(t('Label'), t('Field types'), t('Actions'));
   $rows = array();
 
   foreach (custom_formatters_formatters() as $formatter) {
@@ -345,17 +345,20 @@ function custom_formatters_token_help() {
  *    The prefix your module will use when parsing tokens. Defaults to '['
  * @param suffix
  *    The suffix your module will use when parsing tokens. Defaults to ']'
- * @return An HTML table containing the formatting docs.
+ * @return
+ *    An HTML table containing the formatting docs.
  */
 function theme_custom_formatters_token_help($field = NULL, $prefix = '[', $suffix = ']') {
   $tokens = array();
   $fields = _content_field_types();
-  $module = $fields[$field]['module'];
+  if (!empty($fields)) {
+    $module = $fields[$field]['module'];
 
-  // Build tokens list.
-  foreach (_custom_formatters_tokens_list($field) as $module) {
-    if (function_exists($function = "{$module}_token_list")) {
-      $tokens = array_merge_recursive($tokens, $function('field'));
+    // Build tokens list.
+    foreach (_custom_formatters_tokens_list($field) as $module) {
+      if (function_exists($function = "{$module}_token_list")) {
+        $tokens = array_merge_recursive($tokens, $function('field'));
+      }
     }
   }
   $tokens = array_merge($tokens, token_get_list('node'));
@@ -410,68 +413,70 @@ function theme_custom_formatters_preview($formatter) {
   $users = $results['users'];
   $node->nid = rand(1, 3);
   $node->uid = $users[array_rand($users)];
-  $node->title = devel_create_greeking(mt_rand(1, $results['title_length']), TRUE);
-  $node->body = "node ($node->type) - ". devel_create_content();
+  $node->title = devel_create_greeking(mt_rand(1, 8), TRUE);
+  $node->body = "node ($node->type) - " . devel_create_content();
   $node->teaser = node_teaser($node->body);
   $node->filter = variable_get('filter_default_format', 1);
   $node->format = FILTER_FORMAT_DEFAULT;
   $node->language = '';
   $node->revision = mt_rand(0, 1);
   $node->promote = mt_rand(0, 1);
-  $node->created = time() - mt_rand(0, $results['time_range']);
+  $node->created = time() - mt_rand(0, 604800);
 
   $fields = _content_field_types();
-  foreach (unserialize($formatter->field_types) as $field_type) {
-    $module = $fields[$field_type]['module'];
+  if (isset($formatter)) {
+    foreach (unserialize($formatter->field_types) as $field_type) {
+      $module = $fields[$field_type]['module'];
 
-    $field = array(
-      'type' => $field_type,
-      'widget' => array(
-        'module' => '_custom_formatters',
-        'type' => $formatter->multiple ? 'multiple' : 'single',
-      ),
-      'multiple' => 1,
-    );
-    // Invoke hook_custom_formatters_field_prepare().
-    if (function_exists($function = "{$module}_custom_formatters_{$field_type}_prepare")) {
-      $field = _custom_formatters_array_merge_recursive($function(), $field);
-    }
-
-    // Invoke hook_content_generate().
-    if (function_exists($function = "{$module}_content_generate")) {
-      $items = $function((array) $node, $field);
-    }
-
-    $element = array(
-      'items' => array(),
-      '#type' => 'content_field',
-      '#title' => $fields[$field_type]['label'],
-      '#custom_formatters' => TRUE,
-    );
-
-    if (!$formatter->multiple) {
-      $element['items'] = array(
-        '#formatter' => $formatter,
-        '#theme' => 'custom_formatters_formatter',
-        '#item' => $items,
-        '#node' => $node,
+      $field = array(
+        'type' => $field_type,
+        'widget' => array(
+          'module' => '_custom_formatters',
+          'type' => $formatter->multiple ? 'multiple' : 'single',
+        ),
+        'multiple' => 1,
       );
-    }
+      // Invoke hook_custom_formatters_field_prepare().
+      if (function_exists($function = "{$module}_custom_formatters_{$field_type}_prepare")) {
+        $field = _custom_formatters_array_merge_recursive($function(), $field);
+      }
 
-    else {
-      $element['items'] = array(
-        '#formatter' => $formatter,
-        '#theme' => 'custom_formatters_formatter',
-        '#node' => $node,
+      // Invoke hook_content_generate().
+      if (function_exists($function = "{$module}_content_generate")) {
+        $items = $function((array) $node, $field);
+      }
+
+      $element = array(
+        'items' => array(),
+        '#type' => 'content_field',
+        '#title' => $fields[$field_type]['label'],
+        '#custom_formatters' => TRUE,
       );
-      foreach ($items as $item) {
-        $element['items'][] = array(
-          '#item' => $item,
+
+      if (!$formatter->multiple) {
+        $element['items'] = array(
+          '#formatter' => $formatter,
+          '#theme' => 'custom_formatters_formatter',
+          '#item' => $items,
+          '#node' => $node,
         );
       }
-    }
 
-    $output .= drupal_render($element);
+      else {
+        $element['items'] = array(
+          '#formatter' => $formatter,
+          '#theme' => 'custom_formatters_formatter',
+          '#node' => $node,
+        );
+        foreach ($items as $item) {
+          $element['items'][] = array(
+            '#item' => $item,
+          );
+        }
+      }
+
+      $output .= drupal_render($element);
+    }
   }
 
   return $output;
@@ -514,7 +519,8 @@ function _custom_formatters_widget_info() {
 }
 
 /**
- * Menu callback; Retrieve a JSON object containing autocomplete suggestions for cck widgets.
+ * Menu callback; Retrieve a JSON object containing autocomplete suggestions
+ * for cck widgets.
  */
 function custom_formatters_autocomplete($string = '') {
   // The user enters a comma-separated list of fields. We only autocomplete the last tag.
