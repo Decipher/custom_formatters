@@ -110,7 +110,8 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
       $form['preview'] = array(
         '#type' => 'fieldset',
         '#title' => t('Preview'),
-        '#description' => '<div id="preview-wrapper">' . theme('custom_formatters_preview', $formatter) . '</div>',
+        '#description' => '<div id="preview-wrapper">' . theme('custom_formatters_preview', $formatter) . '</div>'
+          . '&nbsp;<p><em><strong>' . t('Note') . ':</strong> ' . t('Be aware that previews are only available if a module provides support for !develgen and is not guaranteed to be an exact representation of the formatter. It is recommended to test the formatter on an active node for the best results.', array('!develgen' => '<strong>' . t('Devel Generate') . '</strong>')) . '</em></p>',
         '#collapsible' => TRUE,
       );
       $form['buttons']['preview'] = array(

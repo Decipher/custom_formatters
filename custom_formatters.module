@@ -297,8 +297,25 @@ function custom_formatters_field_formatter_info() {
 }
 
 function theme_custom_formatters_formatter($element) {
-  $formatter = is_object($element['#formatter']) ? $element['#formatter'] : custom_formatters_formatter_by_name($element['#formatter']);
+  // @todo Add back the formatted values in the 'view' element.
+  // @see content_field('alter').
+  //content_field('alter', $element['#node'], array('field_name' => $element['#field_name']), $items = array($element['#item']), '', '');
+  global $theme_path, $theme_info, $conf;
 
+  // Store current theme path.
+  $old_theme_path = $theme_path;
+
+  // Restore theme_path to the theme, as long as drupal_eval() executes,
+  // so code evaluted will not see the caller module as the current theme.
+  // If theme info is not initialized get the path from theme_default.
+  if (!isset($theme_info)) {
+    $theme_path = drupal_get_path('theme', $conf['theme_default']);
+  }
+  else {
+    $theme_path = dirname($theme_info->filename);
+  }
+
+  $formatter = is_object($element['#formatter']) ? $element['#formatter'] : custom_formatters_formatter_by_name($element['#formatter']);
   switch ($formatter->mode) {
     case 'basic':
       $output = _custom_formatters_token_replace($formatter, $element);
@@ -311,6 +328,9 @@ function theme_custom_formatters_formatter($element) {
       ob_end_clean();
       break;
   }
+
+  // Recover original theme path.
+  $theme_path = $old_theme_path;
 
   return $output;
 }
@@ -338,7 +358,7 @@ function _custom_formatters_token_replace($formatter, $element) {
 
 function _custom_formatters_tokens_list($field) {
   token_include();
-  $tokens_list = array();
+  $tokens_list = array('custom_formatters');
   $fields = _content_field_types();
   $module = $fields[$field]['module'];
 

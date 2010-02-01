@@ -53,3 +53,11 @@ issues.
 
 And as always, be sure to run update.php after updating Custom Formatters.
 http://[www.yoursite.com/path/to/drupal]/update.php
+
+
+Developers
+-------------------
+
+Please refer to DEVELOPERS.txt for information on provided improved support for
+your modules defined CCK fields with the Custom Formatters module.
+
