@@ -54,6 +54,11 @@ function custom_formatters_init() {
  */
 function custom_formatters_theme() {
   $theme = array(
+    'custom_formatters_overview' => array(
+      'arguments' => array('form' => NULL),
+      'file' => 'custom_formatters.admin.inc',
+    ),
+
     'custom_formatters_formatter' => array(
       'arguments' => array(
         'element' => NULL
@@ -62,7 +67,7 @@ function custom_formatters_theme() {
 
     'custom_formatters_export' => array(
       'arguments' => array(
-        'formatter' => NULL,
+        'formatters' => NULL,
         'name' => NULL,
       ),
       'template' => 'custom_formatters_export',
@@ -98,7 +103,8 @@ function custom_formatters_menu() {
     'title' => 'Custom Formatters',
     'description' => 'Configure custom CCK formatter templates.',
     'file' => 'custom_formatters.admin.inc',
-    'page callback' => 'custom_formatters_overview',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_formatters_overview'),
     'access arguments' => array('administer custom formatters'),
   );
   $items['admin/settings/formatters/list'] = array(
@@ -212,7 +218,7 @@ function custom_formatters_formatter_title_callback($title, $formatter = array()
  * @return
  *   array of formatters.
  */
-function custom_formatters_formatters($reset = FALSE) {
+function custom_formatters_formatters($reset = FALSE, $limit = 0) {
   static $formatters = array();
 
   // Clear caches if $reset is TRUE;
@@ -227,7 +233,8 @@ function custom_formatters_formatters($reset = FALSE) {
   }
 
   // Build the array.
-  $result = db_query('SELECT * FROM {formatters} ORDER BY label');
+  $query = 'SELECT * FROM {formatters} ORDER BY label';
+  $result = !$limit ? db_query($query) : pager_query($query, $limit);
   while ($formatter = db_fetch_object($result)) {
     $formatters[$formatter->cfid] = $formatter;
   }

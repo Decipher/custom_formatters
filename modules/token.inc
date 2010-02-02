@@ -28,7 +28,9 @@ function custom_formatters_token_list($type = 'all') {
 /**
  * Implements hook_token_values().
  */
-function custom_formatters_token_values($type, $object) {
+function custom_formatters_token_values($type, $object = array()) {
+  $values = array();
+
   switch ($type) {
     case 'global':
       $values['path-to-theme'] = path_to_theme();
