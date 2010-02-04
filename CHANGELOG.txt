@@ -1,5 +1,12 @@
 // $Id$
 
+Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
+-------------------------------------------
+
+- #691010: Added support for the Node displays module.
+- Fixed a bunch of PHP notices.
+
+
 Custom Formatters 6.x-1.4-beta1, 2010-02-02
 -------------------------------------------
 

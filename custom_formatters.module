@@ -90,6 +90,7 @@ function custom_formatters_theme() {
       'function' => 'theme_custom_formatters_formatter',
     );
   }
+
   return $theme;
 }
 
@@ -304,9 +305,6 @@ function custom_formatters_field_formatter_info() {
 }
 
 function theme_custom_formatters_formatter($element) {
-  // @todo Add back the formatted values in the 'view' element.
-  // @see content_field('alter').
-  //content_field('alter', $element['#node'], array('field_name' => $element['#field_name']), $items = array($element['#item']), '', '');
   global $theme_path, $theme_info, $conf;
 
   // Store current theme path.
@@ -322,10 +320,22 @@ function theme_custom_formatters_formatter($element) {
     $theme_path = dirname($theme_info->filename);
   }
 
+  // Give modules a chance to alter the formatter element.
+  drupal_alter('custom_formatters_formatter_element', $element);
+
+  $output = '';
   $formatter = is_object($element['#formatter']) ? $element['#formatter'] : custom_formatters_formatter_by_name($element['#formatter']);
   switch ($formatter->mode) {
     case 'basic':
-      $output = _custom_formatters_token_replace($formatter, $element);
+      // Attach 'view' to field item.
+      $info = _content_type_info();
+      if (isset($element['#field_name']) && isset($info['fields'][$element['#field_name']])) {
+        $module = $info['fields'][$element['#field_name']]['module'];
+        $element['#item']['view'] = theme("{$module}_formatter_default", $element);
+      }
+      if (!isset($element['#item']['view']) || !empty($element['#item']['view'])) {
+        $output = _custom_formatters_token_replace($formatter, $element);
+      }
       break;
 
     case 'advanced':
@@ -344,7 +354,16 @@ function theme_custom_formatters_formatter($element) {
 
 function _custom_formatters_token_replace($formatter, $element) {
   $tokens = array();
-  unset($element['#node']->content);
+
+  if (isset($element['#node']->content)) {
+    // If the following is not done, basic formatters will cause all preceding
+    // fields to not be formatted. The code is completely illogical (IMHO), but
+    // it works.
+    $node_content = $element['#node']->content;
+    unset($element['#node']->content);
+    $element['#node']->content = $node_content;
+  }
+
   $full = token_get_values('node', $element['#node']);
   $node_tokens = node_token_values('node', $element['#node']);
   // Prepend node tokens with 'node-' to prevent namespace conflicts.
@@ -353,22 +372,24 @@ function _custom_formatters_token_replace($formatter, $element) {
   }
   foreach (_custom_formatters_tokens_list(implode(unserialize($formatter->field_types))) as $module) {
     // Invoke hook_token_values().
-    if (function_exists($function = "{$module}_token_values") && $function('field', array($element['#item'])) != $function('field', array(array()))) {
+    if (function_exists($function = "{$module}_token_values")) {
       $tokens = array_merge($tokens, $function('field', array($element['#item'])));
     }
   }
   $full->tokens = array_merge($full->tokens, array_keys($tokens));
   $full->values = array_merge($full->values, array_values($tokens));
 
-  return count($tokens) != 0 ? _token_replace_tokens($formatter->code, $full->tokens, $full->values, '[', ']') : '';
+  return _token_replace_tokens($formatter->code, $full->tokens, $full->values, '[', ']');
 }
 
 function _custom_formatters_tokens_list($field) {
   token_include();
   $tokens_list = array('custom_formatters');
   $fields = _content_field_types();
-  $module = $fields[$field]['module'];
+  // Give modules a chance to alter fields.
+  drupal_alter('custom_formatters_fields', $fields);
 
+  $module = $fields[$field]['module'];
   // Build list of modules with supported tokens.
   if (function_exists("{$module}_token_list")) {
     $tokens_list[] = $module;

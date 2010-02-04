@@ -12,7 +12,7 @@ function custom_formatters_overview($form_state) {
         return custom_formatters_bulk_delete_confirm($form_state, array_filter($form_state['values']['formatters']));
 
       case 'export':
-        drupal_set_title('Bulk Export');
+        drupal_set_title(t('Bulk export'));
         return custom_formatters_formatter_export_form($form_state, array_filter($form_state['values']['formatters']));
     }
   }
@@ -84,7 +84,6 @@ function theme_custom_formatters_overview($form) {
     }
   }
   else {
-    // @todo Test this.
     $rows[] = array(array('data' => t('No formatters available.'), 'colspan' => '4'));
   }
 
@@ -267,6 +266,9 @@ function custom_formatters_formatter_basic_editor_form($form_state, $formatter =
 
   $options = array();
   $fields = _content_field_types();
+  // Give modules a chance to alter fields.
+  drupal_alter('custom_formatters_fields', $fields);
+
   ksort($fields);
   foreach ($fields as $id => $field) {
     $options[$field['module']][$id] = $field['label'];
@@ -488,13 +490,13 @@ function custom_formatters_token_help() {
 function theme_custom_formatters_token_help($field = NULL, $prefix = '[', $suffix = ']') {
   $tokens = array();
   $fields = _content_field_types();
-  if (!empty($fields)) {
+  if (!empty($fields) && isset($fields[$field])) {
     $module = $fields[$field]['module'];
 
     // Build tokens list.
     foreach (_custom_formatters_tokens_list($field) as $module) {
       if (function_exists($function = "{$module}_token_list")) {
-        $tokens = array_merge_recursive($tokens, $function('field'));
+        $tokens = array_merge_recursive($function('field'), $tokens);
       }
     }
   }
@@ -560,59 +562,83 @@ function theme_custom_formatters_preview($formatter) {
   $node->promote = mt_rand(0, 1);
   $node->created = time() - mt_rand(0, 604800);
 
+  $info = content_types($node->type);
+  foreach ($info['fields'] as $key => $field) {
+    // @todo Add preview values using Devel Generate.
+    $node->{$key} = NULL;
+  }
+
   $fields = _content_field_types();
+  // Give modules a change to alter fields.
+  drupal_alter('custom_formatters_fields', $fields);
+
   if (isset($formatter)) {
     foreach (unserialize($formatter->field_types) as $field_type) {
-      $module = $fields[$field_type]['module'];
+      if (isset($fields[$field_type])) {
+        $module = $fields[$field_type]['module'];
 
-      $field = array(
-        'type' => $field_type,
-        'widget' => array(
-          'module' => '_custom_formatters',
-          'type' => $formatter->multiple ? 'multiple' : 'single',
-        ),
-        'multiple' => 1,
-      );
-      // Invoke hook_custom_formatters_field_prepare().
-      if (function_exists($function = "{$module}_custom_formatters_{$field_type}_prepare")) {
-        $field = _custom_formatters_array_merge_recursive($function(), $field);
-      }
-
-      // Invoke hook_content_generate().
-      if (function_exists($function = "{$module}_content_generate")) {
-        $items = $function((array) $node, $field);
-      }
-
-      $element = array(
-        'items' => array(),
-        '#type' => 'content_field',
-        '#title' => $fields[$field_type]['label'],
-        '#custom_formatters' => TRUE,
-      );
-
-      if (!$formatter->multiple) {
-        $element['items'] = array(
-          '#formatter' => $formatter,
-          '#theme' => 'custom_formatters_formatter',
-          '#item' => $items,
-          '#node' => $node,
+        $field = array(
+          'field_name' => NULL,
+          'type' => $field_type,
+          'multiple' => 1,
+          'widget' => array(
+            'module' => '_custom_formatters',
+            'type' => isset($formatter->multiple) && $formatter->multiple ? 'multiple' : 'single',
+          ),
         );
-      }
-
-      else {
-        $element['items'] = array(
-          '#formatter' => $formatter,
-          '#theme' => 'custom_formatters_formatter',
-          '#node' => $node,
-        );
-        foreach ($items as $item) {
-          $element['items'][] = array(
-            '#item' => $item,
-          );
+        // Invoke hook_custom_formatters_field_prepare().
+        if (function_exists($function = "{$module}_custom_formatters_{$field_type}_prepare")) {
+          $field = _custom_formatters_array_merge_recursive($function(), $field);
         }
-      }
 
-      $output .= drupal_render($element);
+        $items = array();
+        // Invoke hook_content_generate().
+        if (function_exists($function = "{$module}_content_generate")) {
+          $items = $function((array) $node, $field);
+        }
+
+        $element = array(
+          'items' => array(),
+          '#single' => FALSE,
+          '#title' => $fields[$field_type]['label'],
+          '#page' => TRUE,
+          '#field_name' => $fields[$field_type]['label'],
+          '#label_display' => 'above',
+          '#teaser' => FALSE,
+          '#node' => $node,
+          '#type' => 'content_field',
+          '#custom_formatters' => TRUE,
+        );
+
+        if (!isset($formatter->multiple) || !$formatter->multiple) {
+          $element['items'] = array(
+            '#formatter' => $formatter,
+            '#theme' => 'custom_formatters_formatter',
+            '#item' => $items,
+            '#node' => $node,
+          );
+
+          if ($formatter->mode == 'basic') {
+            $element['items']['#field_name'] = $fields[$field_type]['label'];
+            $element['items']['#item']['view'] = theme("{$module}_formatter_default", $element['items']);
+          }
+        }
+
+        else {
+          $element['items'] = array(
+            '#formatter' => $formatter,
+            '#theme' => 'custom_formatters_formatter',
+            '#node' => $node,
+          );
+          foreach ($items as $item) {
+            $element['items'][] = array(
+              '#item' => $item,
+            );
+          }
+        }
+
+        $output .= drupal_render($element);
+      }
     }
   }
 
@@ -634,7 +660,7 @@ function _custom_formatters_array_merge_recursive() {
 
   foreach ($args as $b) {
     foreach ($b as $key => $val) {
-      if (is_array($val) && is_array($a[$key])) {
+      if (is_array($val) && isset($a[$key]) && is_array($a[$key])) {
         $b[$key] = _custom_formatters_array_merge_recursive($a[$key], $val);
       }
     }
@@ -669,7 +695,11 @@ function custom_formatters_autocomplete($string = '') {
   if ($last_string != '') {
     $prefix = count($array) ? implode(', ', $array) . ', ' : '';
 
-    $fields = array_keys(_content_field_types());
+    $fields = _content_field_types();
+    // Give modules a chance to alter fields.
+    drupal_alter('custom_formatters_fields', $fields);
+
+    $fields = array_keys($fields);
     sort($fields);
     foreach ($fields as $field) {
       if (preg_match('/^' . drupal_strtolower($last_string) . '/', $field)) {

@@ -44,15 +44,13 @@ function custom_formatters_token_values($type, $object = array()) {
       break;
 
     case 'field':
-      if (!empty($object[0])) {
-        if (module_exists('filefield')) {
-          $file = $object[0];
-          $values['filefield-alt'] = $file['data']['alt'] ? $file['data']['alt'] : '';
-          $values['filefield-title'] = $file['data']['title'] ? $file['data']['title'] : '';
-          if (module_exists('imagecache')) {
-            foreach (imagecache_presets() as $preset) {
-              $values['filefield-imagecache-' . $preset['presetname']] = file_directory_path() . '/imagecache/' . $preset['presetname'] . str_replace(file_directory_path(), '', $file['filepath']);
-            }
+      if (module_exists('filefield')) {
+        $file = $object[0];
+        $values['filefield-alt'] = isset($file['data']) && isset($file['data']['alt']) ? $file['data']['alt'] : '';
+        $values['filefield-title'] = isset($file['data']) && isset($file['data']['title']) ? $file['data']['title'] : '';
+        if (module_exists('imagecache')) {
+          foreach (imagecache_presets() as $preset) {
+            $values['filefield-imagecache-' . $preset['presetname']] = file_directory_path() . '/imagecache/' . $preset['presetname'] . str_replace(file_directory_path(), '', $file['filepath']);
           }
         }
       }
