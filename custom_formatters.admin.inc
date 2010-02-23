@@ -229,6 +229,11 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
           . '&nbsp;<p><em><strong>' . t('Note') . ':</strong> ' . t('Be aware that previews are only available if a module provides support for !develgen and is not guaranteed to be an exact representation of the formatter. It is recommended to test the formatter on an active node for the best results.', array('!develgen' => '<strong>' . t('Devel Generate') . '</strong>')) . '</em></p>',
         '#collapsible' => TRUE,
       );
+      $form['preview']['node'] = array(
+        '#type' => 'radios',
+        '#title' => t('Preview node type'),
+        '#options' => devel_generate_content_types(),
+      );
       $form['buttons']['preview'] = array(
         '#type' => 'button',
         '#value' => t('Preview'),
@@ -249,7 +254,7 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
       '#submit' => array('custom_formatters_formatter_form_save'),
     );
 
-    if (!empty($formatter)) {
+    if ($op == 'edit') {
       $form['buttons']['delete'] = array(
         '#type' => 'submit',
         '#value' => t('Delete'),
@@ -545,7 +550,7 @@ function theme_custom_formatters_preview($formatter) {
 
   // Build temporary node object.
   $node = new stdClass;
-  $node->type = array_rand(devel_generate_content_types());
+  $node->type = isset($formatter->node) ? $formatter->node : array_rand(devel_generate_content_types());
   module_load_include('inc', 'node', 'node.pages');
   node_object_prepare($node);
   devel_generate_content_pre_node($results);
@@ -563,11 +568,6 @@ function theme_custom_formatters_preview($formatter) {
   $node->created = time() - mt_rand(0, 604800);
 
   $info = content_types($node->type);
-  foreach ($info['fields'] as $key => $field) {
-    // @todo Add preview values using Devel Generate.
-    $node->{$key} = NULL;
-  }
-
   $fields = _content_field_types();
   // Give modules a change to alter fields.
   drupal_alter('custom_formatters_fields', $fields);
@@ -595,6 +595,11 @@ function theme_custom_formatters_preview($formatter) {
         // Invoke hook_content_generate().
         if (function_exists($function = "{$module}_content_generate")) {
           $items = $function((array) $node, $field);
+          foreach ($info['fields'] as $key => $node_field) {
+            if ($node_field['type'] == $field['type']) {
+              $node->{$key} = array($items);
+            }
+          }
         }
 
         $element = array(
@@ -638,6 +643,11 @@ function theme_custom_formatters_preview($formatter) {
         }
 
         $output .= drupal_render($element);
+      }
+
+      else {
+        // Field type doesn't exist.
+        drupal_set_message(t("Field type %field_type does not exist or it's parent module is currently disabled.", array('%field_type' => $field_type)), 'warning');
       }
     }
   }

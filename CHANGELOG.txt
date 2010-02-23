@@ -1,10 +1,12 @@
 // $Id$
 
-Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
+Custom Formatters 6.x-1.4-beta2, 2010-02-23
 -------------------------------------------
 
+- #721526: Improved Preview functionality.
 - #691010: Added support for the Node displays module.
 - Fixed a bunch of PHP notices.
+- Removed 'Delete' button from clone form.
 
 
 Custom Formatters 6.x-1.4-beta1, 2010-02-02
