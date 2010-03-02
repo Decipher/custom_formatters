@@ -91,6 +91,12 @@ function custom_formatters_theme() {
     );
   }
 
+  // Invoke hook_custom_formatters_theme().
+  foreach (module_implements('custom_formatters_theme') as $module) {
+    $function = $module . '_custom_formatters_theme';
+    $function($theme);
+  }
+
   return $theme;
 }
 
@@ -284,6 +290,17 @@ function custom_formatters_formatter_by_name($name) {
   // Make sure $name isn't prefixed with 'custom_formatters_'.
   $name = (strpos($name, 'custom_formatters_') === 0) ? drupal_substr($name, 18) : $name;
   return (isset($formatters_by_name[$name])) ? $formatters_by_name[$name] : array();
+}
+
+/**
+ * Implements hook_form_alter();
+ */
+function custom_formatters_form_alter(&$form, &$form_state, $form_id) {
+  // Invoke hook_custom_formatters_form_alter().
+  foreach (module_implements('custom_formatters_form_alter') as $module) {
+    $function = $module . '_custom_formatters_form_alter';
+    $function($form, $form_state, $form_id);
+  }
 }
 
 /**

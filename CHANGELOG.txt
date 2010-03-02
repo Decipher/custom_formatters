@@ -1,24 +1,20 @@
 // $Id$
 
-Custom Formatters 6.x-1.4-beta2, 2010-02-23
--------------------------------------------
+Custom Formatters 6.x-1.4, 2010-03-02
+-------------------------------------
 
 - #721526: Improved Preview functionality.
+- #694814 by mauricemengel: Fixed error casued by custom_formatters_token_values().
 - #691010: Added support for the Node displays module.
+- Added two new hooks for future development.
+- Added bulk operations.
+- Added pager to overview.
 - Fixed a bunch of PHP notices.
 - Removed 'Delete' button from clone form.
 
 
-Custom Formatters 6.x-1.4-beta1, 2010-02-02
--------------------------------------------
-
-- #694814 by mauricemengel: Fixed error casued by custom_formatters_token_values().
-- Added bulk operations.
-- Added pager to overview.
-
-
 Custom Formatters 6.x-1.3, 2010-02-01
--------------------------------------------
+-------------------------------------
 
 - #694814: Fixed errors with undefined variables.
 - #690948: Fixed issue where basic formatters where processed when fields were empty.
@@ -35,14 +31,14 @@ Custom Formatters 6.x-1.3, 2010-02-01
 
 
 Custom Formatters 6.x-1.2, 2010-01-15
--------------------------------------------
+-------------------------------------
 
 - Added a basic HTML editor with Token support.
 - Added support for the Insert module.
 
 
 Custom Formatters 6.x-1.1, 2010-01-04
--------------------------------------------
+-------------------------------------
 
 - #671532: Fixed multiple warnings.
 - Added Clone feature.
@@ -54,7 +50,7 @@ Custom Formatters 6.x-1.1, 2010-01-04
 
 
 Custom Formatters 6.x-1.0, 2009-12-30
--------------------------------------------
+-------------------------------------
 
 - Initial 6.x release.
 

@@ -14,9 +14,13 @@ Features
   * Basic: A HTML based editor with Token support.
   * Advanced: A PHP based editor with support for multiple fields and multiple
     values.
+* Support for:
+  * Content Construction Kit (CCK)
+  * Views
+  * Display
 * Preview custom formatters during creation (requires Devel generate module).
 * Clone an existing custom formatter.
-* Export custom formatters (advanced formatters only at this stage).
+* Export custom formatters (advanced formatters only).
 * Support for the Insert module.
 
 
@@ -60,4 +64,3 @@ Developers
 
 Please refer to DEVELOPERS.txt for information on provided improved support for
 your modules defined CCK fields with the Custom Formatters module.
-

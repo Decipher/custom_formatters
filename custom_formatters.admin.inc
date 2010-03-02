@@ -225,14 +225,15 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
       $form['preview'] = array(
         '#type' => 'fieldset',
         '#title' => t('Preview'),
-        '#description' => '<div id="preview-wrapper">' . theme('custom_formatters_preview', $formatter) . '</div>'
-          . '&nbsp;<p><em><strong>' . t('Note') . ':</strong> ' . t('Be aware that previews are only available if a module provides support for !develgen and is not guaranteed to be an exact representation of the formatter. It is recommended to test the formatter on an active node for the best results.', array('!develgen' => '<strong>' . t('Devel Generate') . '</strong>')) . '</em></p>',
+        '#description' => '<div id="preview-wrapper">' . theme('custom_formatters_preview', $formatter) . '</div>',
         '#collapsible' => TRUE,
       );
       $form['preview']['node'] = array(
         '#type' => 'radios',
         '#title' => t('Preview node type'),
         '#options' => devel_generate_content_types(),
+        '#default_value' => array_shift(array_keys(devel_generate_content_types())),
+        '#description' => '<p><em><strong>' . t('Note') . ':</strong> ' . t('Be aware that previews are only available if a module provides support for !develgen and is not guaranteed to be an exact representation of the formatter. It is recommended to test the formatter on an active node for the best results.', array('!develgen' => '<strong>' . t('Devel Generate') . '</strong>')) . '</em></p>',
       );
       $form['buttons']['preview'] = array(
         '#type' => 'button',
@@ -550,7 +551,7 @@ function theme_custom_formatters_preview($formatter) {
 
   // Build temporary node object.
   $node = new stdClass;
-  $node->type = isset($formatter->node) ? $formatter->node : array_rand(devel_generate_content_types());
+  $node->type = isset($formatter->node) ? $formatter->node : array_shift(array_keys(devel_generate_content_types()));
   module_load_include('inc', 'node', 'node.pages');
   node_object_prepare($node);
   devel_generate_content_pre_node($results);
