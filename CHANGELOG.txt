@@ -1,5 +1,11 @@
 // $Id$
 
+Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
+-------------------------------------
+
+- Added support for CCKs Content Multigroup module.
+
+
 Custom Formatters 6.x-1.4, 2010-03-02
 -------------------------------------
 

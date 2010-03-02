@@ -15,9 +15,10 @@ Features
   * Advanced: A PHP based editor with support for multiple fields and multiple
     values.
 * Support for:
-  * Content Construction Kit (CCK)
-  * Views
-  * Display
+  * CCK fields.
+  * CCK 3.x Multigroups.
+  * Display Suite fields.
+  * Views.
 * Preview custom formatters during creation (requires Devel generate module).
 * Clone an existing custom formatter.
 * Export custom formatters (advanced formatters only).
