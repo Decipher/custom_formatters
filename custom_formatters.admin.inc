@@ -255,6 +255,12 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
       '#submit' => array('custom_formatters_formatter_form_save'),
     );
 
+    $form['buttons']['edit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save & Edit'),
+      '#submit' => array('custom_formatters_formatter_form_save_edit'),
+    );
+
     if ($op == 'edit') {
       $form['buttons']['delete'] = array(
         '#type' => 'submit',
@@ -378,8 +384,12 @@ function custom_formatters_formatter_form_save($form, &$form_state) {
   }
 
   custom_formatters_clear_cache();
-  $form_state['redirect'] = 'admin/settings/formatters';
   unset($form_state['storage']);
+}
+
+function custom_formatters_formatter_form_save_edit($form, &$form_state) {
+  custom_formatters_formatter_form_save($form, $form_state);
+  $_REQUEST['destination'] = 'admin/settings/formatters/edit/' . $form_state['values']['cfid'] . '?destination=' . $_REQUEST['destination'];
 }
 
 function custom_formatters_formatter_form_delete($form, &$form_state) {

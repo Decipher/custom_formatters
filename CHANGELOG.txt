@@ -3,6 +3,13 @@
 Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
 -------------------------------------
 
+- Added 'Save & Edit' button.
+- Fixed issue with Imagefield description not rendering correctly via the Insert module.
+
+
+Custom Formatters 6.x-1.5-beta1, 2010-03-02
+-------------------------------------
+
 - Added support for CCKs Content Multigroup module.
 
 

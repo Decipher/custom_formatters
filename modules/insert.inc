@@ -25,6 +25,8 @@ function custom_formatters_insert_styles() {
  * Implementation of hook_insert_content().
  */
 function custom_formatters_insert_content($item, $style, $widget) {
+  $item['data']['description'] = $item['data']['description'] == '' ? '__description__' : $item['data']['description'];
+
   $element = array(
     '#formatter' => $style['name'],
     '#item' => $item,
