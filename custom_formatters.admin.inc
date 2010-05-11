@@ -229,7 +229,7 @@ function custom_formatters_formatter_form($form_state, $formatter = NULL, $op = 
         '#collapsible' => TRUE,
       );
       $form['preview']['node'] = array(
-        '#type' => 'radios',
+        '#type' => 'select',
         '#title' => t('Preview node type'),
         '#options' => devel_generate_content_types(),
         '#default_value' => array_shift(array_keys(devel_generate_content_types())),
@@ -385,6 +385,8 @@ function custom_formatters_formatter_form_save($form, &$form_state) {
 
   custom_formatters_clear_cache();
   unset($form_state['storage']);
+
+  $_REQUEST['destination'] = empty($_REQUEST['destination']) ? 'admin/settings/formatters' : $_REQUEST['destination'];
 }
 
 function custom_formatters_formatter_form_save_edit($form, &$form_state) {

@@ -3,6 +3,7 @@
 Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
 -------------------------------------
 
+- #764608: Changed preview content types field from radios to selectbox.
 - Added 'Save & Edit' button.
 - Fixed issue with Imagefield description not rendering correctly via the Insert module.
 
