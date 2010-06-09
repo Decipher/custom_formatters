@@ -43,10 +43,7 @@ function content_multigroup_custom_formatters_fields_alter(&$fields) {
   );
 }
 
-/**
- * Implements hook_fieldgroup_view().
- */
-function custom_formatters_fieldgroup_view(&$node, &$element, $group, $context) {
+function custom_formatters_fieldgroup_view_multigroup(&$node, &$element, $group, $context) {
   $subgroup_settings = isset($group['settings']['multigroup']['subgroup']) ? $group['settings']['multigroup']['subgroup'] : array();
   $subgroup_format = isset($subgroup_settings[$context]['format']) ? $subgroup_settings[$context]['format'] : 'fieldset';
 
@@ -81,15 +78,17 @@ function theme_custom_formatters_content_multigroup($element) {
 function content_multigroup_content_generate($node, $field) {
   $item = array();
   foreach (fieldgroup_groups($node['type']) as $group) {
-    foreach ($group['fields'] as $field) {
-      if (function_exists($function = "{$field['widget_module']}_content_generate")) {
-        $item[$field['field_name']] = $function($node, content_fields($field['field_name']));
+    if ($group['group_type'] == 'multigroup') {
+      foreach ($group['fields'] as $field) {
+        if (function_exists($function = "{$field['widget_module']}_content_generate")) {
+          $item[$field['field_name']] = $function($node, content_fields($field['field_name']));
 
-        $element = array(
-          '#node' => $node,
-          '#item' => $item[$field['field_name']],
-        );
-        $item[$field['field_name']]['view'] = theme("{$field['widget_module']}_formatter_default", $element);
+          $element = array(
+            '#node' => $node,
+            '#item' => $item[$field['field_name']],
+          );
+          $item[$field['field_name']]['view'] = theme("{$field['widget_module']}_formatter_default", $element);
+        }
       }
     }
   }
@@ -104,11 +103,13 @@ function content_multigroup_token_list($type = 'all') {
 
   foreach (fieldgroup_groups() as $groups) {
     foreach ($groups as $group) {
-      foreach ($group['fields'] as $field) {
-        if (function_exists($function = "{$field['widget_module']}_token_list")) {
-          foreach($function('field') as $token) {
-            foreach ($token as $key => $value) {
-              $tokens['content_multigroup']["content_multigroup-{$field['field_name']}-{$key}"] = $value;
+      if ($group['group_type'] == 'multigroup') {
+        foreach ($group['fields'] as $field) {
+          if (function_exists($function = "{$field['widget_module']}_token_list")) {
+            foreach($function('field') as $token) {
+              foreach ($token as $key => $value) {
+                $tokens['content_multigroup']["content_multigroup-{$field['field_name']}-{$key}"] = $value;
+              }
             }
           }
         }
@@ -128,11 +129,13 @@ function content_multigroup_token_values($type, $object = array()) {
   if ($type == 'field') {
     foreach (fieldgroup_groups() as $groups) {
       foreach ($groups as $group) {
-        foreach ($group['fields'] as $field) {
-          if (isset($object[0][$field['field_name']]) && function_exists($function = "{$field['widget_module']}_token_values")) {
-            $tokens = $function($type, array($object[0][$field['field_name']]));
-            foreach ($tokens as $key => $value) {
-              $values["content_multigroup-{$field['field_name']}-{$key}"] = $value;
+        if ($group['group_type'] == 'multigroup') {
+          foreach ($group['fields'] as $field) {
+            if (isset($object[0][$field['field_name']]) && function_exists($function = "{$field['widget_module']}_token_values")) {
+              $tokens = $function($type, array($object[0][$field['field_name']]));
+              foreach ($tokens as $key => $value) {
+                $values["content_multigroup-{$field['field_name']}-{$key}"] = $value;
+              }
             }
           }
         }

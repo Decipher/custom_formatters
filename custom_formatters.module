@@ -53,6 +53,8 @@ function custom_formatters_init() {
  * Implements hook_theme().
  */
 function custom_formatters_theme() {
+  $path = drupal_get_path('module', 'custom_formatters') . '/templates';
+
   $theme = array(
     'custom_formatters_overview' => array(
       'arguments' => array('form' => NULL),
@@ -65,12 +67,31 @@ function custom_formatters_theme() {
       ),
     ),
 
-    'custom_formatters_export' => array(
+    'custom_formatters_export_info' => array(
       'arguments' => array(
         'formatters' => NULL,
         'name' => NULL,
       ),
-      'template' => 'custom_formatters_export',
+      'path' => $path,
+      'template' => 'custom_formatters_export_info',
+      'file' => 'custom_formatters.admin.inc',
+    ),
+    'custom_formatters_export_module' => array(
+      'arguments' => array(
+        'formatters' => NULL,
+        'name' => NULL,
+      ),
+      'path' => $path,
+      'template' => 'custom_formatters_export_module',
+      'file' => 'custom_formatters.admin.inc',
+    ),
+
+    'custom_formatters_convert' => array(
+      'arguments' => array(
+        'code' => NULL,
+      ),
+      'path' => $path,
+      'template' => 'custom_formatters_convert',
     ),
 
     'custom_formatters_token_help' => array(
@@ -106,6 +127,7 @@ function custom_formatters_theme() {
 function custom_formatters_menu() {
   $items = array();
 
+  // Formatters overview.
   $items['admin/settings/formatters'] = array(
     'title' => 'Custom Formatters',
     'description' => 'Configure custom CCK formatter templates.',
@@ -121,6 +143,7 @@ function custom_formatters_menu() {
     'weight' => -10,
   );
 
+  // Add new formatter.
   $items['admin/settings/formatters/add'] = array(
     'title' => 'Add new formatter',
     'description' => 'Add a custom CCK formatter.',
@@ -131,6 +154,7 @@ function custom_formatters_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
+  // Edit formatter.
   $items['admin/settings/formatters/edit/%custom_formatters_cfid'] = array(
     'title callback' => 'custom_formatters_formatter_title_callback',
     'title arguments' => array('Edit formatter: !name', 4),
@@ -142,6 +166,7 @@ function custom_formatters_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  // Delete formatter.
   $items['admin/settings/formatters/delete/%custom_formatters_cfid'] = array(
     'title callback' => 'custom_formatters_formatter_title_callback',
     'title arguments' => array('Delete formatter: !name', 4),
@@ -153,6 +178,7 @@ function custom_formatters_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  // Clone formatter.
   $items['admin/settings/formatters/clone/%custom_formatters_cfid'] = array(
     'title callback' => 'custom_formatters_formatter_title_callback',
     'title arguments' => array('Clone formatter: !name', 4),
@@ -164,6 +190,7 @@ function custom_formatters_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  // Export formatter.
   $items['admin/settings/formatters/export/%custom_formatters_cfid'] = array(
     'title callback' => 'custom_formatters_formatter_title_callback',
     'title arguments' => array('Export formatter: !name', 4),
@@ -171,6 +198,26 @@ function custom_formatters_menu() {
     'file' => 'custom_formatters.admin.inc',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('custom_formatters_formatter_export_form', 4),
+    'access arguments' => array('administer custom formatters'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/settings/formatters/download/%custom_formatters_cfid'] = array(
+    'title' => t('Download module'),
+    'description' => 'Download exported custom CCK formatter(s).',
+    'file' => 'custom_formatters.admin.inc',
+    'page callback' => 'custom_formatters_formatter_export_tar',
+    'access arguments' => array('administer custom formatters'),
+    'type' => MENU_CALLBACK,
+  );
+
+  // Convert 'basic' formatter.
+  $items['admin/settings/formatters/convert/%custom_formatters_cfid'] = array(
+    'title callback' => 'custom_formatters_formatter_title_callback',
+    'title arguments' => array('Convert formatter: !name', 4),
+    'description' => 'Convert a custom CCK formatter.',
+    'file' => 'custom_formatters.admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_formatters_formatter_convert_form', 4),
     'access arguments' => array('administer custom formatters'),
     'type' => MENU_CALLBACK,
   );

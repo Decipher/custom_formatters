@@ -12,8 +12,8 @@ function custom_formatters_schema() {
   $schema['formatters'] = array(
     'fields' => array(
       'cfid' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
-      'name' => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''),
-      'label' => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''),
+      'name' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => ''),
+      'label' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => ''),
       'field_types' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE, 'serialize' => TRUE),
       'multiple' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
       'description' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE, 'default' => ''),
@@ -61,5 +61,12 @@ function custom_formatters_update_6101() {
   db_add_field($ret, 'formatters', 'mode', array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''));
   db_query("INSERT INTO {formatters} (name, label, field_types, multiple, description, mode, code) VALUES ('%s', '%s', '%s', %d, '%s', '%s', %b)", 'example_image', 'Example - Image (basic)', serialize(array('filefield')), 0, 'A basic example custom formatter for the "filefield" field type.', 'basic', pack('H*', '3c696d67207372633d225b736974652d75726c5d2f5b66696c656669656c642d66696c65706174685d22202f3e203c6120687265663d225b736974652d75726c5d2f61646d696e2f73657474696e67732f666f726d617474657273223e3c7375703e437573746f6d20466f726d6174746572204578616d706c653c2f7375703e3c2f613e'));
   $ret[] = update_sql("UPDATE {formatters} SET mode = 'advanced' WHERE mode = ''");
+  return $ret;
+}
+
+function custom_formatters_update_6102() {
+  $ret = array();
+  db_change_field($ret, 'formatters', 'name', 'name', array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => ''));
+  db_change_field($ret, 'formatters', 'label', 'label', array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => ''));
   return $ret;
 }

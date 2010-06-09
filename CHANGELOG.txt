@@ -1,10 +1,14 @@
 // $Id$
 
-Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
+Custom Formatters 6.x-1.5-beta2, 2010-06-09
 -------------------------------------
 
+- #821346: Added 'basic' to 'advanced' formatter converter.
 - #764608: Changed preview content types field from radios to selectbox.
 - Added 'Save & Edit' button.
+- Added 'basic' formatter export.
+- Added export to tar/tgz.
+- Changed the 'name' and 'label' database fields to 64 characters.
 - Fixed issue with Imagefield description not rendering correctly via the Insert module.
 
 
@@ -67,4 +71,3 @@ Custom Formatters 6.x-1.0, 2009-12-30
 -------------------------------------
 
 - Initial 6.x release.
-
