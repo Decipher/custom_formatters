@@ -53,8 +53,6 @@ function custom_formatters_init() {
  * Implements hook_theme().
  */
 function custom_formatters_theme() {
-  $path = drupal_get_path('module', 'custom_formatters') . '/templates';
-
   $theme = array(
     'custom_formatters_overview' => array(
       'arguments' => array('form' => NULL),
@@ -72,8 +70,7 @@ function custom_formatters_theme() {
         'formatters' => NULL,
         'name' => NULL,
       ),
-      'path' => $path,
-      'template' => 'custom_formatters_export_info',
+      'template' => 'templates/custom_formatters_export_info',
       'file' => 'custom_formatters.admin.inc',
     ),
     'custom_formatters_export_module' => array(
@@ -81,8 +78,7 @@ function custom_formatters_theme() {
         'formatters' => NULL,
         'name' => NULL,
       ),
-      'path' => $path,
-      'template' => 'custom_formatters_export_module',
+      'template' => 'templates/custom_formatters_export_module',
       'file' => 'custom_formatters.admin.inc',
     ),
 
@@ -90,8 +86,7 @@ function custom_formatters_theme() {
       'arguments' => array(
         'code' => NULL,
       ),
-      'path' => $path,
-      'template' => 'custom_formatters_convert',
+      'template' => 'templates/custom_formatters_convert',
     ),
 
     'custom_formatters_token_help' => array(
@@ -202,7 +197,7 @@ function custom_formatters_menu() {
     'type' => MENU_CALLBACK,
   );
   $items['admin/settings/formatters/download/%custom_formatters_cfid'] = array(
-    'title' => t('Download module'),
+    'title' => 'Download module',
     'description' => 'Download exported custom CCK formatter(s).',
     'file' => 'custom_formatters.admin.inc',
     'page callback' => 'custom_formatters_formatter_export_tar',

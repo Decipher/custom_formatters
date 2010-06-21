@@ -21,11 +21,11 @@
  * - $formatter->code: The formatter data.
  */
 ?>
-; $Id$
+; $<?php print "Id"; ?>$
 name = <?php print $name . "\n"; ?>
 description = Contains exported formatters for the '<?php print $name; ?>' module.
 core = 6.x
-<?php if (!$basic) : ?>
+<?php if (!isset($basic) || !$basic) : ?>
 dependencies[] = content
 <?php else : ?>
 dependencies[] = custom_formatters

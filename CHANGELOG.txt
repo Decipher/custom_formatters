@@ -1,5 +1,11 @@
 // $Id$
 
+Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
+-------------------------------------
+
+- #825290: Fixed issue with function declaraton when using the Features module.
+
+
 Custom Formatters 6.x-1.5-beta2, 2010-06-09
 -------------------------------------
 

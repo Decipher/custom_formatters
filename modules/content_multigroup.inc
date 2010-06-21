@@ -106,7 +106,7 @@ function content_multigroup_token_list($type = 'all') {
       if ($group['group_type'] == 'multigroup') {
         foreach ($group['fields'] as $field) {
           if (function_exists($function = "{$field['widget_module']}_token_list")) {
-            foreach($function('field') as $token) {
+            foreach ($function('field') as $token) {
               foreach ($token as $key => $value) {
                 $tokens['content_multigroup']["content_multigroup-{$field['field_name']}-{$key}"] = $value;
               }

@@ -21,7 +21,7 @@
  */
 ?>
 <?php print "<?php\n"; ?>
-// $Id$
+// $<?php print "Id"; ?>$
 /**
  * @file
  * Contains exported formatters for the '<?php print $name; ?>' module.
