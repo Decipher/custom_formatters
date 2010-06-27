@@ -21,7 +21,7 @@ function content_multigroup_custom_formatters_theme(&$theme) {
 function content_multigroup_custom_formatters_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'content_display_overview_form') {
     foreach (custom_formatters_formatters() as $formatter) {
-      if (in_array('content_multigroup', unserialize($formatter->field_types))) {
+      if ($formatter->status && in_array('content_multigroup', unserialize($formatter->field_types))) {
         foreach (fieldgroup_groups($form['#type_name']) as $group) {
           if ($group['group_type'] == 'multigroup') {
             $form[$group['group_name'] . '_subgroup']['full']['format']['#options'] += array('custom_formatters_' . $formatter->name => t('Custom: !label', array('!label' => $formatter->label)));

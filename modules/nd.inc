@@ -10,7 +10,7 @@
  */
 function custom_formatters_ds_fields_alter(&$fields) {
   foreach (custom_formatters_formatters() as $formatter) {
-    if (preg_match_all('/\bnd_(.*?)\b/', implode(' ', unserialize($formatter->field_types)), $matches)) {
+    if ($formatter->status && preg_match_all('/\bnd_(.*?)\b/', implode(' ', unserialize($formatter->field_types)), $matches)) {
       foreach ($matches[1] as $key) {
         if (isset($fields[$key])) {
           $fields[$key]['properties']['formatters']["custom_formatters_formatter_custom_formatters_{$formatter->name}"] = t('Custom: !label', array('!label' => $formatter->label));

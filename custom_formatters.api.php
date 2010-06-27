@@ -35,3 +35,24 @@ function hook_custom_formatters_field_tokens() {
     'file_aliases',
   );
 }
+
+/**
+ * Provide your own default Custom Formatters.
+ *
+ * @return
+ *   An array containing Custom Formatters settings.
+ */
+function hook_custom_formatters_defaults() {
+  return array(
+    'image' => array(
+      'name' => 'image',
+      'label' => 'Image',
+      'field_types' => 'a:1:{i:0;s:9:"filefield";}',
+      'multiple' => '0',
+      'description' => '',
+      'mode' => 'basic',
+      'code' => '<img src="[site-url]/[filefield-filepath]" alt="" />',
+      'status' => 1,
+    ),
+  );
+}

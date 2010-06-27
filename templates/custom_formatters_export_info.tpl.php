@@ -5,12 +5,11 @@
  * Theme for Custom Formatters Export Info.
  *
  * Available variables:
- * - $name: A string containing the exported module name.
  * - $formatters: An array of formatters to export.
+ * - $name: A string containing the exported module name.
  * - $basic: A boolean value indicating presence of 'basic' formatters.
  *
  * Each $formatter in $formatters contains:
- * - $formatter->cfid: The numberic id of the formatter.
  * - $formatter->name: The alphanumeric id of the formatter.
  * - $formatter->label: The human-readable title of the formatter.
  * - $formatter->field_types: A serialized array of supported field types.

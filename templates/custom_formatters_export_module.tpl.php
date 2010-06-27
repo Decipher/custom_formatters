@@ -5,11 +5,11 @@
  * Theme for Custom Formatters Export Module.
  *
  * Available variables:
- * - $name: A string containing the exported module name.
  * - $formatters: An array of formatters to export.
+ * - $name: A string containing the exported module name.
+ * - $mode: A string containing the selected export mode.
  *
  * Each $formatter in $formatters contains:
- * - $formatter->cfid: The numberic id of the formatter.
  * - $formatter->name: The alphanumeric id of the formatter.
  * - $formatter->label: The human-readable title of the formatter.
  * - $formatter->field_types: A serialized array of supported field types.
@@ -27,6 +27,7 @@
  * Contains exported formatters for the '<?php print $name; ?>' module.
  */
 
+<?php if ($mode == 'standard') : ?>
 /**
  * Implements hook_theme().
  */
@@ -61,4 +62,12 @@ function theme_<?php print drupal_strtolower(str_replace(' ', '_', $name)); ?>_f
 <?php foreach (split("\n", $formatter->code) as $line) { ?>
   <?php print $line . "\n"; ?><?php } ?>
 }
-<?php endforeach;
+<?php endforeach; ?>
+<?php elseif ($mode == 'custom') : ?>
+/**
+ * Implements hook_custom_formatters_defaults().
+ */
+function <?php print drupal_strtolower(str_replace(' ', '_', $name)); ?>_custom_formatters_defaults() {
+  return <?php print custom_formatters_var_export($formatters, '  '); ?>;
+}
+<?php endif;

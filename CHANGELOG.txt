@@ -3,7 +3,14 @@
 Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (development release)
 -------------------------------------
 
-- #825290: Fixed issue with function declaraton when using the Features module.
+- #825290: Fixed issue with function declaration when using the Features module.
+- #824178: Fixed issue with advanced formatters displaying when field is empty.
+- #808660: Fixed issue with Display Suite integration and basic formatters.
+- #686030: Added ability to toggle formatter status.
+- Added new exportable method (hook_custom_formatters_defaults()).
+- Added features integration.
+- Changed custom formatters system location.
+- Removed 'cfid' column from database.
 
 
 Custom Formatters 6.x-1.5-beta2, 2010-06-09

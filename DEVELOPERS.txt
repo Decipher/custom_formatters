@@ -5,7 +5,9 @@ Custom Formatters
 
 Custom Formatters provides two API hooks to help developers improve support for
 their defined CCK fields with Custom Formatters,
-hook_custom_formatters_field_prepare() and hook_custom_formatters_field_tokens().
+hook_custom_formatters_field_prepare() and hook_custom_formatters_field_tokens()
+and a third hook to provide your own modules default custom formatters,
+hook_custom_formatters_defaults().
 
 These hooks are completely optional and further information on their use can be
 found in custom_formatters.api.php.
@@ -28,4 +30,3 @@ More information regarding these hooks can be found at:
 * Devel Generate - No documentation available (recommend looking at examples in
                    CCK: includes/content.devel.inc).
 * Token          - http://drupal.org/node/307140
-
