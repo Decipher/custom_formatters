@@ -55,6 +55,6 @@ function custom_formatters_features_export_render($module_name = '', $data) {
   }
 
   return array(
-    'custom_formatters_defaults' => '  return ' . features_var_export($formatters, '  '),
+    'custom_formatters_defaults' => '  return ' . features_var_export($formatters, '  ') . ';',
   );
 }
