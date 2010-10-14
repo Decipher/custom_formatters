@@ -52,9 +52,24 @@ function custom_formatters_features_export_render($module_name = '', $data) {
   foreach ($data as $name) {
     $formatter = custom_formatters_formatter($name);
     $formatters[$formatter->name] = $formatter;
+    $formatters[$formatter->name]->source = 'module';
   }
 
   return array(
     'custom_formatters_defaults' => '  return ' . features_var_export($formatters, '  ') . ';',
   );
+}
+
+/**
+ * Implementation of hook_features_revert().
+ */
+function custom_formatters_features_revert($module) {
+  if ($default_formatters = features_get_default('custom_formatters', $module)) {
+    foreach (array_keys($default_formatters) as $default_formatter) {
+      if ($formatter = custom_formatters_formatter($default_formatter)) {
+        db_query("DELETE FROM {formatters} WHERE name = '%s'", $default_formatter);
+        custom_formatters_clear_cache();
+      }
+    }
+  }
 }

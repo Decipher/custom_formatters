@@ -296,6 +296,11 @@ function custom_formatters_formatters($reset = FALSE, $limit = 0) {
     return $formatters;
   }
 
+  // Include default formatters from Features.
+  if (module_exists('features')) {
+    features_include_defaults('custom_formatters');
+  }
+
   // Get formatters from modules.
   $results = module_invoke_all('custom_formatters_defaults');
   foreach ($results as $formatter) {
@@ -458,7 +463,8 @@ function _custom_formatters_token_replace($formatter, $element) {
   $full->tokens = array_merge($full->tokens, array_keys($tokens));
   $full->values = array_merge($full->values, array_values($tokens));
 
-  return _token_replace_tokens($formatter->code, $full->tokens, $full->values, '[', ']');
+  $tokens = token_prepare_tokens($full->tokens, TOKEN_PREFIX, TOKEN_SUFFIX);
+  return str_replace($tokens, $full->values, $formatter->code);
 }
 
 function _custom_formatters_tokens_list($field) {
