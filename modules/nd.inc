@@ -24,12 +24,19 @@ function custom_formatters_ds_fields_alter(&$fields) {
  * Implements hook_type_alter().
  */
 function nd_custom_formatters_fields_alter(&$fields) {
-  foreach (ds_get_fields('nd', NULL, NULL) as $key => $field) {
-    if ($field['type'] == DS_FIELD_TYPE_THEME || $field['type'] == DS_FIELD_TYPE_CODE) {
-      $fields['nd_' . $key] = array(
-        'label' => $field['title'],
-        'module' => 'nd',
-      );
+  foreach (module_implements('ds_api') as $module) {
+    $api_info = ds_api_info($module);
+    $extra = array();
+    foreach ($api_info['extra'] as $key) {
+      $extra[$key] = 1;
+    }
+    foreach (ds_get_fields('nd', NULL, NULL, $extra) as $key => $field) {
+      if ($field['type'] == DS_FIELD_TYPE_THEME || $field['type'] == DS_FIELD_TYPE_CODE) {
+        $fields['nd_' . $key] = array(
+          'label' => $field['title'],
+          'module' => 'nd',
+        );
+      }
     }
   }
 }

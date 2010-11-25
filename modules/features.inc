@@ -73,3 +73,40 @@ function custom_formatters_features_revert($module) {
     }
   }
 }
+
+/**
+ * Implements hook_features_pipe_component_alter().
+ */
+function custom_formatters_features_pipe_content_alter(&$pipe, $data, $export, $module_name) {
+  foreach ($data as $field) {
+    $args = explode('-', $field);
+    $field = content_fields($args[1], $args[0]);
+    foreach ($field['display_settings'] as $child) {
+      if (is_array($child) && isset($child['format']) && strpos($child['format'], 'custom_formatters_') === 0) {
+        $name = drupal_substr($child['format'], 18);
+        if (is_object(custom_formatters_formatter($name))) {
+          $pipe['custom_formatters'][$name] = $name;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_features_pipe_component_alter().
+ */
+function custom_formatters_features_pipe_views_alter(&$pipe, $data, $export, $module_name) {
+  foreach ($data as $view) {
+    $view = views_get_view($view);
+    foreach ($view->display as $display) {
+      foreach ($display->display_options['fields'] as $field) {
+        if (isset($field['format'])) {
+          $name = drupal_substr($field['format'], 18);
+          if (is_object(custom_formatters_formatter($name))) {
+            $pipe['custom_formatters'][$name] = $name;
+          }
+        }
+      }
+    }
+  }
+}
