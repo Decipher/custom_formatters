@@ -6,6 +6,7 @@ Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (Development release)
 - #936526 by joelstein: Fix issue with Token 6.x-1.5.
 - #931372 by joelstein: Fix Features module integration.
 - #841272: Fixed support for Node Displays Body field.
+- Fixed issue with Token support.
 
 
 Custom Formatters 6.x-1.5-beta4, 2010-06-27

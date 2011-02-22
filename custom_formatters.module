@@ -437,7 +437,7 @@ function _custom_formatters_token_replace($formatter, $element) {
   $full->tokens = array_merge($full->tokens, array_keys($tokens));
   $full->values = array_merge($full->values, array_values($tokens));
 
-  $tokens = token_prepare_tokens($full->tokens, TOKEN_PREFIX, TOKEN_SUFFIX);
+  $tokens = token_prepare_tokens($full->tokens);
   return str_replace($tokens, $full->values, $formatter->code);
 }
 
