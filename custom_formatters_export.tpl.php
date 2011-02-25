@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Theme for Custom Formatters Export.

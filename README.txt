@@ -1,4 +1,3 @@
-// $Id$
 
 The Custom Formatters module allows users to easily create custom CCK Formatters
 without the need to write a custom module.
