@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Provides Custom Formatters integration with the Features module.

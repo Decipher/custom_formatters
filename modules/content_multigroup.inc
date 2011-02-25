@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Provides Custom Formatters integration with the Content Multigroup module.

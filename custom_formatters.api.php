@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Hooks provided by the Custom Formatters module.

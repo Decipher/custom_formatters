@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Contains administration functions for the Custom Formatters module.
