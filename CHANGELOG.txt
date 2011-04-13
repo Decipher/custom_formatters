@@ -1,3 +1,12 @@
+Custom Formatters 6.x-1.x, xxxx-xx-xx (Development release)
+--------------------------------------------------------------------------------
+
+- #1000164: Fixed issue with disabled formatters showing up on Insert config.
+- #934032: Fixed unsupported operand type issue.
+- #886150: Fixed issue with formatters with identical labels being filtered out.
+- #878202: Fixed Features export location.
+
+
 Custom Formatters 6.x-1.5, 2011-04-13
 --------------------------------------------------------------------------------
 

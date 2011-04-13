@@ -13,7 +13,7 @@ function custom_formatters_features_api() {
       'name' => t('Custom Formatters'),
       'feature_source' => TRUE,
       'default_hook' => 'custom_formatters_defaults',
-      'default_file' => FEATURES_DEFAULTS_INCLUDED,
+      'default_file' => FEATURES_DEFAULTS_INCLUDED_COMMON,
     ),
   );
 }

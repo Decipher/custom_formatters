@@ -305,7 +305,7 @@ function custom_formatters_formatters($reset = FALSE, $limit = 0) {
   // Sort formatters.
   $sorted = array(array(), array());
   foreach ($formatters as $formatter) {
-    $sorted[$formatter->status][$formatter->label] = $formatter;
+    $sorted[$formatter->status]["{$formatter->label}_{$formatter->name}"] = $formatter;
   }
   $formatters = array();
   foreach (array_reverse($sorted) as $status) {

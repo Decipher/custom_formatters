@@ -11,7 +11,7 @@ function custom_formatters_insert_styles() {
   $formatters = custom_formatters_formatters();
   $insert_styles = array();
   foreach ($formatters as $formatter) {
-    if (!$formatter->multiple && in_array('filefield', unserialize($formatter->field_types))) {
+    if ($formatter->status && !$formatter->multiple && in_array('filefield', unserialize($formatter->field_types))) {
       $insert_styles['custom_formatters_' . $formatter->name] = array(
         'label' => t('Custom: !label', array('!label' => $formatter->label)),
       );
