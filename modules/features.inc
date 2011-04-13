@@ -47,15 +47,17 @@ function custom_formatters_features_export($data, &$export, $module_name = '') {
  * Implements hook_features_export_render().
  */
 function custom_formatters_features_export_render($module_name = '', $data) {
+  module_load_include('inc', 'custom_formatters', 'custom_formatters.admin');
   $formatters = array();
   foreach ($data as $name) {
     $formatter = custom_formatters_formatter($name);
+    unset($formatter->override);
     $formatters[$formatter->name] = $formatter;
     $formatters[$formatter->name]->source = 'module';
   }
 
   return array(
-    'custom_formatters_defaults' => '  return ' . features_var_export($formatters, '  ') . ';',
+'custom_formatters_defaults' => theme('custom_formatters_export_features', $formatters)/*'  return ' . features_var_export($formatters, '  ') . ';'*/,
   );
 }
 

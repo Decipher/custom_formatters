@@ -56,6 +56,13 @@ function custom_formatters_theme() {
       'file' => 'custom_formatters.admin.inc',
     ),
 
+    'custom_formatters_export_features' => array(
+      'arguments' => array(
+        'formatters' => NULL,
+      ),
+      'template' => 'templates/custom_formatters_export_features',
+    ),
+
     'custom_formatters_convert' => array(
       'arguments' => array(
         'code' => NULL,
@@ -420,6 +427,12 @@ function theme_custom_formatters_formatter($element) {
 
 function _custom_formatters_token_replace($formatter, $element) {
   $tokens = array();
+
+  // Prevents weird Display Suite issue.
+  $element['#node'] = clone($element['#node']);
+
+  // Prevents recursion issue.
+  unset($element['#node']->content);
 
   $full = token_get_values('node', $element['#node']);
   $node_tokens = node_token_values('node', $element['#node']);

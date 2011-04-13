@@ -67,6 +67,6 @@ function theme_<?php print drupal_strtolower(str_replace(' ', '_', $name)); ?>_f
  * Implements hook_custom_formatters_defaults().
  */
 function <?php print drupal_strtolower(str_replace(' ', '_', $name)); ?>_custom_formatters_defaults() {
-  return <?php print custom_formatters_var_export($formatters, '  '); ?>;
+<?php echo theme('custom_formatters_export_features', $formatters) ?>
 }
 <?php endif;
