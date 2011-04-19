@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Provides Custom Formatters integration with the Fieldgroup module.
+ * Fieldgroup module integration.
  */
 
 /**
@@ -28,7 +28,7 @@ function fieldgroup_custom_formatters_form_alter(&$form, &$form_state, $form_id)
               $form[$group['group_name']]['full']['format']['#options']
             );
             $form[$group['group_name']]['teaser']['format']['#options'] = array_merge(
-              array('custom_formatters_' . $formatter->name => t('Custom: !label', array('!label' => $formatter->label))),
+              array("custom_formatters_{$formatter->name}" => t('Custom: !label', array('!label' => $formatter->label))),
               $form[$group['group_name']]['teaser']['format']['#options']
             );
           }

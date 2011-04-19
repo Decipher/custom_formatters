@@ -5,21 +5,19 @@
  */
 
 /**
+ * Include additional files.
+ */
+foreach (module_list() as $module) {
+  if (file_exists($file = dirname(__FILE__) . "/includes/{$module}.inc")) {
+    require_once $file;
+  }
+}
+
+/**
  * Implements hook_perm().
  */
 function custom_formatters_perm() {
   return array('administer custom formatters');
-}
-
-/**
- * Implements hook_init().
- */
-function custom_formatters_init() {
-  foreach (module_list() as $module) {
-    if (file_exists($file = drupal_get_path('module', 'custom_formatters') . "/modules/{$module}.inc")) {
-      require_once $file;
-    }
-  }
 }
 
 /**
@@ -70,8 +68,8 @@ function custom_formatters_theme() {
       'template' => 'templates/custom_formatters_convert',
     ),
 
-    'custom_formatters_token_help' => array(
-      'arguments' => array('field' => NULL, 'prefix' => '[', 'suffix' => ']'),
+    'custom_formatters_token_tree' => array(
+      'arguments' => array('field' => array(), 'global_types' => TRUE , 'click_insert' => TRUE),
       'file' => 'custom_formatters.admin.inc',
     ),
 
@@ -222,7 +220,7 @@ function custom_formatters_menu() {
   $items['js/formatters/tokens'] = array(
     'title' => 'Formatters tokens',
     'file' => 'custom_formatters.admin.inc',
-    'page callback' => 'custom_formatters_token_help',
+    'page callback' => 'custom_formatters_token_tree',
     'access arguments' => array('administer custom formatters'),
     'type' => MENU_CALLBACK,
   );
@@ -320,14 +318,14 @@ function custom_formatters_formatters($reset = FALSE, $limit = 0) {
 
 function custom_formatters_clear_cache() {
   global $language;
-  cache_clear_all('content_type_info:' . $language->language, content_cache_tablename());
+  cache_clear_all("content_type_info:{$language->language}", content_cache_tablename());
   drupal_rebuild_theme_registry();
 }
 
 /**
  * Load a formatter by name.
  *
- * @param name
+ * @param $name
  *   The name of the formatter.
  *
  * @return
@@ -349,7 +347,7 @@ function custom_formatters_formatter($name, $reset = FALSE) {
 function custom_formatters_form_alter(&$form, &$form_state, $form_id) {
   // Invoke hook_custom_formatters_form_alter().
   foreach (module_implements('custom_formatters_form_alter') as $module) {
-    $function = $module . '_custom_formatters_form_alter';
+    $function = "{$module}_custom_formatters_form_alter";
     $function($form, $form_state, $form_id);
   }
 }
@@ -362,7 +360,7 @@ function custom_formatters_field_formatter_info() {
 
   foreach (custom_formatters_formatters() as $formatter) {
     if ($formatter->status) {
-      $formatters['custom_formatters_' . $formatter->name] = array(
+      $formatters["custom_formatters_{$formatter->name}"] = array(
         'label' => t('Custom: !label', array('!label' => $formatter->label)),
         'description' => t($formatter->description),
         'field types' => unserialize($formatter->field_types),
@@ -376,6 +374,7 @@ function custom_formatters_field_formatter_info() {
 
 function theme_custom_formatters_formatter($element) {
   global $theme_path, $theme_info, $conf;
+  $output = '';
 
   // Store current theme path.
   $old_theme_path = $theme_path;
@@ -383,28 +382,31 @@ function theme_custom_formatters_formatter($element) {
   // Restore theme_path to the theme, as long as drupal_eval() executes,
   // so code evaluted will not see the caller module as the current theme.
   // If theme info is not initialized get the path from theme_default.
-  if (!isset($theme_info)) {
-    $theme_path = drupal_get_path('theme', $conf['theme_default']);
-  }
-  else {
-    $theme_path = dirname($theme_info->filename);
-  }
+  $theme_path = !isset($theme_info) ? drupal_get_path('theme', $conf['theme_default']): dirname($theme_info->filename);
 
   // Give modules a chance to alter the formatter element.
   drupal_alter('custom_formatters_formatter_element', $element);
 
-  $output = '';
+  $info = _content_type_info();
+  $field = $element['#devel'] ? array('module' => $element['#field_type']) : $info['fields'][$element['#field_name']];
   $formatter = is_object($element['#formatter']) ? $element['#formatter'] : custom_formatters_formatter($element['#formatter']);
 
-  // Attach 'view' to field item.
-  $info = _content_type_info();
-  if (isset($element['#field_name']) && isset($info['fields'][$element['#field_name']])) {
-    $module = $info['fields'][$element['#field_name']]['module'];
-    $element['#item']['view'] = theme("{$module}_formatter_default", $element);
+  // Build array of items.
+  $items = isset($element['#item']) ? array(&$element['#item']) : array();
+  if (!$items) {
+    foreach (element_children($element) as $delta) {
+      $items[$delta] = &$element[$delta]['#item'];
+    }
   }
 
-  // Only render formatter if field is populated.
-  if (!isset($element['#item']['view']) || !empty($element['#item']['view'])) {
+  // Sanitize items.
+  if (function_exists($function = "{$field['module']}_field")) {
+    $function('sanitize', $element['#node'], $field, $items, FALSE, FALSE);
+  }
+
+  // Process formatter if field is not empty.
+  $function = "{$field['module']}_content_is_empty";
+  if ((function_exists($function) && !$function($items[0], $field)) || !function_exists($function) || $element['#devel']) {
     switch ($formatter->mode) {
       case 'basic':
         $output = _custom_formatters_token_replace($formatter, $element);
@@ -469,65 +471,4 @@ function _custom_formatters_tokens_list($field) {
   $tokens_list = array_merge($tokens_list, module_invoke_all("custom_formatters_{$field}_tokens"));
 
   return array_unique($tokens_list);
-}
-
-/**
- * Implements hook_custom_formatters_defaults().
- */
-function custom_formatters_custom_formatters_defaults() {
-  $formatters = array();
-
-  // Example - File (advanced).
-  $formatters['example_file'] = array(
-    'name' => 'example_file',
-    'label' => 'Example - File (advanced)',
-    'field_types' => 'a:1:{i:0;s:9:"filefield";}',
-    'multiple' => '0',
-    'description' => 'An advanced example custom formatter for the "filefield" field type.',
-    'mode' => 'advanced',
-    'code' => 'return $element[\'#item\'][\'filepath\'] . " " . l(t("<sup>Custom Formatter Example</sup>"), \'admin/build/formatters\', array(\'html\' => TRUE));',
-    'status' => 0,
-  );
-
-  // Example - Image (basic).
-  $formatters['example_image'] = array(
-    'name' => 'example_image',
-    'label' => 'Example - Image (basic)',
-    'field_types' => 'a:1:{i:0;s:9:"filefield";}',
-    'multiple' => '0',
-    'description' => 'A basic example custom formatter for the "filefield" field type.',
-    'mode' => 'basic',
-    'code' => '<img src="[site-url]/[filefield-filepath]" alt="[filefield-alt]" title="[filefield-title]" /> <a href="[site-url]/admin/build/formatters"><sup>Custom Formatter Example</sup></a>',
-    'status' => 0,
-  );
-
-  // Example - Multiple fields.
-  $formatters['example_basic'] = array(
-    'name' => 'example_basic',
-    'label' => 'Example - Multiple fields',
-    'field_types' => 'a:4:{i:0;s:14:"number_decimal";i:1;s:12:"number_float";i:2;s:14:"number_integer";i:3;s:4:"text";}',
-    'multiple' => '0',
-    'description' => 'An advanced example custom formatter for an assorted group of basic field types.',
-    'mode' => 'advanced',
-    'code' => 'return $element[\'#item\'][\'value\'] . " " . l(t("<sup>Custom Formatter Example</sup>"), \'admin/build/formatters\', array(\'html\' => TRUE));',
-    'status' => 0,
-  );
-
-  // Example - Multiple values.
-  $formatters['example_basic_multiples'] = array(
-    'name' => 'example_basic_multiples',
-    'label' => 'Example - Multiple values',
-    'field_types' => 'a:4:{i:0;s:14:"number_decimal";i:1;s:12:"number_float";i:2;s:14:"number_integer";i:3;s:4:"text";}',
-    'multiple' => '1',
-    'description' => 'An advanced example custom formatter for an assorted group of basic field types, with support for multiple values.',
-    'mode' => 'advanced',
-    'code' => '$output = \'\';
-      foreach (element_children($element) as $key) {
-        $output .= \'<div>\' . $element[$key][\'#item\'][\'value\'] . " " . l(t("<sup>Custom Formatter Example</sup>"), \'admin/build/formatters\', array(\'html\' => TRUE)) . \'</div>\';
-      }
-      return $output;',
-    'status' => 0,
-  );
-
-  return $formatters;
 }

@@ -288,7 +288,7 @@ function custom_formatters_formatter_basic_editor_form($form_state, $formatter =
     '#type' => 'fieldset',
     '#title' => t('Tokens'),
     '#description' =>
-      '<div id="tokens-wrapper">' . theme('custom_formatters_token_help', $form['field_types']['#default_value']) . '</div>',
+      '<div id="tokens-wrapper">' . theme('custom_formatters_token_tree', $form['field_types']['#default_value']) . '</div>',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
@@ -788,28 +788,20 @@ function custom_formatters_formatter_status_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'admin/build/formatters';
 }
 
-function custom_formatters_token_help() {
+function custom_formatters_token_tree() {
   drupal_json(array(
     'status' => TRUE,
-    'data' => theme_custom_formatters_token_help($_POST['field_types'])
+    'data' => theme_custom_formatters_token_tree($_POST['field_types'])
   ));
 }
 
 /**
- * For a given context, builds a formatted list of tokens and descriptions
- * of their replacement values.
- *
- * @param field
- *    The field type the token display documentation is required for.
- * @param prefix
- *    The prefix your module will use when parsing tokens. Defaults to '['
- * @param suffix
- *    The suffix your module will use when parsing tokens. Defaults to ']'
- * @return
- *    An HTML table containing the formatting docs.
+ * Provide a 'tree' display of nested tokens.
  */
-function theme_custom_formatters_token_help($field = NULL, $prefix = '[', $suffix = ']') {
-  $tokens = array();
+function theme_custom_formatters_token_tree($field = NULL, $global_types = FALSE, $click_insert = TRUE) {
+  module_load_include('inc', 'token', 'token.pages');
+
+  $info = array();
   $fields = _content_field_types();
   if (!empty($fields) && isset($fields[$field])) {
     $module = $fields[$field]['module'];
@@ -817,31 +809,63 @@ function theme_custom_formatters_token_help($field = NULL, $prefix = '[', $suffi
     // Build tokens list.
     foreach (_custom_formatters_tokens_list($field) as $module) {
       if (function_exists($function = "{$module}_token_list")) {
-        $tokens = array_merge_recursive($function('field'), $tokens);
+        $info = array_merge_recursive($function('field'), $info);
       }
     }
   }
-  $tokens = array_merge($tokens, token_get_list('node'));
-  // Prepend node tokens with 'node-' to prevent namespace conflicts.
-  $tokens['node'] = array_flip($tokens['node']);
-  foreach ($tokens['node'] as &$token) {
-    $token = 'node-' . $token;
-  }
-  $tokens['node'] = array_flip($tokens['node']);
+  $info = array_merge($info, token_get_list('node'));
 
-  $headers = array(t('Token'), t('Replacement value'));
+  // Prepend node tokens with 'node-' to prevent namespace conflicts.
+  $info['node'] = array_flip($info['node']);
+  foreach ($info['node'] as &$token) {
+    $token = "node-{$token}";
+  }
+  $info['node'] = array_flip($info['node']);
+
+  $token_types = array_keys($info);
+  sort($token_types);
+
+  $header = array(
+    t('Token'),
+    t('Description'),
+  );
   $rows = array();
-  foreach ($tokens as $key => $category) {
-    $rows[] = array(array('data' => drupal_ucfirst($key) .' '. t('tokens'), 'class' => 'region', 'colspan' => 2));
-    foreach ($category as $token => $description) {
-      $row = array();
-      $row[] = $prefix . $token . $suffix;
-      $row[] = $description;
-      $rows[] = $row;
+
+  foreach ($token_types as $type) {
+    $parent = NULL;
+
+    if (count($token_types) > 1) {
+      $rows[] = _token_token_tree_format_row($type, array(), TRUE);
+      $parent = $type;
+    }
+
+    foreach ($info[$type] as $token => $description) {
+      $rows[] = _token_token_tree_format_row("[$token]", array('description' => $description, 'parent' => $parent));
     }
   }
 
-  return theme('table', $headers, $rows, array('class' => 'description'));
+  if (count($rows)) {
+    drupal_add_js(drupal_get_path('module', 'token') . '/jquery.treeTable.js');
+    drupal_add_css(drupal_get_path('module', 'token') . '/jquery.treeTable.css');
+    drupal_add_js(drupal_get_path('module', 'token') . '/token.js');
+    drupal_add_css(drupal_get_path('module', 'token') . '/token.css');
+  }
+  else {
+    $rows[] = array(array(
+      'data' => t('No tokens available.'),
+      'colspan' => 2,
+    ));
+  }
+
+  $table_options = array(
+    'attributes' => array('class' => 'token-tree'),
+    'caption' => '',
+  );
+  if ($click_insert) {
+    $table_options['caption'] = t('Click a token to insert it into the field you\'ve last clicked.');
+    $table_options['attributes']['class'] .= ' token-click-insert';
+  }
+  return theme('table', $header, $rows, $table_options['attributes'], $table_options['caption']);
 }
 
 /**
@@ -923,7 +947,7 @@ function theme_custom_formatters_preview($formatter) {
           '#single' => FALSE,
           '#title' => $fields[$field_type]['label'],
           '#page' => TRUE,
-          '#field_name' => $fields[$field_type]['label'],
+          '#field_name' => 'field_devel_generate',
           '#label_display' => 'above',
           '#teaser' => FALSE,
           '#node' => $node,
@@ -934,22 +958,26 @@ function theme_custom_formatters_preview($formatter) {
         if (!isset($formatter->multiple) || !$formatter->multiple) {
           $element['items'] = array(
             '#formatter' => $formatter,
+            '#node' => $node,
+            '#type_name' => $node->type,
+            '#field_name' => 'field_devel_generate',
             '#theme' => 'custom_formatters_formatter',
             '#item' => $items,
-            '#node' => $node,
+            '#devel' => TRUE,
+            '#field_type' => $field_type,
           );
-
-          if ($formatter->mode == 'basic') {
-            $element['items']['#field_name'] = $fields[$field_type]['label'];
-            $element['items']['#item']['view'] = theme("{$module}_formatter_default", $element['items']);
-          }
         }
 
         else {
           $element['items'] = array(
             '#formatter' => $formatter,
+            '#node' => $node,
+            '#type_name' => $node->type,
+            '#field_name' => 'field_devel_generate',
             '#theme' => 'custom_formatters_formatter',
             '#node' => $node,
+            '#devel' => TRUE,
+            '#field_type' => $field_type,
           );
           foreach ($items as $item) {
             $element['items'][] = array(
