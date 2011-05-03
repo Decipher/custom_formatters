@@ -70,10 +70,10 @@ function theme_custom_formatters_fieldgroup($element) {
   $element['#item'] = array();
   foreach (element_children($element) as $field) {
     $element['#item'][$field] = array();
-    foreach ($element[$field]['field']['items'] as $item) {
-      $element['#item'][$field][$item['#item']['#delta']] = $item['#item'];
-      $element['#item'][$field][$item['#item']['#delta']]['view'] = theme($item['#theme'], $item);
-      unset($element['#item'][$field][$item['#item']['#delta']]['#delta']);
+    foreach (element_children($element[$field]['field']['items']) as $item) {
+      $element['#item'][$field][$element[$field]['field']['items'][$item]['#item']['#delta']] = $element[$field]['field']['items'][$item]['#item'];
+      $element['#item'][$field][$element[$field]['field']['items'][$item]['#item']['#delta']]['view'] = theme($element[$field]['field']['items'][$item]['#theme'], $element[$field]['field']['items'][$item]);
+      unset($element['#item'][$field][$element[$field]['field']['items'][$item]['#item']['#delta']]['#delta']);
     }
 
     $element['#item'][$field]['view'] = drupal_render($element[$field]);

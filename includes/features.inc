@@ -100,11 +100,13 @@ function custom_formatters_features_pipe_views_alter(&$pipe, $data, $export, $mo
   foreach ($data as $view) {
     $view = views_get_view($view);
     foreach ($view->display as $display) {
-      foreach ($display->display_options['fields'] as $field) {
-        if (isset($field['format'])) {
-          $name = drupal_substr($field['format'], 18);
-          if (is_object(custom_formatters_formatter($name))) {
-            $pipe['custom_formatters'][$name] = $name;
+      if ($display->display_options['fields']) {
+        foreach ($display->display_options['fields'] as $field) {
+          if (isset($field['format'])) {
+            $name = drupal_substr($field['format'], 18);
+            if (is_object(custom_formatters_formatter($name))) {
+              $pipe['custom_formatters'][$name] = $name;
+            }
           }
         }
       }

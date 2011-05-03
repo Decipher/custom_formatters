@@ -1,6 +1,8 @@
 Custom Formatters 6.x-1.x, xxxx-xx-xx (Development release)
 --------------------------------------------------------------------------------
 
+- #1143606 by scottrigby: Fixed issue with Features integration.
+- #1140492: Fixed Fieldgroup integration.
 - #1000164: Fixed issue with disabled formatters showing up on Insert config.
 - #934032: Fixed unsupported operand type issue.
 - #886150: Fixed issue with formatters with identical labels being filtered out.
