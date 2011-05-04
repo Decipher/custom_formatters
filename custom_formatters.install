@@ -10,14 +10,49 @@
 function custom_formatters_schema() {
   $schema['formatters'] = array(
     'fields' => array(
-      'name' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => ''),
-      'label' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => ''),
-      'field_types' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE, 'serialize' => TRUE),
-      'multiple' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
-      'description' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE, 'default' => ''),
-      'mode' => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'field_types' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+      'multiple' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'mode' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'code' => array('type' => 'blob'),
-      'status' => array('type' => 'int', 'unsiggned' => TRUE, 'not null' => TRUE, 'default' => 1),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
     ),
     'primary key' => array('name'),
   );

@@ -20,7 +20,6 @@
  */
 ?>
 <?php print "<?php\n"; ?>
-// $<?php print "Id"; ?>$
 /**
  * @file
  * Contains exported formatters for the '<?php print $name; ?>' module.
@@ -58,7 +57,7 @@ function <?php print drupal_strtolower(str_replace(' ', '_', $name)); ?>_field_f
 <?php foreach ($formatters as $formatter) : ?>
 
 function theme_<?php print drupal_strtolower(str_replace(' ', '_', $name)); ?>_formatter_<?php print $formatter->name ?>($element) {
-<?php foreach (split("\n", $formatter->code) as $line) { ?>
+<?php foreach (explode("\n", $formatter->code) as $line) { ?>
   <?php print $line . "\n"; ?><?php } ?>
 }
 <?php endforeach; ?>

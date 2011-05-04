@@ -287,8 +287,7 @@ function custom_formatters_formatter_basic_editor_form($form_state, $formatter =
   $form['tokens'] = array(
     '#type' => 'fieldset',
     '#title' => t('Tokens'),
-    '#description' =>
-      '<div id="tokens-wrapper">' . theme('custom_formatters_token_tree', $form['field_types']['#default_value']) . '</div>',
+    '#description' => '<div id="tokens-wrapper">' . theme('custom_formatters_token_tree', $form['field_types']['#default_value']) . '</div>',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
@@ -385,7 +384,7 @@ function custom_formatters_formatter_delete_form($form_state, $formatter = array
 
   $form['name'] = array(
     '#type' => 'value',
-    '#value' => $formatter->name
+    '#value' => $formatter->name,
   );
 
   return confirm_form(
@@ -413,7 +412,7 @@ function custom_formatters_bulk_delete_confirm(&$form_state, $formatters) {
   $form['formatters'] = array(
     '#prefix' => '<ul>',
     '#suffix' => '</ul>',
-    '#tree' => TRUE
+    '#tree' => TRUE,
   );
 
   foreach ($formatters as $name) {
@@ -428,7 +427,7 @@ function custom_formatters_bulk_delete_confirm(&$form_state, $formatters) {
 
   $form['operation'] = array(
     '#type' => 'hidden',
-    '#value' => 'delete'
+    '#value' => 'delete',
   );
   $form['#submit'][] = 'custom_formatters_bulk_delete_confirm_submit';
 
@@ -460,11 +459,17 @@ function custom_formatters_formatter_export_form($form_state, $formatters = arra
 
   $form = array('#tree' => TRUE);
   if (is_array($formatters)) {
-    $form['operation'] = array('#type' => 'hidden', '#value' => 'export');
+    $form['operation'] = array(
+      '#type' => 'hidden',
+      '#value' => 'export',
+    );
     $form['formatters']['#tree'] = TRUE;
     foreach ($formatters as $formatter) {
       $formatters[$formatter] = custom_formatters_formatter($formatter);
-      $form['formatters'][$formatter] = array('#type' => 'hidden', '#value' => $formatter);
+      $form['formatters'][$formatter] = array(
+        '#type' => 'hidden',
+        '#value' => $formatter,
+      );
     }
     $form['#submit'][] = 'custom_formatters_formatter_export_form_submit';
   }
@@ -493,7 +498,7 @@ function custom_formatters_formatter_export_form($form_state, $formatters = arra
     '#title' => t('Export mode'),
     '#options' => array(
       'standard' => t('Standard CCK formatters'),
-      'custom' => t('Custom formatters')
+      'custom' => t('Custom formatters'),
     ),
     '#default_value' => !empty($form_state['storage']) ? $form_state['storage']['mode'] : 'standard',
     '#description' =>
@@ -514,16 +519,16 @@ function custom_formatters_formatter_export_form($form_state, $formatters = arra
   $info = theme('custom_formatters_export_info', $formatters, $form['extra']['module']['#default_value']);
   $form['export']['output']['info'] = array(
     '#type' => 'textarea',
-    '#title' => $filename . '.info',
+    '#title' => "{$filename}.info",
     '#value' => $info,
-    '#rows' => count(split("\n", $info)),
+    '#rows' => count(explode("\n", $info)),
   );
   $module = theme("custom_formatters_export_module", $formatters, $form['extra']['module']['#default_value'], $form['extra']['mode']['#default_value']);
   $form['export']['output']['module'] = array(
     '#type' => 'textarea',
-    '#title' => $filename . '.module',
+    '#title' => "{$filename}.module",
     '#value' => $module,
-    '#rows' => count(split("\n", $module)),
+    '#rows' => count(explode("\n", $module)),
   );
 
   return $form;
@@ -601,7 +606,7 @@ function custom_formatters_formatter_export_tar() {
 
   $header = function_exists('gzencode') ? 'Content-type: application/x-gzip' : 'Content-type: application/x-tar';
   drupal_set_header($header);
-  drupal_set_header('Content-Disposition: attachment; filename="'. $args[0] .'"');
+  drupal_set_header("Content-Disposition: attachment; filename='{$args[0]}'");
   print $tar;
   exit;
 }
@@ -665,7 +670,7 @@ function custom_formatters_formatter_convert_form($form_state, $formatter = arra
 
   $form['name'] = array(
     '#type' => 'value',
-    '#value' => $formatter->name
+    '#value' => $formatter->name,
   );
 
   return confirm_form(
@@ -692,7 +697,7 @@ function custom_formatters_bulk_convert_confirm(&$form_state, $formatters) {
   $form['formatters'] = array(
     '#prefix' => '<ul>',
     '#suffix' => '</ul><p><strong>' . t('Note') . ':</strong> ' . t("Only 'basic' formatters will be converted.") . '</p>',
-    '#tree' => TRUE
+    '#tree' => TRUE,
   );
 
   foreach ($formatters as $name) {
@@ -709,7 +714,7 @@ function custom_formatters_bulk_convert_confirm(&$form_state, $formatters) {
 
   $form['operation'] = array(
     '#type' => 'hidden',
-    '#value' => 'convert'
+    '#value' => 'convert',
   );
   $form['#submit'][] = 'custom_formatters_bulk_convert_confirm_submit';
 
@@ -759,7 +764,7 @@ function custom_formatters_formatter_status_form($form_state, $formatter = array
 
   $form['name'] = array(
     '#type' => 'value',
-    '#value' => $formatter->name
+    '#value' => $formatter->name,
   );
 
   return confirm_form(

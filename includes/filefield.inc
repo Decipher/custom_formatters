@@ -12,7 +12,7 @@ function filefield_custom_formatters_filefield_prepare() {
   return array(
     'widget' => array(
       'file_extensions' => 'jpg png',
-      'file_path' => '._tmp.custom_formatters'
+      'file_path' => '._tmp.custom_formatters',
     ),
   );
 }

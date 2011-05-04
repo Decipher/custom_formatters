@@ -19,7 +19,6 @@
  * - $formatter->code: The formatter data.
  */
 ?>
-; $<?php print "Id"; ?>$
 name = <?php print $name . "\n"; ?>
 description = Contains exported formatters for the '<?php print $name; ?>' module.
 core = 6.x

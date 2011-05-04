@@ -24,65 +24,73 @@ function custom_formatters_perm() {
  * Implements hook_theme().
  */
 function custom_formatters_theme() {
-  $theme = array(
-    'custom_formatters_overview' => array(
-      'arguments' => array('form' => NULL),
-      'file' => 'custom_formatters.admin.inc',
-    ),
+  $theme = array();
 
-    'custom_formatters_formatter' => array(
-      'arguments' => array(
-        'element' => NULL
-      ),
-    ),
+  $theme['custom_formatters_overview'] = array(
+    'arguments' => array('form' => NULL)
+    'file' => 'custom_formatters.admin.inc',
+  );
 
-    'custom_formatters_export_info' => array(
-      'arguments' => array(
-        'formatters' => NULL,
-        'name' => NULL,
-      ),
-      'template' => 'templates/custom_formatters_export_info',
-      'file' => 'custom_formatters.admin.inc',
+  $theme['custom_formatters_formatter'] = array(
+    'arguments' => array(
+      'element' => NULL,
     ),
-    'custom_formatters_export_module' => array(
-      'arguments' => array(
-        'formatters' => NULL,
-        'name' => NULL,
-        'mode' => NULL,
-      ),
-      'template' => 'templates/custom_formatters_export_module',
-      'file' => 'custom_formatters.admin.inc',
-    ),
+  );
 
-    'custom_formatters_export_features' => array(
-      'arguments' => array(
-        'formatters' => NULL,
-      ),
-      'template' => 'templates/custom_formatters_export_features',
+  $theme['custom_formatters_export_info'] = array(
+    'arguments' => array(
+      'formatters' => NULL,
+      'name' => NULL,
     ),
+    'template' => 'templates/custom_formatters_export_info',
+    'file' => 'custom_formatters.admin.inc',
+  );
+  $theme['custom_formatters_export_module'] = array(
+    'arguments' => array(
+      'formatters' => NULL,
+      'name' => NULL,
+      'mode' => NULL,
+    ),
+    'template' => 'templates/custom_formatters_export_module',
+    'file' => 'custom_formatters.admin.inc',
+  );
 
-    'custom_formatters_convert' => array(
-      'arguments' => array(
-        'code' => NULL,
-      ),
-      'template' => 'templates/custom_formatters_convert',
+  $theme['custom_formatters_export_features'] = array(
+    'arguments' => array(
+      'formatters' => NULL,
     ),
+    'template' => 'templates/custom_formatters_export_features',
+  );
 
-    'custom_formatters_token_tree' => array(
-      'arguments' => array('field' => array(), 'global_types' => TRUE , 'click_insert' => TRUE),
-      'file' => 'custom_formatters.admin.inc',
+  $theme['custom_formatters_convert'] = array(
+    'arguments' => array(
+      'code' => NULL,
     ),
+    'template' => 'templates/custom_formatters_convert',
+  );
 
-    'custom_formatters_preview' => array(
-      'arguments' => array('formatter' => NULL),
-      'file' => 'custom_formatters.admin.inc',
+  $theme['custom_formatters_token_tree'] = array(
+    'arguments' => array(
+      'field' => NULL,
+      'global_types' => TRUE,
+      'click_insert' => TRUE
     ),
+    'file' => 'custom_formatters.admin.inc',
+  );
+
+  $theme['custom_formatters_preview'] = array(
+    'arguments' => array(
+      'formatter' => NULL,
+    ),
+    'file' => 'custom_formatters.admin.inc',
   );
 
   foreach (custom_formatters_formatters() as $formatter) {
     if ($formatter->status) {
-      $theme['custom_formatters_formatter_custom_formatters_' . $formatter->name] = array(
-        'arguments' => array('element' => NULL),
+      $theme["custom_formatters_formatter_custom_formatters_{$formatter->name}"] = array(
+        'arguments' => array(
+          'element' => NULL,
+        ),
         'function' => 'theme_custom_formatters_formatter',
       );
     }
@@ -90,7 +98,7 @@ function custom_formatters_theme() {
 
   // Invoke hook_custom_formatters_theme().
   foreach (module_implements('custom_formatters_theme') as $module) {
-    $function = $module . '_custom_formatters_theme';
+    $function = "{$module}_custom_formatters_theme";
     $function($theme);
   }
 
@@ -382,7 +390,9 @@ function theme_custom_formatters_formatter($element) {
   // Restore theme_path to the theme, as long as drupal_eval() executes,
   // so code evaluted will not see the caller module as the current theme.
   // If theme info is not initialized get the path from theme_default.
-  $theme_path = !isset($theme_info) ? drupal_get_path('theme', $conf['theme_default']): dirname($theme_info->filename);
+  $theme_path = !isset($theme_info)
+    ? drupal_get_path('theme', $conf['theme_default'])
+    : dirname($theme_info->filename);
 
   // Give modules a chance to alter the formatter element.
   drupal_alter('custom_formatters_formatter_element', $element);
