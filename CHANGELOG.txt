@@ -1,6 +1,4 @@
-
-Custom Formatters 7.x-1.x-dev, xxxx-xx-xx (development release)
--------------------------------------
+Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
+--------------------------------------------------------------------------------
 
 - Initial 7.x release.
-
