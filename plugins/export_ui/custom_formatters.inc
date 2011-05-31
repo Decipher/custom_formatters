@@ -92,72 +92,85 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     '#title' => t('Field type(s)'),
     '#type' => 'textfield',
     '#default_value' => $item->field_types,
+    '#required' => TRUE,
+    '#description' => t('Enter a comma-separated list of field types (file, image, text, text_long, etc).'),
     '#autocomplete_path' => 'js/formatters/autocomplete',
+    '#ajax' => array(
+      'callback' => 'custom_formatters_export_ui_form_js',
+      'wrapper' => 'engine-wrapper',
+    ),
     '#disabled' => $disable,
   );
   $form['engine']['code'] = array(
     '#title' => t('Formatter'),
     '#type' => 'textarea',
+    '#default_value' =>!empty($item->code) ? $item->code : '',
+    '#required' => TRUE,
     '#rows' => 10,
-    '#default_value' =>!empty($item->code) ? $item->code : $engines[$engine]['defaults']['code'],
   );
   $engines[$engine]['callbacks']['settings form']($form['engine'], $form_state, $item);
 
-  //$options = _custom_formatters_preview_variables($form, $form_state);
-  //$form['engine']['preview'] = array(
-  //  '#title' => t('Preview'),
-  //  '#type' => 'fieldset',
-  //  '#collapsible' => TRUE,
-  //  '#collapsed' => TRUE,
-  //  '#weight' => 100,
-  //  '#theme' => 'custom_formatters_export_ui_form_preview'
-  //);
-  //$form['engine']['preview']['entity_type'] = array(
-  //  '#title' => t('Entity type'),
-  //  '#type' => 'select',
-  //  '#options' => $options['entity_types'],
-  //  '#default_value' => 'node',
-  //  '#disabled' => empty($options['entity_types']),
-  //  '#ajax' => array(
-  //    'callback' => 'custom_formatters_export_ui_form_js',
-  //    'wrapper' => 'engine-wrapper',
-  //  ),
-  //);
-  //$form['engine']['preview']['bundle'] = array(
-  //  '#title' => t('Bundle'),
-  //  '#type' => 'select',
-  //  '#options' => $options['bundles'],
-  //  '#disabled' => empty($options['bundles']),
-  //  '#ajax' => array(
-  //    'callback' => 'custom_formatters_export_ui_form_js',
-  //    'wrapper' => 'engine-wrapper',
-  //  ),
-  //);
-  //$form['engine']['preview']['field'] = array(
-  //  '#title' => t('Field'),
-  //  '#type' => 'select',
-  //  '#options' => $options['fields'],
-  //  '#disabled' => empty($options['fields']),
-  //);
-  //$form['engine']['preview']['entity'] = array(
-  //  '#title' => t('Entity'),
-  //  '#type' => 'select',
-  //  '#options' => $options['entities'],
-  //  '#disabled' => empty($options['entities']),
-  //);
-  //$form['engine']['preview']['button'] = array(
-  //  '#type' => 'button',
-  //  '#value' => t('Preview'),
-  //  '#ajax' => array(
-  //    'callback' => 'custom_formatters_export_ui_form_js_preview',
-  //    'wrapper' => 'preview-wrapper',
-  //  ),
-  //);
-  //$form['engine']['preview']['preview'] = array(
-  //  '#type' => 'container',
-  //  '#prefix' => '<div id="preview-wrapper">',
-  //  '#suffix' => '</div>',
-  //);
+  $options = _custom_formatters_preview_variables($form, $form_state);
+  $form['engine']['preview'] = array(
+    '#title' => t('Preview'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#weight' => 100,
+    '#theme' => 'custom_formatters_export_ui_form_preview',
+    '#tree' => TRUE,
+  );
+  $form['engine']['preview']['entity_type'] = array(
+    '#title' => t('Entity type'),
+    '#type' => 'select',
+    '#options' => $options['entity_types'],
+    '#default_value' => 'node',
+    '#disabled' => empty($options['entity_types']),
+    '#ajax' => array(
+      'callback' => 'custom_formatters_export_ui_form_js',
+      'wrapper' => 'engine-wrapper',
+    ),
+  );
+  $form['engine']['preview']['bundle'] = array(
+    '#title' => t('Bundle'),
+    '#type' => 'select',
+    '#options' => $options['bundles'],
+    '#disabled' => empty($options['bundles']),
+    '#ajax' => array(
+      'callback' => 'custom_formatters_export_ui_form_js',
+      'wrapper' => 'engine-wrapper',
+    ),
+  );
+  $form['engine']['preview']['field'] = array(
+    '#title' => t('Field'),
+    '#type' => 'select',
+    '#options' => $options['fields'],
+    '#disabled' => empty($options['fields']),
+    '#ajax' => array(
+      'callback' => 'custom_formatters_export_ui_form_js',
+      'wrapper' => 'engine-wrapper',
+    ),
+  );
+  $form['engine']['preview']['entity'] = array(
+    '#title' => t('Entity'),
+    '#type' => 'select',
+    '#options' => $options['entities'],
+    '#disabled' => empty($options['entities']),
+  );
+  $form['engine']['preview']['button'] = array(
+    '#type' => 'button',
+    '#value' => t('Preview'),
+    '#ajax' => array(
+      'callback' => 'custom_formatters_export_ui_form_js_preview',
+      'wrapper' => 'preview-wrapper',
+    ),
+    '#disabled' => empty($options['entities']),
+  );
+  $form['engine']['preview']['preview'] = array(
+    '#type' => 'container',
+    '#prefix' => '<div id="preview-wrapper">',
+    '#suffix' => '</div>',
+  );
 
   $form['buttons']['edit'] = array(
     '#type' => 'submit',
@@ -167,7 +180,7 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
 
 function _custom_formatters_preview_variables($form, $form_state) {
   $options = array();
-  $item = isset($form_state['values']) ? $form_state['values'] : (array) $form_state['item'];
+  $item = !empty($form_state['values']) ? $form_state['values'] : (array) $form_state['item'];
 
   // Entity Types
   $options['entity_types'] = array();
@@ -179,7 +192,7 @@ function _custom_formatters_preview_variables($form, $form_state) {
   // Bundles
   $options['bundles'] = array();
   if (!empty($options['entity_types'])) {
-    $entity_type = isset($item['entity_type']) ? $item['entity_type'] : 'node';
+    $entity_type = !empty($item['preview']['entity_type']) ? $item['preview']['entity_type'] : 'node';
     foreach ($entity_types[$entity_type]['bundles'] as $key => $bundle) {
       $options['bundles'][$key] = $bundle['label'];
     }
@@ -188,11 +201,12 @@ function _custom_formatters_preview_variables($form, $form_state) {
   // Fields
   $options['fields'] = array();
   if (!empty($options['bundles'])) {
-    $bundle = isset($item['bundle']) ? $item['bundle'] : key($options['bundles']);
+    $bundle = !empty($item['preview']['bundle']) && isset($options['bundles'][$item['preview']['bundle']])
+      ? $item['preview']['bundle'] : key($options['bundles']);
     $fields = field_info_instances($entity_type, $bundle);
     foreach ($fields as $key => $field) {
       $field_info = field_info_field_by_id($field['field_id']);
-      if ($field_info['type'] == $item['field_types']) {
+      if (in_array($field_info['type'], drupal_explode_tags($item['field_types']))) {
         $options['fields'][$key] = $field['label'];
       }
     }
@@ -201,17 +215,16 @@ function _custom_formatters_preview_variables($form, $form_state) {
   // Entities
   $options['entities'] = array();
   if (!empty($options['fields'])) {
-    $field = isset($item['field']) ? $item['field'] : key($options['fields']);
+    $field = !empty($item['preview']['field']) ? $item['preview']['field'] : key($options['fields']);
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $entity_type)
       ->entityCondition('bundle', $bundle)
-      ->fieldCondition($field, 'value', '', '!=')
-      ->execute();
-    //$result = $query->execute();
-    //$entities = entity_load($entity_type, array_keys($result[$entity_type]));
-    //foreach ($entities as $key => $entity) {
-    //  $options['entities'][$key] = $entity['title'];
-    //}
+      ->fieldCondition($field);
+    $result = $query->execute();
+    $entities = entity_load($entity_type, array_keys($result[$entity_type]));
+    foreach ($entities as $key => $entity) {
+      $options['entities'][$key] = "{$entity->title} [eid:{$key}]";
+    }
   }
 
   return $options;
@@ -231,11 +244,14 @@ function custom_formatters_export_ui_form_js($form, $form_state) {
 }
 
 function custom_formatters_export_ui_form_js_preview($form, $form_state) {
-  $obj_type = $form_state['values']['entity_type'];
-  $objects = entity_load($obj_type, array(5));
-  $object = $objects[5];
-  $field = field_info_field($form_state['values']['field']);
-  $instance = field_info_instance($obj_type, $field['field_name'], $form_state['values']['bundle']);
+  // Clear messages.
+  drupal_get_messages(NULL, TRUE);
+
+  $obj_type = $form_state['values']['preview']['entity_type'];
+  $objects = entity_load($obj_type, array($form_state['values']['preview']['entity']));
+  $object = $objects[$form_state['values']['preview']['entity']];
+  $field = field_info_field($form_state['values']['preview']['field']);
+  $instance = field_info_instance($obj_type, $field['field_name'], $form_state['values']['preview']['bundle']);
   $langcode = field_language($obj_type, $object, $field['field_name']);
   $items = $object->{$field['field_name']}[$langcode];
   $display = $instance['display']['default'];

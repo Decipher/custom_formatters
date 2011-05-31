@@ -13,7 +13,7 @@ function custom_formatters_field_formatter_info() {
   foreach (custom_formatters_crud_load_all(TRUE) as $key => $formatter) {
     $formatters["custom_formatters_{$key}"] = array(
       'label' => t('Custom: !label', array('!label' => $formatter->label)),
-      'field types' => array($formatter->field_types),
+      'field types' => drupal_explode_tags($formatter->field_types),
     );
   }
 

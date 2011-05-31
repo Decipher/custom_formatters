@@ -14,10 +14,7 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
   }
   $form['field_types']['#type'] = 'select';
   $form['field_types']['#options'] = $options;
-  $form['field_types']['#ajax'] = array(
-    'callback' => 'custom_formatters_export_ui_form_js',
-    'wrapper' => 'engine-wrapper',
-  );
+  unset($form['field_types']['#description']);
 
   $field_type = !empty($form_state['values']['field_types']) ? $form_state['values']['field_types'] : (
     !empty($item->field_types) ? $item->field_types : key($options)
