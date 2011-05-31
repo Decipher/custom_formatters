@@ -95,14 +95,10 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     '#autocomplete_path' => 'js/formatters/autocomplete',
     '#disabled' => $disable,
   );
-  $form['engine']['multiple'] = array(
-    '#title' => t('Handle multiple values'),
-    '#type' => 'checkbox',
-    '#default_value' => $item->multiple,
-  );
   $form['engine']['code'] = array(
     '#title' => t('Formatter'),
     '#type' => 'textarea',
+    '#rows' => 10,
     '#default_value' =>!empty($item->code) ? $item->code : $engines[$engine]['defaults']['code'],
   );
   $engines[$engine]['callbacks']['settings form']($form['engine'], $form_state, $item);
@@ -163,10 +159,10 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
   //  '#suffix' => '</div>',
   //);
 
-  //$form['buttons']['edit'] = array(
-  //  '#type' => 'submit',
-  //  '#value' => t('Save & Edit'),
-  //);
+  $form['buttons']['edit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save & Edit'),
+  );
 }
 
 function _custom_formatters_preview_variables($form, $form_state) {
@@ -252,13 +248,14 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state) {
   return $form['engine']['preview']['preview'];
 }
 
+/**
+ * Submit callback for Custom Formatters settings form.
+ */
 function custom_formatters_export_ui_form_submit(&$form, &$form_state) {
   field_cache_clear();
   if ($form_state['values']['op'] == t('Save & Edit')) {
-    //dpm($form_state);
-    //$form_state['rebuild'] = TRUE;
-    //$form_state['no_redirect'] = FALSE;
-    //$form_state['redirect'] = "admin/structure/formatters/list/{$form_state['item']->name}/edit";
+    $destination = "admin/structure/formatters/list/{$form_state['item']->name}/edit";
+    $_GET['destination'] = isset($_GET['destination']) ? $destination . "?destination={$_GET['destination']}" : $destination;
   }
 }
 

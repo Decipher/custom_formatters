@@ -51,13 +51,7 @@ function custom_formatters_schema() {
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE,
-        'serialize' => TRUE,
-      ),
-      'multiple' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
+        'default' => '',
       ),
       'code' => array(
         'type' => 'blob'

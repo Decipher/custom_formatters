@@ -78,4 +78,20 @@ class custom_formatters_ui extends ctools_export_ui {
 
     return $header;
   }
+
+  /**
+   * Callback to enable a page.
+   */
+  function enable_page($js, $input, $item) {
+    field_cache_clear();
+    return $this->set_item_state(FALSE, $js, $input, $item);
+  }
+
+  /**
+   * Callback to disable a page.
+   */
+  function disable_page($js, $input, $item) {
+    field_cache_clear();
+    return $this->set_item_state(TRUE, $js, $input, $item);
+  }
 }

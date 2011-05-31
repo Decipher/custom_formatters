@@ -37,16 +37,13 @@ function custom_formatters_custom_formatters_defaults() {
   $formatter->description = 'A PHP example formatter; Display a Thumbnail image linked to a Large image.';
   $formatter->mode = 'php';
   $formatter->field_types = 'image';
-  $formatter->multiple = 0;
-  $formatter->code = '<?php
-foreach (element_children($variables[\'#items\']) as $delta) {
+  $formatter->code = 'foreach (element_children($variables[\'#items\']) as $delta) {
   $item = $variables[\'#items\'][$delta];
   $thumbnail = theme(\'image_style\', array(\'style_name\' => \'thumbnail\', \'path\' => $item[\'uri\']));
   $large = image_style_path(\'large\', $item[\'uri\']);
 
   print l($thumbnail, file_create_url($large), array(\'html\' => TRUE));
-}
-?>';
+}';
   $formatters['example_php_image'] = $formatter;
 
   $formatter = new stdClass;
@@ -57,7 +54,6 @@ foreach (element_children($variables[\'#items\']) as $delta) {
   $formatter->description = 'A HTML + Tokens example formatter; Display a Thumbnail image linked to a Large image.';
   $formatter->mode = 'token';
   $formatter->field_types = 'image';
-  $formatter->multiple = 0;
   $formatter->code = '<a href="[image-field-value:styles:url:large]"><img src="[image-field-value:styles:url:thumbnail]" alt="[image-field-value:alt]" title="[image-field-value:title]" /></a>';
   $formatters['example_token_image'] = $formatter;
 

@@ -8,6 +8,7 @@
  * Settings form callback for Custom Formatters PHP engine.
  */
 function custom_formatters_engine_php_settings_form(&$form) {
+  $form['code']['#description'] = t('Enter the PHP code that will be evaluated. You should NOT include %php tags. The $variables object is available.', array('%php' => '<?php ?>'));
 }
 
 /**
@@ -42,7 +43,7 @@ function custom_formatters_engine_php_render($formatter, $obj_type, $object, $fi
   );
 
   ob_start();
-  print eval('?>' . $formatter->code);
+  print eval($formatter->code);
   $output = ob_get_contents();
   ob_end_clean();
 
