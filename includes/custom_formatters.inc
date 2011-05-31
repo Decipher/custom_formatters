@@ -30,58 +30,36 @@ function custom_formatters_custom_formatters_defaults() {
   $formatters = array();
 
   $formatter = new stdClass;
-  $formatter->disabled = TRUE;
+  $formatter->disabled = TRUE; /* Edit this to true to make a default formatter disabled initially */
   $formatter->api_version = 2;
-  $formatter->name = 'example_file';
-  $formatter->label = 'Example: File (advanced)';
-  $formatter->description = 'An advanced example custom formatter for the "filefield" field type.';
+  $formatter->name = 'example_php_image';
+  $formatter->label = 'Example: Image (PHP)';
+  $formatter->description = 'A PHP example formatter; Display a Thumbnail image linked to a Large image.';
   $formatter->mode = 'php';
-  $formatter->field_types = 'file';
+  $formatter->field_types = 'image';
   $formatter->multiple = 0;
   $formatter->code = '<?php
-return $element[\'#item\'][\'filepath\'] . " " . l(t("<sup>Custom Formatter Example</sup>"), \'admin/build/formatters\', array(\'html\' => TRUE));
+foreach (element_children($variables[\'#items\']) as $delta) {
+  $item = $variables[\'#items\'][$delta];
+  $thumbnail = theme(\'image_style\', array(\'style_name\' => \'thumbnail\', \'path\' => $item[\'uri\']));
+  $large = image_style_path(\'large\', $item[\'uri\']);
+
+  print l($thumbnail, file_create_url($large), array(\'html\' => TRUE));
+}
 ?>';
-  $formatters['example_file'] = $formatter;
+  $formatters['example_php_image'] = $formatter;
 
   $formatter = new stdClass;
-  $formatter->disabled = TRUE;
+  $formatter->disabled = TRUE; /* Edit this to true to make a default formatter disabled initially */
   $formatter->api_version = 2;
-  $formatter->name = 'example_image';
-  $formatter->label = 'Example: Image (basic)';
-  $formatter->description = 'A basic example custom formatter for the "filefield" field type.';
+  $formatter->name = 'example_token_image';
+  $formatter->label = 'Example: Image (HTML + Token)';
+  $formatter->description = 'A HTML + Tokens example formatter; Display a Thumbnail image linked to a Large image.';
   $formatter->mode = 'token';
   $formatter->field_types = 'image';
   $formatter->multiple = 0;
-  $formatter->code = '<img src="[image-field-value:file:url]" alt="[image-field-value:alt]" title="[image-field-value:title]" /> <a href="[site:url]/admin/build/formatters"><sup>Custom Formatter Example</sup></a>';
-  $formatters['example_image'] = $formatter;
-
-  $formatter = new stdClass;
-  $formatter->disabled = TRUE;
-  $formatter->api_version = 2;
-  $formatter->name = 'example_basic';
-  $formatter->label = 'Example: Multiple fields';
-  $formatter->description = 'An advanced example custom formatter for an assorted group of basic field types.';
-  $formatter->mode = 'php';
-  $formatter->field_types = 'number_decimal, number_float, number_integer, text';
-  $formatter->multiple = 0;
-  $formatter->code = 'return $element[\'#item\'][\'value\'] . " " . l(t("<sup>Custom Formatter Example</sup>"), \'admin/build/formatters\', array(\'html\' => TRUE));';
-  $formatters['example_basic'] = $formatter;
-
-  $formatter = new stdClass;
-  $formatter->disabled = TRUE;
-  $formatter->api_version = 2;
-  $formatter->name = 'example_basic_multiples';
-  $formatter->label = 'Example: Multiple values';
-  $formatter->description = 'An advanced example custom formatter for an assorted group of basic field types, with support for multiple values.';
-  $formatter->mode = 'php';
-  $formatter->field_types = 'number_decimal, number_float, number_integer, text';
-  $formatter->multiple = 1;
-  $formatter->code = '$output = \'\';
-foreach (element_children($element) as $key) {
-  $output .= \'<div>\' . $element[$key][\'#item\'][\'value\'] . " " . l(t("<sup>Custom Formatter Example</sup>"), \'admin/build/formatters\', array(\'html\' => TRUE)) . \'</div>\';
-}
-return $output;';
-  $formatters['example_basic_multiples'] = $formatter;
+  $formatter->code = '<a href="[image-field-value:styles:url:large]"><img src="[image-field-value:styles:url:thumbnail]" alt="[image-field-value:alt]" title="[image-field-value:title]" /></a>';
+  $formatters['example_token_image'] = $formatter;
 
   return $formatters;
 }

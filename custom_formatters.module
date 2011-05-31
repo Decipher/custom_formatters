@@ -67,6 +67,30 @@ function custom_formatters_theme() {
 /**
  *
  */
+function custom_formatters_formatter_is_active($formatter) {
+  $field_types = drupal_explode_tags($formatter->field_types);
+  $field_info = field_info_fields();
+
+  foreach (field_info_instances() as $bundles) {
+    foreach ($bundles as $fields) {
+      foreach ($fields as $field) {
+        if (in_array($field_info[$field['field_name']]['type'], $field_types)) {
+          foreach ($field['display'] as $display) {
+            if ($display['type'] == "custom_formatters_{$formatter->name}") {
+              return TRUE;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ *
+ */
 function custom_formatters_crud_load($formatter) {
   $formatters = custom_formatters_crud_load_all();
   return isset($formatters[$formatter]) ? $formatters[$formatter] : NULL;

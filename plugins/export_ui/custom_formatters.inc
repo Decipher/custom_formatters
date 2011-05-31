@@ -47,6 +47,14 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     require_once $engines[$engine]['file'];
   }
 
+  $disable = FALSE;
+  if ($form_state['op'] != 'add') {
+    $disable = custom_formatters_formatter_is_active($item);
+    if ($disable) {
+      drupal_set_message(t('As the Formatter is currently in use, certain features have been disabled.'), 'warning');
+    }
+  }
+
   $form['info']['#title'] = t('Basic information');
   $form['info']['#type'] = 'fieldset';
   $form['info']['#collapsible'] = TRUE;
@@ -84,7 +92,8 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     '#title' => t('Field type(s)'),
     '#type' => 'textfield',
     '#default_value' => $item->field_types,
-    '#autocomplete_path' => 'js/formatters/autocomplete'
+    '#autocomplete_path' => 'js/formatters/autocomplete',
+    '#disabled' => $disable,
   );
   $form['engine']['multiple'] = array(
     '#title' => t('Handle multiple values'),
@@ -213,6 +222,9 @@ function _custom_formatters_preview_variables($form, $form_state) {
 }
 
 function custom_formatters_export_ui_form_js($form, $form_state) {
+  // Clear messages.
+  drupal_get_messages(NULL, TRUE);
+
   $engines = module_invoke_all('custom_formatters_engine_info');
   $engine = $form_state['values']['mode'];
   if (isset($engines[$engine]['file']) && file_exists($engines[$engine]['file'])) {
@@ -241,6 +253,7 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state) {
 }
 
 function custom_formatters_export_ui_form_submit(&$form, &$form_state) {
+  field_cache_clear();
   if ($form_state['values']['op'] == t('Save & Edit')) {
     //dpm($form_state);
     //$form_state['rebuild'] = TRUE;

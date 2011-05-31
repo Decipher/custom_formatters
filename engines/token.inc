@@ -45,8 +45,13 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
  * Render callback for Custom Formatters Token engine.
  */
 function custom_formatters_engine_token_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
+  $field = str_replace('_', '-', $formatter->field_types) . '-field';
+  $info = token_get_info($field);
+  $field_value = $info['field-value-type'];
+
   return token_replace($formatter->code, array(
     $obj_type => $object,
+    $field_value => $items[0],
     'item' => $items[0],
   ));
 }
