@@ -16,6 +16,7 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
   $form['field_types']['#options'] = $options;
   unset($form['field_types']['#description']);
 
+  $entity_types = entity_get_info();
   $field_type = !empty($form_state['values']['field_types']) ? $form_state['values']['field_types'] : (
     !empty($item->field_types) ? $item->field_types : key($options)
   );
@@ -25,8 +26,10 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
   $form['tokens'] = array(
     '#title' => t('Tokens'),
     '#type' => 'fieldset',
-    //'#description' => theme('token_tree', array('token_types' => 'all')),
-    '#description' => theme('token_tree', array('token_types' => array($field_value, 'node', 'user'))),
+    '#description' => theme('token_tree', array('token_types' => array_merge(
+      array($field_value),
+      array_keys($entity_types)
+    ))),
     '#weight' => 50,
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
