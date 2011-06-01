@@ -16,7 +16,14 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
   $form['field_types']['#options'] = $options;
   unset($form['field_types']['#description']);
 
+  $fieldable = array();
   $entity_types = entity_get_info();
+  foreach ($entity_types as $entity_type => $entity) {
+    if ($entity['fieldable']) {
+      $fieldable[] = $entity_type;
+    }
+  }
+
   $field_type = !empty($form_state['values']['field_types']) ? $form_state['values']['field_types'] : (
     !empty($item->field_types) ? $item->field_types : key($options)
   );
@@ -28,7 +35,7 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
     '#type' => 'fieldset',
     '#description' => theme('token_tree', array('token_types' => array_merge(
       array($field_value),
-      array_keys($entity_types)
+      $fieldable
     ))),
     '#weight' => 50,
     '#collapsible' => TRUE,

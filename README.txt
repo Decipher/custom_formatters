@@ -5,6 +5,12 @@ Custom Formatters was written and is maintained by Stuart Clark (deciphered).
 - http://stuar.tc/lark
 
 
+Required Modules
+--------------------------------------------------------------------------------
+
+* Chaos tool suite - http://drupal.org/project/ctools
+
+
 Recommended Modules
 --------------------------------------------------------------------------------
 

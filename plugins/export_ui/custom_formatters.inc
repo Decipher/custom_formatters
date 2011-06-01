@@ -186,7 +186,9 @@ function _custom_formatters_preview_variables($form, $form_state) {
   $options['entity_types'] = array();
   $entity_types = entity_get_info();
   foreach ($entity_types as $key => $entity) {
-    $options['entity_types'][$key] = $entity['label'];
+    if ($entity['fieldable']) {
+      $options['entity_types'][$key] = $entity['label'];
+    }
   }
 
   // Bundles
