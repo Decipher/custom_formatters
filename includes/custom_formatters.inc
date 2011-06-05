@@ -16,6 +16,7 @@ function custom_formatters_custom_formatters_engine_info() {
     'callbacks' => array(
       'settings form' => 'custom_formatters_engine_php_settings_form',
       'render' => 'custom_formatters_engine_php_render',
+      'export' => 'custom_formatters_engine_php_export',
     ),
     'file' => drupal_get_path('module', 'custom_formatters') . '/engines/php.inc',
   );
@@ -42,7 +43,7 @@ function custom_formatters_custom_formatters_defaults() {
   $thumbnail = theme(\'image_style\', array(\'style_name\' => \'thumbnail\', \'path\' => $item[\'uri\']));
   $large = image_style_path(\'large\', $item[\'uri\']);
 
-  print l($thumbnail, file_create_url($large), array(\'html\' => TRUE));
+  return l($thumbnail, file_create_url($large), array(\'html\' => TRUE));
 }';
   $formatters['example_php_image'] = $formatter;
 
@@ -58,4 +59,19 @@ function custom_formatters_custom_formatters_defaults() {
   $formatters['example_token_image'] = $formatter;
 
   return $formatters;
+}
+
+/**
+ * Implements hook_custom_formatters_theme_alter().
+ */
+function custom_formatters_custom_formatters_theme_alter(&$theme) {
+  $engines = module_invoke_all('custom_formatters_engine_info');
+  foreach (element_children($engines) as $engine) {
+    if (isset($engines[$engine]['file']) && file_exists($engines[$engine]['file'])) {
+      require_once $engines[$engine]['file'];
+    }
+    if (function_exists($function = "custom_formatters_engine_{$engine}_theme_alter")) {
+      $function($theme);
+    }
+  }
 }

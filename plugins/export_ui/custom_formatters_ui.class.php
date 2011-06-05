@@ -94,4 +94,12 @@ class custom_formatters_ui extends ctools_export_ui {
     field_cache_clear();
     return $this->set_item_state(TRUE, $js, $input, $item);
   }
+
+  /**
+   * Page callback to display export information for an exportable item.
+   */
+  function export_page($js, $input, $item) {
+    drupal_set_title($this->get_page_title('export', $item));
+    return drupal_get_form('custom_formatters_export_ui_export_form', $item, t('Export'));
+  }
 }

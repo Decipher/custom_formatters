@@ -63,3 +63,7 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
 
   return $output;
 }
+
+function custom_formatters_engine_token_export($item) {
+  return '';
+}

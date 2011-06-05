@@ -16,6 +16,7 @@ files[] = includes/ctools.inc
 files[] = includes/custom_formatters.inc
 files[] = includes/features.inc
 files[] = includes/field.inc
+files[] = includes/insert.inc
 files[] = includes/system.inc
 files[] = includes/token.inc
 

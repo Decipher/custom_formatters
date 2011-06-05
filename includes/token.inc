@@ -16,6 +16,7 @@ function token_custom_formatters_engine_info() {
     'callbacks' => array(
       'settings form' => 'custom_formatters_engine_token_settings_form',
       'render' => 'custom_formatters_engine_token_render',
+      'export' => 'custom_formatters_engine_token_export',
     ),
     'file' => drupal_get_path('module', 'custom_formatters') . '/engines/token.inc',
   );

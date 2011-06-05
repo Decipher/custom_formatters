@@ -278,6 +278,73 @@ function custom_formatters_export_ui_form_submit(&$form, &$form_state) {
 }
 
 /**
+ * Provide a form for displaying an export.
+ */
+function custom_formatters_export_ui_export_form($form, &$form_state, $item, $title = '') {
+  $form['mode'] = array(
+    '#type' => 'select',
+    '#title' => t('Mode'),
+    '#options' => array(
+      'default' => t('CTools exportable (default)'),
+      'drupal' => t('Drupal API')
+    ),
+    '#default_value' => 'default',
+    '#ajax' => array(
+      'callback' => 'custom_formatters_export_ui_export_form_js',
+      'wrapper' => 'export-wrapper',
+    ),
+  );
+
+  $form['export'] = array(
+    '#type' => 'container',
+    '#prefix' => '<div id="export-wrapper">',
+    '#suffix' => '</div>',
+  );
+
+  $mode = isset($form_state['values']['mode']) ? $form_state['values']['mode'] : $form['mode']['#default_value'];
+  switch ($mode) {
+    case 'default':
+      $code = ctools_export_crud_export('formatters', $item);
+      break;
+
+    case 'drupal':
+      $engines = module_invoke_all('custom_formatters_engine_info');
+      $engine = $item->mode;
+      if (isset($engines[$engine]['file']) && file_exists($engines[$engine]['file'])) {
+        require_once $engines[$engine]['file'];
+      }
+
+      $module = isset($form_state['values']['module']) ? $form_state['values']['module'] : t('MYMODULE');
+      $form['export']['module'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Module name'),
+        '#default_value' => $module,
+        '#ajax' => array(
+          'callback' => 'custom_formatters_export_ui_export_form_js',
+          'wrapper' => 'export-wrapper',
+        ),
+      );
+
+      $code = $engines[$engine]['callbacks']['export']($item, $module);
+      break;
+  }
+
+  $lines = substr_count($code, "\n");
+  $form['export']['code'] = array(
+    '#type' => 'textarea',
+    '#title' => $title,
+    '#value' => $code,
+    '#rows' => $lines,
+  );
+
+  return $form;
+}
+
+function custom_formatters_export_ui_export_form_js($form, $form_state) {
+  return $form['export'];
+}
+
+/**
  * Field Types autocomplete callback.
  */
 function custom_formatters_autocomplete($string = '') {
