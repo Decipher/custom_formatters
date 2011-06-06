@@ -10,7 +10,7 @@ function <?php echo $module; ?>_field_formatter_info() {
   return array(
     '<?php echo $module; ?>_<?php echo $item->name; ?>' => array(
       'label' => t('<?php echo $item->label; ?>'),
-      'field_types' => array('<?php echo implode('\', \'', drupal_explode_tags($item->field_types)); ?>'),
+      'field types' => array('<?php echo implode('\', \'', drupal_explode_tags($item->field_types)); ?>'),
     ),
   );
 }
@@ -19,6 +19,8 @@ function <?php echo $module; ?>_field_formatter_info() {
  * Implements hook_field_formatter_view().
  */
 function <?php echo $module; ?>_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
   // Build variables array for formatter.
   $variables = array(
     '#obj_type' => $obj_type,
@@ -31,14 +33,12 @@ function <?php echo $module; ?>_field_formatter_view($obj_type, $object, $field,
   );
 
   if (function_exists($function = "{$display['module']}_field_formatter_{$display['type']}")) {
-    return array(
-      array(
-        '#markup' => $function($variables),
-      )
+    $element[0] = array(
+      '#markup' => $function($variables),
     );
   }
 
-  return array();
+  return $element;
 }
 
 /**

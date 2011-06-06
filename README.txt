@@ -21,7 +21,6 @@ TODO
 --------------------------------------------------------------------------------
 
 - Add Devel generate integraton for Preview (?).
-- Add Drupal API export mode.
 - Add documentation.
 - Add extra exmaple formatters.
 - Add upgrade path (?).

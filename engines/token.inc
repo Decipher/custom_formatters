@@ -5,6 +5,21 @@
  */
 
 /**
+ * Implements custom_formatters_engine_hook_theme_alter().
+ */
+function custom_formatters_engine_token_theme_alter(&$theme) {
+  $theme['custom_formatters_token_export'] = array(
+    'variables' => array(
+      'item' => NULL,
+      'module' => NULL,
+    ),
+    'template' => 'token.export',
+    'path' => drupal_get_path('module', 'custom_formatters') . '/engines',
+    //'file' => 'php.inc',
+  );
+}
+
+/**
  * Settings form callback for Custom Formatters Token engine.
  */
 function custom_formatters_engine_token_settings_form(&$form, $form_state, $item) {
@@ -49,8 +64,7 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
 function custom_formatters_engine_token_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
   $output = '';
 
-  $field = str_replace('_', '-', $formatter->field_types) . '-field';
-  $info = token_get_info($field);
+  $info = token_get_info("{$field['type']}-field");
   $field_value = $info['field-value-type'];
 
   foreach ($items as $item) {
@@ -64,6 +78,6 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
   return $output;
 }
 
-function custom_formatters_engine_token_export($item) {
-  return '';
+function custom_formatters_engine_token_export($item, $module) {
+  return theme('custom_formatters_token_export', array('item' => $item, 'module' => $module));
 }
