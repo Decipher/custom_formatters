@@ -13,6 +13,7 @@ files[] = engines/token.inc
 ; Module integrations.
 files[] = includes/contextual.inc
 files[] = includes/ctools.inc
+files[] = includes/custom_formatters.admin.inc
 files[] = includes/custom_formatters.inc
 files[] = includes/features.inc
 files[] = includes/field.inc

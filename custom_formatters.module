@@ -30,12 +30,22 @@ function custom_formatters_permission() {
 function custom_formatters_menu() {
   $items = array();
 
+  $items['admin/structure/formatters/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_formatters_settings_form'),
+    'access arguments' => array('administer custom formatters'),
+    'file' => 'custom_formatters.admin.inc',
+    'file path' => drupal_get_path('module', 'custom_formatters') . '/includes',
+    'type' => MENU_LOCAL_TASK,
+  );
+
   $items['js/formatters/autocomplete'] = array(
     'title' => 'Formatters autocomplete',
-    'file' => 'custom_formatters.inc',
-    'file path' => drupal_get_path('module', 'custom_formatters') . '/plugins/export_ui',
     'page callback' => 'custom_formatters_autocomplete',
     'access arguments' => array('administer custom formatters'),
+    'file' => 'custom_formatters.inc',
+    'file path' => drupal_get_path('module', 'custom_formatters') . '/plugins/export_ui',
     'type' => MENU_CALLBACK,
   );
 

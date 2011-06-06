@@ -9,10 +9,12 @@
  */
 function custom_formatters_field_formatter_info() {
   $formatters = array();
+  $settings = variable_get('custom_formatters_settings', array('label_prefix' => TRUE, 'label_prefix_value' => t('Custom')));
 
   foreach (custom_formatters_crud_load_all(TRUE) as $key => $formatter) {
+    $label = $settings['label_prefix'] ? "{$settings['label_prefix_value']}: {$formatter->label}" : $formatter->label;
     $formatters["custom_formatters_{$key}"] = array(
-      'label' => t('Custom: !label', array('!label' => $formatter->label)),
+      'label' => $label,
       'field types' => drupal_explode_tags($formatter->field_types),
     );
   }

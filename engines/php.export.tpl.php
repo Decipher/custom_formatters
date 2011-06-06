@@ -46,7 +46,6 @@ function <?php echo $module; ?>_field_formatter_view($obj_type, $object, $field,
  */
 function <?php echo $module; ?>_field_formatter_<?php echo $module; ?>_<?php echo $item->name; ?>($variables) {
 <?php foreach (explode("\n", $item->code) as $line) : ?>
-  <?php echo $line; ?>
+  <?php echo $line . "\n"; ?>
 <?php endforeach; ?>
-
 }
