@@ -259,9 +259,13 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state) {
   $display = $instance['display']['default'];
   $formatter = (object) $form_state['values'];
 
+  $js = drupal_add_js();
   $form['engine']['preview']['preview']['content'] = array(
     '#markup' => render(custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter)),
   );
+
+  $js = array_diff_assoc(drupal_add_js(), $js);
+  $form['engine']['preview']['preview']['content']['#markup'] .= drupal_get_js('header', $js);
 
   return $form['engine']['preview']['preview'];
 }
@@ -272,7 +276,7 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state) {
 function custom_formatters_export_ui_form_submit(&$form, &$form_state) {
   field_cache_clear();
   if ($form_state['values']['op'] == t('Save & Edit')) {
-    $destination = "admin/structure/formatters/list/{$form_state['item']->name}/edit";
+    $destination = "admin/structure/formatters/list/{$form_state['values']['name']}/edit";
     $_GET['destination'] = isset($_GET['destination']) ? $destination . "?destination={$_GET['destination']}" : $destination;
   }
 }

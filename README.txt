@@ -26,6 +26,3 @@ TODO
 - Add upgrade path (?).
 - Add Content Multigroup/Fieldgroup integration (?).
 - Add Display Suite integration.
-- Add Insert integration
-    - Started
-- Fix 'Save & Edit' on new Formatter.

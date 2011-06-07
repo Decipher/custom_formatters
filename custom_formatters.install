@@ -61,3 +61,22 @@ function custom_formatters_schema() {
 
   return $schema;
 }
+
+/**
+ * Implements hook_install().
+ */
+function custom_formatters_install() {
+  if (!module_exists('token')) {
+    module_enable(array('token'));
+    if (!module_exists('token')) {
+      drupal_set_message(t('The !token_module is required for the Custom Formatters !token format, this functionality will be unavailble until the !token_module is installed.', array('!token_module' => l(t('Token'), 'http://drupal.org/project/token') . ' ' . t('module'), '!token' => '"<strong>' . t('HTML + Tokens') . '</strong>"')), 'error');
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function custom_formatters_uninstall() {
+  variable_del('custom_formatters_settings');
+}
