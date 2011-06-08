@@ -108,6 +108,14 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     '#required' => TRUE,
     '#rows' => 10,
   );
+
+  $form['engine']['settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Formatter settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
   $engines[$engine]['callbacks']['settings form']($form['engine'], $form_state, $item);
 
   $options = _custom_formatters_preview_variables($form, $form_state);
