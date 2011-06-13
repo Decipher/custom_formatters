@@ -37,6 +37,7 @@ $plugin = array(
  * Custom Formatters settings form.
  */
 function custom_formatters_export_ui_form(&$form, &$form_state) {
+  drupal_add_js(drupal_get_path('module', 'custom_formatters') . '/scripts/custom_formatters.admin.js');
   $item = $form_state['item'];
 
   $engines = module_invoke_all('custom_formatters_engine_info');
@@ -225,7 +226,7 @@ function _custom_formatters_preview_variables($form, $form_state) {
     $result = $query->execute();
     $entities = entity_load($entity_type, array_keys($result[$entity_type]));
     foreach ($entities as $key => $entity) {
-      $options['entities'][$key] = "{$entity->title} [eid:{$key}]";
+      $options['entities'][$key] = "Entity ID #{$key}";
     }
   }
 

@@ -64,7 +64,7 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
 function custom_formatters_engine_token_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
   $output = '';
 
-  $info = token_get_info("{$field['type']}-field");
+  $info = token_get_info(str_replace('_', '-', $field['type']) . '-field');
   $field_value = $info['field-value-type'];
 
   foreach ($items as $item) {
