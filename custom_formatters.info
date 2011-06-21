@@ -3,7 +3,7 @@ description = Allows users to easily define custom CCK Formatters.
 dependencies[] = ctools
 dependencies[] = field
 package = Fields
-configure = admin/config/content/formatters
+configure = admin/structure/formatters
 core = 7.x
 
 ; Formatter engines.
@@ -17,6 +17,7 @@ files[] = includes/custom_formatters.admin.inc
 files[] = includes/custom_formatters.inc
 files[] = includes/features.inc
 files[] = includes/field.inc
+files[] = includes/help.inc
 files[] = includes/insert.inc
 files[] = includes/system.inc
 files[] = includes/token.inc
