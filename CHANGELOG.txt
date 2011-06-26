@@ -1,6 +1,7 @@
 Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 --------------------------------------------------------------------------------
 
+- #1188398: Added Contextual links integration settings.
 - Added documentation.
 - Added PHP engine DPM option to preview.
 
