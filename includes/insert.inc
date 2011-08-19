@@ -29,6 +29,7 @@ function custom_formatters_insert_content($item, $style, $widget) {
   $element = array(
     '#formatter' => $style['name'],
     '#item' => $item,
+    '#node' => (object) $_POST,
   );
 
   return theme('custom_formatters_formatter_' . $element['#formatter'], $element);
