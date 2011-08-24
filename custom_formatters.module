@@ -27,7 +27,7 @@ function custom_formatters_theme() {
   $theme = array();
 
   $theme['custom_formatters_overview'] = array(
-    'arguments' => array('form' => NULL)
+    'arguments' => array('form' => NULL),
     'file' => 'custom_formatters.admin.inc',
   );
 
