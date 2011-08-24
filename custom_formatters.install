@@ -72,6 +72,7 @@ function custom_formatters_install() {
  */
 function custom_formatters_uninstall() {
   drupal_uninstall_schema('custom_formatters');
+  variable_del('custom_formatters_settings');
 }
 
 /**

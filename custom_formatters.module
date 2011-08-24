@@ -218,6 +218,16 @@ function custom_formatters_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  // Formatter settings.
+  $items['admin/build/formatters/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_formatters_settings_form'),
+    'access arguments' => array('administer custom formatters'),
+    'file' => 'custom_formatters.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+
   $items['js/formatters/autocomplete'] = array(
     'title' => 'Formatters autocomplete',
     'file' => 'custom_formatters.admin.inc',
@@ -365,11 +375,13 @@ function custom_formatters_form_alter(&$form, &$form_state, $form_id) {
  */
 function custom_formatters_field_formatter_info() {
   $formatters = array();
+  $settings = variable_get('custom_formatters_settings', array('label_prefix' => TRUE, 'label_prefix_value' => t('Custom')));
 
   foreach (custom_formatters_formatters() as $formatter) {
     if ($formatter->status) {
+      $label = $settings['label_prefix'] ? "{$settings['label_prefix_value']}: {$formatter->name}" : $formatter->name;
       $formatters["custom_formatters_{$formatter->name}"] = array(
-        'label' => t('Custom: !label', array('!label' => $formatter->label)),
+        'label' => $label,
         'description' => t($formatter->description),
         'field types' => unserialize($formatter->field_types),
         'multiple values' => $formatter->multiple ? CONTENT_HANDLE_MODULE : CONTENT_HANDLE_CORE,

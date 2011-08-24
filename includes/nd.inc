@@ -8,11 +8,13 @@
  * Implements hook_type_alter().
  */
 function custom_formatters_ds_fields_alter(&$fields) {
+  $settings = variable_get('custom_formatters_settings', array('label_prefix' => TRUE, 'label_prefix_value' => t('Custom')));
   foreach (custom_formatters_formatters() as $formatter) {
     if ($formatter->status && preg_match_all('/\bnd_(.*?)\b/', implode(' ', unserialize($formatter->field_types)), $matches)) {
+      $label = $settings['label_prefix'] ? "{$settings['label_prefix_value']}: {$formatter->name}" : $formatter->name;
       foreach ($matches[1] as $key) {
         if (isset($fields[$key])) {
-          $fields[$key]['properties']['formatters']["custom_formatters_formatter_custom_formatters_{$formatter->name}"] = t('Custom: !label', array('!label' => $formatter->label));
+          $fields[$key]['properties']['formatters']["custom_formatters_formatter_custom_formatters_{$formatter->name}"] = $label;
         }
       }
     }

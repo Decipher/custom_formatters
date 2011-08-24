@@ -19,16 +19,18 @@ function fieldgroup_custom_formatters_theme(&$theme) {
  */
 function fieldgroup_custom_formatters_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'content_display_overview_form') {
+    $settings = variable_get('custom_formatters_settings', array('label_prefix' => TRUE, 'label_prefix_value' => t('Custom')));
     foreach (custom_formatters_formatters() as $formatter) {
       if ($formatter->status && in_array('fieldgroup', unserialize($formatter->field_types))) {
+        $label = $settings['label_prefix'] ? "{$settings['label_prefix_value']}: {$formatter->name}" : $formatter->name;
         foreach (fieldgroup_groups($form['#type_name']) as $group) {
           if ($group['group_type'] == 'standard') {
             $form[$group['group_name']]['full']['format']['#options'] = array_merge(
-              array("custom_formatters_{$formatter->name}" => t('Custom: !label', array('!label' => $formatter->label))),
+              array("custom_formatters_{$formatter->name}" => $label),
               $form[$group['group_name']]['full']['format']['#options']
             );
             $form[$group['group_name']]['teaser']['format']['#options'] = array_merge(
-              array("custom_formatters_{$formatter->name}" => t('Custom: !label', array('!label' => $formatter->label))),
+              array("custom_formatters_{$formatter->name}" => $label),
               $form[$group['group_name']]['teaser']['format']['#options']
             );
           }

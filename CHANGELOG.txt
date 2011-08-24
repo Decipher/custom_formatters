@@ -1,7 +1,10 @@
 Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (Development release)
 --------------------------------------------------------------------------------
 
+- #1255738 by scottrigby: Removed $module_name from Features integration.
+- #1181910: Added Label prefix settings.
 - #1177584: Fixed issue with Insert and basic Formatters.
+- #1173344: Fixed issue with Exported Formatters being exported unnecessarily.
 - #1143606 by scottrigby: Fixed issue with Features integration.
 - #1140492: Fixed Fieldgroup integration.
 - #1000164: Fixed issue with disabled formatters showing up on Insert config.
