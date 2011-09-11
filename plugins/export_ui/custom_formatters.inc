@@ -228,9 +228,11 @@ function _custom_formatters_preview_variables($form, $form_state) {
       ->entityCondition('bundle', $bundle)
       ->fieldCondition($field);
     $result = $query->execute();
-    $entities = entity_load($entity_type, array_keys($result[$entity_type]));
-    foreach ($entities as $key => $entity) {
-      $options['entities'][$key] = "Entity ID #{$key}";
+    if (!empty($result)) {
+      $entities = entity_load($entity_type, array_keys($result[$entity_type]));
+      foreach ($entities as $key => $entity) {
+        $options['entities'][$key] = "Entity ID #{$key}";
+      }
     }
   }
 

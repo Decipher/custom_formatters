@@ -1,3 +1,9 @@
+Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
+--------------------------------------------------------------------------------
+
+- #1198732: Fixed issue with preview when no entities exist.
+
+
 Custom Formatters 7.x-2.0, 2011-07-01
 --------------------------------------------------------------------------------
 
