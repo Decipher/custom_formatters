@@ -25,7 +25,7 @@ function custom_formatters_field_formatter_info() {
 /**
  * Implements hook_field_formatter_view().
  */
-function custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter = NULL) {
+function custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter = NULL, $options = array()) {
   $element = array();
 
   $formatter = empty($formatter) ? custom_formatters_crud_load(drupal_substr($display['type'], 18)) : $formatter;
@@ -40,6 +40,7 @@ function custom_formatters_field_formatter_view($obj_type, $object, $field, $ins
       $element = array(
         array(
           '#markup' => $function($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display),
+          '#cf_options' => $options,
         )
       );
     }

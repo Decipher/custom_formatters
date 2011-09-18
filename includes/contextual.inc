@@ -43,7 +43,7 @@ function contextual_custom_formatters_form_alter_alter(&$form, $form_state, $for
  * Adds contextual links to Custom Formatter fields.
  */
 function contextual_custom_formatters_field_formatter_view_element_alter(&$element, $formatter) {
-  if (user_access('access contextual links') && user_access('administer custom formatters') && _custom_formatters_contextual_access($formatter->name)) {
+  if (_custom_formatters_contextual_access($formatter->name, $element)) {
     $element[0] = array(
       'markup' => $element[0],
       'contextual_links' => array(
@@ -57,7 +57,16 @@ function contextual_custom_formatters_field_formatter_view_element_alter(&$eleme
   }
 }
 
-function _custom_formatters_contextual_access($name) {
+function _custom_formatters_contextual_access($name, $element) {
+  if (isset($element[0]['#cf_options']['#contextual_links']) && $element[0]['#cf_options']['#contextual_links'] == FALSE) {
+    return FALSE;
+  }
+
+  $user_access = user_access('access contextual links') && user_access('administer custom formatters');
+  if (!$user_access) {
+    return FALSE;
+  }
+
   $settings = variable_get('custom_formatters_settings', array('contextual' => 1));
   $contextual = isset($settings['contextual']) ? $settings['contextual'] : 1;
   $list = array_unique(explode("\r\n", isset($settings['contextual_list']) ? $settings['contextual_list'] : ''));

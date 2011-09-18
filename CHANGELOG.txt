@@ -1,7 +1,9 @@
 Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 --------------------------------------------------------------------------------
 
+- #1231096: Fixed Insert module integration.
 - #1198732: Fixed issue with preview when no entities exist.
+- Removed Contextual links support from Insert support.
 
 
 Custom Formatters 7.x-2.0, 2011-07-01
