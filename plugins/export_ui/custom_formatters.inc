@@ -37,6 +37,7 @@ $plugin = array(
  * Custom Formatters settings form.
  */
 function custom_formatters_export_ui_form(&$form, &$form_state) {
+  drupal_add_js(drupal_get_path('module', 'custom_formatters') . '/scripts/custom_formatters.admin.js');
   $item = $form_state['item'];
 
   $engines = module_invoke_all('custom_formatters_engine_info');
@@ -165,6 +166,9 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     '#options' => $options['entities'],
     '#disabled' => empty($options['entities']),
   );
+  $form['engine']['preview']['options'] = array(
+    '#type' => 'container',
+  );
   $form['engine']['preview']['button'] = array(
     '#type' => 'button',
     '#value' => t('Preview'),
@@ -179,6 +183,8 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     '#prefix' => '<div id="preview-wrapper">',
     '#suffix' => '</div>',
   );
+
+  $engines[$engine]['callbacks']['settings form']($form['engine'], $form_state, $item);
 
   $form['buttons']['edit'] = array(
     '#type' => 'submit',
@@ -231,9 +237,11 @@ function _custom_formatters_preview_variables($form, $form_state) {
       ->entityCondition('bundle', $bundle)
       ->fieldCondition($field);
     $result = $query->execute();
-    $entities = entity_load($entity_type, array_keys($result[$entity_type]));
-    foreach ($entities as $key => $entity) {
-      $options['entities'][$key] = "{$entity->title} [eid:{$key}]";
+    if (!empty($result)) {
+      $entities = entity_load($entity_type, array_keys($result[$entity_type]));
+      foreach ($entities as $key => $entity) {
+        $options['entities'][$key] = "Entity ID #{$key}";
+      }
     }
   }
 
@@ -399,10 +407,13 @@ function theme_custom_formatters_export_ui_form_preview($variable) {
         render($form['field']),
         render($form['entity']),
       ),
+      array(
+        array('data' => render($form['options']), 'colspan' => 3),
+        render($form['button'])
+      ),
     ),
   ));
 
-  $output .= render($form['button']);
   $output .= render($form['preview']);
 
   return $output;
