@@ -22,6 +22,8 @@ function custom_formatters_engine_token_theme_alter(&$theme) {
  * Settings form callback for Custom Formatters Token engine.
  */
 function custom_formatters_engine_token_settings_form(&$form, $form_state, $item) {
+  $form['code']['#attributes']['class'][] = 'syntax-html';
+
   $options = array();
   foreach (field_info_field_types() as $type => $field) {
     $options[$field['module']][$type] = $field['label'];

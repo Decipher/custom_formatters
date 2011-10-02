@@ -11,7 +11,7 @@ Features
 
 * Two default editor/renderer engines:
   * HTML + Tokens (requires Token module).
-  * PHP (with support for EditArea for real-time syntax highlighting).
+  * PHP.
 * Supports for all fieldable entities, including but not limited to:
   * Drupal Core - Comment, Node, Taxonomy term and User entities.
   * Field collection module - Field-collection item entity.
@@ -30,6 +30,8 @@ Features
   * Features module - Adds dependent Custom Formatters (from Views or Content
       types) to Feature.
   * Insert module - Exposes Custom Formatters to the Insert module.
+  * Libraries API module and the EditArea javascript library - Adds real-time
+      syntax highlighting.
 
 
 Required Modules
@@ -46,11 +48,11 @@ Recommended Modules
 * Token - http://drupal.org/project/token
 
 
-EditArea - Real-time PHP syntax highlighting
+EditArea - Real-time syntax highlighting
 --------------------------------------------------------------------------------
 
-The EditArea javascript library allows real-time syntax highlighting in the PHP
-editor, to install it follow these steps:
+The EditArea javascript library adds real-time syntax highlighting, to install
+it follow these steps:
 
 1. Download and install the Libraries API module.
     http://drupal.org/project/libraries

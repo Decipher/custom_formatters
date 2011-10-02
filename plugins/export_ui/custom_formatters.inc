@@ -37,8 +37,13 @@ $plugin = array(
  * Custom Formatters settings form.
  */
 function custom_formatters_export_ui_form(&$form, &$form_state) {
-  drupal_add_js(drupal_get_path('module', 'custom_formatters') . '/scripts/custom_formatters.admin.js');
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'custom_formatters') . '/scripts/custom_formatters.admin.js'
+  );
+
   $item = $form_state['item'];
+  $form['#item'] = $item;
+  $form['#formatters'] = TRUE;
 
   $engines = module_invoke_all('custom_formatters_engine_info');
   $engine = !empty($form_state['values']['mode']) ? $form_state['values']['mode'] : (

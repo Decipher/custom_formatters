@@ -19,6 +19,7 @@ files[] = includes/features.inc
 files[] = includes/field.inc
 files[] = includes/help.inc
 files[] = includes/insert.inc
+files[] = includes/libraries.inc
 files[] = includes/system.inc
 files[] = includes/token.inc
 
