@@ -4,18 +4,79 @@
  * Form Builder module integration.
  */
 
+/**
+ *
+ */
 function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'ctools_export_ui_edit_item_form') {
+  if ($form_id == 'ctools_export_ui_edit_item_form' && $form['#formatters'] && isset($form['engine']['settings'])) {
     module_load_include('inc', 'form_builder', 'includes/form_builder.admin');
-//
-//    // TODO: These should be auto-loaded as necessary.
-//    drupal_add_js('misc/autocomplete.js');
-//    drupal_add_js('misc/collapse.js');
-//    drupal_add_js('misc/tableheader.js');
-//    drupal_add_js('misc/textarea.js');
-//
-    $form['engine']['settings'][] = form_builder_interface('custom_formatters', 'example_php_image');
+    module_load_include('inc', 'form_builder', 'includes/form_builder.api');
+    module_load_include('inc', 'form_builder', 'includes/form_builder.cache');
+
+    $form_type = 'custom_formatters';
+    $form_id = drupal_substr($form['#build_id'], 0, 32);
+
+    // Set the current form type (used for display of the sidebar block).
+    form_builder_active_form($form_type, $form_id);
+
+    // Load the current state of the form.
+    $form_structure = _custom_formatters_form_builder_load_form($form['#item'], $form_id);
+
+    // @TODO - Compensate for Form Builder/Fieldset issues.
+    //$form['engine']['settings'] = array();
+    $form['engine']['settings']['preview'] = form_builder_preview($form, $form_state, $form_structure, $form_type, $form_id);
+
+    $form['#submit'][] = 'custom_formatters_form_builder_submit';
   }
+}
+
+/**
+ *
+ */
+function custom_formatters_form_builder_submit($form, &$form_state) {
+  module_load_include('inc', 'form_builder', 'includes/form_builder.admin');
+  module_load_include('inc', 'form_builder', 'includes/form_builder.api');
+  module_load_include('inc', 'form_builder', 'includes/form_builder.cache');
+
+  // @TODO - Reproduce this functionality or require form_builder_examples.module.
+  include drupal_get_path('module', 'form_builder') . '/examples/form_builder_examples.module';
+
+  $form_id = drupal_substr($form['form_build_id']['#value'], 0, 32);
+  $form_cache = form_builder_cache_load('custom_formatters', $form_id);
+  $form_state['item']->fapi = form_builder_examples_export_recurse($form_cache);
+
+  // Remove the cached form_builder form.
+  form_builder_cache_delete('custom_formatters', $form_id);
+}
+
+/**
+ *
+ */
+function _custom_formatters_form_builder_load_form($formatter, $form_id) {
+  $form = array();
+
+  if (!empty($formatter->name)) {
+    if (isset($formatter->fapi)) {
+      ob_start();
+      eval($formatter->fapi);
+      ob_get_clean();
+
+      if (isset($form)) {
+        foreach ($form as $key => &$element) {
+          $element['#key'] = $key;
+          $element['#form_builder'] = array(
+            'element_id' => $key,
+            'element_type' => $element['#type'],
+            'configurable' => TRUE,
+            'removable' => TRUE,
+          );
+        }
+      }
+    }
+  }
+  form_builder_cache_save('custom_formatters', $form_id, $form);
+
+  return $form;
 }
 
 /**
@@ -23,27 +84,6 @@ function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $
  */
 function custom_formatters_form_builder_types() {
   $fields = array();
-
-  $fields['number'] = array(
-    'title' => t('Number'),
-    'properties' => array(
-      'title',
-      'description',
-      'field_prefix',
-      'field_suffix',
-      'default_value',
-      'required',
-    ),
-    // TODO: how to handle validate functions?
-    'validate' => array(
-      'number',
-    ),
-    'default' => array(
-      '#key' => 'number',
-      '#title' => t('New number'),
-      '#type' => 'textfield',
-    ),
-  );
 
   $fields['select'] = array(
     'title' => t('Select list'),
@@ -57,6 +97,7 @@ function custom_formatters_form_builder_types() {
       'key_type', // Handled by options element.
       'key_type_toggle', // Handled by options element.
       'key_type_toggled', // Handled by options element.
+      'key',
     ),
     'default' => array(
       '#title' => t('New select list'),
@@ -78,6 +119,7 @@ function custom_formatters_form_builder_types() {
       'key_type', // Handled by options element.
       'key_type_toggle', // Handled by options element.
       'key_type_toggled', // Handled by options element.
+      'key',
     ),
     'default' => array(
       '#title' => t('New checkboxes'),
@@ -97,6 +139,7 @@ function custom_formatters_form_builder_types() {
       'key_type', // Handled by options element.
       'key_type_toggle', // Handled by options element.
       'key_type_toggled', // Handled by options element.
+      'key',
     ),
     'default' => array(
       '#title' => t('New radios'),
@@ -115,6 +158,7 @@ function custom_formatters_form_builder_types() {
       'default_value',
       'required',
       'size',
+      'key',
     ),
     'default' => array(
       '#title' => t('New textfield'),
@@ -131,6 +175,7 @@ function custom_formatters_form_builder_types() {
       'required',
       'rows',
       'cols',
+      'key',
     ),
     'default' => array(
       '#title' => t('New textarea'),
@@ -141,28 +186,4 @@ function custom_formatters_form_builder_types() {
   return array(
     'custom_formatters' => $fields
   );
-}
-
-/**
- * Implements hook_form_builder_load().
- */
-function custom_formatters_form_builder_load($form_type, $form_id) {
-  if ($form_type == 'custom_formatters') {
-    $form = array();
-    //dpm($form_id);
-    //$form = form_builder_examples_example();
-
-    return $form;
-  }
-}
-
-/**
- * Implementas hook_form_builder_save().
- */
-function custom_formatters_form_builder_save($form, $form_type, $form_id) {
-  if ($form_type == 'custom_formatters') {
-    //dpm($form);
-    //dpm($form_id);
-    // Save the settings based on the changes to the $form array.
-  }
 }

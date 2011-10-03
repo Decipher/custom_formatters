@@ -17,9 +17,75 @@ function custom_formatters_field_formatter_info() {
       'label' => $label,
       'field types' => drupal_explode_tags($formatter->field_types),
     );
+
+    if (isset($formatter->fapi)) {
+      ob_start();
+      eval($formatter->fapi);
+      ob_get_clean();
+
+      if (isset($form)) {
+        $formatters["custom_formatters_{$key}"]['settings'] = array();
+        foreach ($form as $form_key => $element) {
+          $formatters["custom_formatters_{$key}"]['settings'][$form_key] = isset($element['#default_value']) ? $element['#default_value'] : '';
+        }
+      }
+    }
   }
 
   return $formatters;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function custom_formatters_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $formatter = custom_formatters_crud_load(drupal_substr($display['type'], 18));
+
+  $summary = '';
+
+  if (isset($formatter->fapi)) {
+    ob_start();
+    eval($formatter->fapi);
+    ob_get_clean();
+
+    if (isset($form)) {
+      foreach ($form as $key => $element) {
+        $value = empty($settings[$key]) ? '<em>' . t('Empty') . '</em>' : $settings[$key];
+        $value = is_array($value) ? implode(', ', array_filter($value)) : $value;
+        $summary .= "{$element['#title']}: {$value}<br />";
+      }
+    }
+  }
+
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function custom_formatters_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $formatter = custom_formatters_crud_load(drupal_substr($display['type'], 18));
+
+  $element = array();
+
+  if (isset($formatter->fapi)) {
+    ob_start();
+    eval($formatter->fapi);
+    ob_get_clean();
+
+    if (isset($form)) {
+      $element = $form;
+      foreach (array_keys($element) as $key) {
+        $element[$key]['#default_value'] = $settings[$key];
+      }
+    }
+  }
+
+  return $element;
 }
 
 /**

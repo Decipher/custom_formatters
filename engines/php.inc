@@ -25,6 +25,13 @@ function custom_formatters_engine_php_settings_form(&$form) {
   $form['code']['#description'] = t('Enter the PHP code that will be evaluated. You should NOT include %php tags. The $variables object is available.', array('%php' => '<?php ?>'));
   $form['code']['#attributes']['class'][] = 'syntax-php';
 
+  $form['settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Formatter settings'),
+    '#collapsible' => TRUE,
+    //'#collapsed' => TRUE,
+  );
+
   $form['preview']['options']['dpm'] = array(
     '#type' => 'checkbox',
     '#title' => t('Output !variables array (requires !devel module).', array('!variables' => '<strong>' . t('$variables') . '</strong>', '!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))),
@@ -83,6 +90,16 @@ function custom_formatters_engine_php_render($formatter, $obj_type, $object, $fi
  * Export callback for Custom Formatters PHP engine.
  */
 function custom_formatters_engine_php_export($item, $module) {
+  if (isset($item->fapi)) {
+    ob_start();
+    eval($item->fapi);
+    ob_get_clean();
+
+    if (isset($form)) {
+      $item->form = $form;
+    }
+  }
+
   return theme('custom_formatters_php_export', array('item' => $item, 'module' => $module));
 }
 

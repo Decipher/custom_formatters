@@ -55,6 +55,9 @@ function custom_formatters_schema() {
       'code' => array(
         'type' => 'blob'
       ),
+      'fapi' => array(
+        'type' => 'blob'
+      ),
     ),
     'primary key' => array('name'),
   );
@@ -79,4 +82,12 @@ function custom_formatters_install() {
  */
 function custom_formatters_uninstall() {
   variable_del('custom_formatters_settings');
+}
+
+/**
+ * Add FAPI column to Formatters table.
+ */
+function custom_formatters_update_7200() {
+  db_add_field('formatters', 'fapi', array('type' => 'blob'));
+  return t('New FAPI column added to Formatters table.');
 }

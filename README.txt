@@ -68,3 +68,4 @@ Roadmap
 7.x-2.1
 - Add formatter settings functionality.
 - Add Devel generate integration for Preview.
+- Add Coder validation for PHP Formatters.
