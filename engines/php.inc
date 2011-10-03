@@ -23,6 +23,7 @@ function custom_formatters_engine_php_theme_alter(&$theme) {
  */
 function custom_formatters_engine_php_settings_form(&$form) {
   $form['code']['#description'] = t('Enter the PHP code that will be evaluated. You should NOT include %php tags. The $variables object is available.', array('%php' => '<?php ?>'));
+  $form['code']['#attributes']['class'][] = 'syntax-php';
 
   $form['preview']['options']['dpm'] = array(
     '#type' => 'checkbox',
@@ -30,25 +31,6 @@ function custom_formatters_engine_php_settings_form(&$form) {
     '#default_value' => module_exists('devel'),
     '#disabled' => !module_exists('devel'),
   );
-
-  // EditArea library support.
-  if (module_exists('libraries') && in_array('editarea', array_keys(libraries_get_libraries()))) {
-    $form['#attached']['js'][] = libraries_get_path('editarea') . '/edit_area/edit_area_full.js';
-    $form['#attached']['js']['editAreaLoader.init({
-      id: "edit-code",
-      syntax: "php",
-      start_highlight: true,
-      allow_resize: "y",
-      allow_toggle: false,
-      toolbar: "*",
-      word_wrap: false,
-      language: "en",
-      replace_tab_by_spaces: 2
-    });'] = array('type' => 'inline');
-
-    $form['code']['#resizable'] = FALSE;
-    $form['code']['#id'] = 'edit-code';
-  }
 }
 
 /**

@@ -20,6 +20,7 @@ files[] = includes/field.inc
 files[] = includes/form_builder.inc
 files[] = includes/help.inc
 files[] = includes/insert.inc
+files[] = includes/libraries.inc
 files[] = includes/system.inc
 files[] = includes/token.inc
 

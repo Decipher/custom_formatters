@@ -4,6 +4,7 @@ Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 - #1231096: Fixed Insert module integration.
 - #1198732: Fixed issue with preview when no entities exist.
 - Added support for the EditArea real-time syntax highlighter.
+- Fixed issue with Javascript attachment method.
 - Removed Contextual links support from Insert support.
 
 

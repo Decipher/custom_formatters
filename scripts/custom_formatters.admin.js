@@ -3,14 +3,30 @@
 
   Drupal.behaviors.customFormattersAdmin = {
     attach: function(context) {
-      // Set initial states.
+      // Set initial fieldset states.
       if (typeof Drupal.settings.customFormattersAdmin.fieldsets == 'undefined') {
         Drupal.settings.customFormattersAdmin.fieldsets = {};
         this.storeStates();
       }
-
       if (context !== document) {
         this.restoreStates();
+      }
+
+      // EditArea real-time syntax highlighter.
+      if (typeof editAreaLoader !== 'undefined' && !$('.form-item-code textarea').hasClass('editarea-processed')) {
+        $('.form-item-code textarea').addClass('editarea-processed');
+        syntax = $('.form-item-code textarea').attr('class').match(/syntax-(\w+)\b/m);
+        editAreaLoader.init({
+          id: $('.form-item-code textarea').attr('id'),
+          syntax: syntax[1],
+          start_highlight: true,
+          allow_resize: "y",
+          allow_toggle: false,
+          toolbar: "*",
+          word_wrap: false,
+          language: "en",
+          replace_tab_by_spaces: 2
+        });
       }
     },
 
