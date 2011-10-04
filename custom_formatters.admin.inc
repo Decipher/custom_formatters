@@ -283,6 +283,9 @@ function custom_formatters_formatter_basic_editor_form($form_state, $formatter =
     '#rows' => 10,
     '#default_value' => !is_null($formatter) ? $formatter->code : '',
     '#required' => TRUE,
+    '#attributes' => array(
+      'class' => 'syntax-html',
+    ),
   );
   $form['tokens'] = array(
     '#type' => 'fieldset',
@@ -318,6 +321,9 @@ function custom_formatters_formatter_advanced_editor_form($form_state, $formatte
     '#default_value' => !is_null($formatter) ? $formatter->code : '',
     '#description' => t('Enter the php code that will be evaluated. You do not need to use enclose the code between %php. The $element variable provides information about the field being formatted. The code should return a string.', array('%php' => '<?php ?>')),
     '#required' => TRUE,
+    '#attributes' => array(
+      'class' => 'syntax-php',
+    ),
   );
 
   return $form;

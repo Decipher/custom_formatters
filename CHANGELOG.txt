@@ -12,6 +12,7 @@ Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (Development release)
 - #886150: Fixed issue with formatters with identical labels being filtered out.
 - #878202: Fixed Features export location.
 - #841000: Fixed issue with empty field check.
+- Added support for the EditArea real-time syntax highlighter.
 - Changed token selector to use token tree.
 
 

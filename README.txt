@@ -1,9 +1,10 @@
-
 The Custom Formatters module allows users to easily create custom CCK Formatters
-without the need to write a custom module.
+without the need to write a custom module. Custom Formatters can then be
+exported as Features or Drupal API Formatters.
 
 Custom Formatters was written and is maintained by Stuart Clark (deciphered).
 - http://stuar.tc/lark
+- http://twitter.com/Decipher
 
 
 Features
@@ -19,24 +20,33 @@ Features
   * CCK 3.x Multigroups.
   * Display Suite fields.
   * Views.
-* Preview custom formatters during creation (requires Devel generate module).
-* Clone an existing custom formatter.
-* Convert 'basic' formattes to 'advanced' formatters.
-* Export custom formatters (including tar/tgz archive).
-* Support for the Insert module.
+* Exportable as:
+  * Drupal API formatter via:
+    * Custom Formatters export interface.
+  * Custom Formatters exportable via:
+    * Custom Formatters export interface.
+    * Features module.
+* Live preview (requires Devel generate module).
+* Integrates with:
+  * Features module - Adds dependent Custom Formatters (from Views or Content
+      types) to Feature.
+  * Insert module - Exposes Custom Formatters to the Insert module.
+  * Libraries API module and the EditArea javascript library - Adds real-time
+      syntax highlighting.
 
 
 Required Modules
 --------------------------------------------------------------------------------
 
 * Content Construction Kit (CCK)  - http://drupal.org/project/cck
-* Token                           - http://drupal.org/project/token
+* Token - http://drupal.org/project/token
 
 
 Recommended Modules
 --------------------------------------------------------------------------------
 
 * Devel (includes Devel generate) - http://drupal.org/project/devel
+* Libraries API - http://drupal.org/project/libraries
 
 
 Usage
@@ -48,6 +58,20 @@ http://[www.yoursite.com/path/to/drupal]/admin/build/formatters
 
 More information on usage, including tips & tricks, can be found in help:
 http://[www.yoursite.com/path/to/drupal]/admin/help/custom_formatters
+
+
+EditArea - Real-time syntax highlighting
+--------------------------------------------------------------------------------
+
+The EditArea javascript library adds real-time syntax highlighting, to install
+it follow these steps:
+
+1. Download and install the Libraries API module.
+    http://drupal.org/project/libraries
+
+2. Download the EditArea library and extract and move it into your libraries
+   folder as 'editarea' (eg. sites/all/libraries/editarea).
+    http://sourceforge.net/projects/editarea/files/EditArea/EditArea%200.8.2/editarea_0_8_2.zip/download
 
 
 Upgrading
