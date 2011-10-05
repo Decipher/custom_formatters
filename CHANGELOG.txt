@@ -2,13 +2,17 @@ Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (Development release)
 --------------------------------------------------------------------------------
 
 - #1255738 by scottrigby: Removed $module_name from Features integration.
+- #1202930: Added missing help.
 - #1181910: Added Label prefix settings.
 - #1177584: Fixed issue with Insert and basic Formatters.
 - #1173344: Fixed issue with Exported Formatters being exported unnecessarily.
 - #1143606 by scottrigby: Fixed issue with Features integration.
 - #1140492: Fixed Fieldgroup integration.
+- #1103586 by nicholas.alipaz: Added support for Views display and User display.
 - #1000164: Fixed issue with disabled formatters showing up on Insert config.
+- #957094: Fixed issue with Multigroup formats not being respected.
 - #934032: Fixed unsupported operand type issue.
+- #895918: Fixed issue with Basic to Advanced conversion.
 - #886150: Fixed issue with formatters with identical labels being filtered out.
 - #878202: Fixed Features export location.
 - #841000: Fixed issue with empty field check.

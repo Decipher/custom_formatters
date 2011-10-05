@@ -48,9 +48,11 @@ function custom_formatters_fieldgroup_view_multigroup(&$node, &$element, $group,
   $subgroup_settings = isset($group['settings']['multigroup']['subgroup']) ? $group['settings']['multigroup']['subgroup'] : array();
   $subgroup_format = isset($subgroup_settings[$context]['format']) ? $subgroup_settings[$context]['format'] : 'fieldset';
 
-  $element['#node'] = $node;
-  $element['#theme'] = 'custom_formatters_content_multigroup';
-  $element['#formatter'] = $subgroup_format;
+  if (strpos($subgroup_format, 'custom_formatters_') === 0) {
+    $element['#node'] = $node;
+    $element['#theme'] = 'custom_formatters_content_multigroup';
+    $element['#formatter'] = $subgroup_format;
+  }
 }
 
 function theme_custom_formatters_content_multigroup($element) {

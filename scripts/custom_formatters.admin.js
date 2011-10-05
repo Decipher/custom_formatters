@@ -1,7 +1,8 @@
 (function($) {
   Drupal.behaviors.customFormattersAdmin = function(context) {
     // EditArea real-time syntax highlighter.
-    if (typeof editAreaLoader !== 'undefined') {
+    if (typeof editAreaLoader !== 'undefined' && !$('#edit-code').hasClass('editarea-processed')) {
+      $('#edit-code').addClass('editarea-processed');
       syntax = $('#edit-code').attr('class').match(/syntax-(\w+)\b/m);
       editAreaLoader.init({
         id: 'edit-code',
