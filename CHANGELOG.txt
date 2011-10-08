@@ -1,4 +1,4 @@
-Custom Formatters 6.x-1.x-dev, xxxx-xx-xx (Development release)
+Custom Formatters 6.x-1.6, 2011-10-08
 --------------------------------------------------------------------------------
 
 - #1255738 by scottrigby: Removed $module_name from Features integration.
