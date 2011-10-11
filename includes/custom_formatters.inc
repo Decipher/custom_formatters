@@ -39,13 +39,45 @@ function custom_formatters_custom_formatters_defaults() {
   $formatter->description = 'A PHP example formatter; Display a Thumbnail image linked to a Large image.';
   $formatter->mode = 'php';
   $formatter->field_types = 'image';
-  $formatter->code = 'foreach (element_children($variables[\'#items\']) as $delta) {
-  $item = $variables[\'#items\'][$delta];
-  $thumbnail = theme(\'image_style\', array(\'style_name\' => \'thumbnail\', \'path\' => $item[\'uri\']));
-  $large = image_style_path(\'large\', $item[\'uri\']);
+  $formatter->code = '// Formatter settings.
+$settings = $variables[\'#display\'][\'settings\'];
 
-  return l($thumbnail, file_create_url($large), array(\'html\' => TRUE));
+foreach (element_children($variables[\'#items\']) as $delta) {
+  $item = $variables[\'#items\'][$delta];
+
+  $source = theme(\'image_style\', array(\'style_name\' => $settings[\'image_style_source\'], \'path\' => $item[\'uri\']));
+  $destination = image_style_path($settings[\'image_style_destination\'], $item[\'uri\']);
+
+  return l($source, file_create_url($destination), array(\'html\' => TRUE));
 }';
+  $formatter->fapi = '$form = array();
+$form[\'image_style_destination\'] = array(
+  \'#weight\' => \'1\',
+  \'#multiple_toggle\' => \'1\',
+  \'#key_type_toggled\' => \'1\',
+  \'#default_value\' => \'large\',
+  \'#options\' => array(
+    \'thumbnail\' => t(\'thumbnail\'),
+    \'medium\' => t(\'medium\'),
+    \'large\' => t(\'large\'),
+  ),
+  \'#type\' => \'select\',
+  \'#title\' => t(\'Destination image style\'),
+);
+$form[\'image_style_source\'] = array(
+  \'#default_value\' => \'thumbnail\',
+  \'#options\' => array(
+    \'thumbnail\' => t(\'thumbnail\'),
+    \'two\' => t(\'medium\'),
+    \'large\' => t(\'large\'),
+  ),
+  \'#type\' => \'select\',
+  \'#multiple_toggle\' => \'1\',
+  \'#title\' => t(\'Source image style\'),
+  \'#weight\' => \'1\',
+  \'#key_type_toggled\' => \'1\',
+);
+';
   $formatters['example_php_image'] = $formatter;
 
   $formatter = new stdClass;

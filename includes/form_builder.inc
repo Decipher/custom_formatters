@@ -9,24 +9,27 @@
  */
 function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'ctools_export_ui_edit_item_form' && $form['#formatters'] && isset($form['engine']['settings'])) {
-    module_load_include('inc', 'form_builder', 'includes/form_builder.admin');
-    module_load_include('inc', 'form_builder', 'includes/form_builder.api');
-    module_load_include('inc', 'form_builder', 'includes/form_builder.cache');
+    if ($form_state['op'] == 'add' || ($form_state['op'] == 'edit' && !custom_formatters_formatter_is_active($form_state['item']))) {
+      module_load_include('inc', 'form_builder', 'includes/form_builder.admin');
+      module_load_include('inc', 'form_builder', 'includes/form_builder.api');
+      module_load_include('inc', 'form_builder', 'includes/form_builder.cache');
 
-    $form_type = 'custom_formatters';
-    $form_id = drupal_substr($form['#build_id'], 0, 32);
+      $form_type = 'custom_formatters';
+      $form_id = drupal_substr($form['#build_id'], 0, 32);
 
-    // Set the current form type (used for display of the sidebar block).
-    form_builder_active_form($form_type, $form_id);
+      // Set the current form type (used for display of the sidebar block).
+      form_builder_active_form($form_type, $form_id);
 
-    // Load the current state of the form.
-    $form_structure = _custom_formatters_form_builder_load_form($form['#item'], $form_id);
+      // Load the current state of the form.
+      $form_structure = _custom_formatters_form_builder_load_form($form['#item'], $form_id);
 
-    // @TODO - Compensate for Form Builder/Fieldset issues.
-    //$form['engine']['settings'] = array();
-    $form['engine']['settings']['preview'] = form_builder_preview($form, $form_state, $form_structure, $form_type, $form_id);
+      $form['engine']['settings']['preview'] = form_builder_preview($form, $form_state, $form_structure, $form_type, $form_id);
+      $form['#submit'][] = 'custom_formatters_form_builder_submit';
+    }
 
-    $form['#submit'][] = 'custom_formatters_form_builder_submit';
+    else {
+      unset($form['engine']['settings']);
+    }
   }
 }
 

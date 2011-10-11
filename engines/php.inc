@@ -90,17 +90,33 @@ function custom_formatters_engine_php_render($formatter, $obj_type, $object, $fi
  * Export callback for Custom Formatters PHP engine.
  */
 function custom_formatters_engine_php_export($item, $module) {
-  if (isset($item->fapi)) {
+  $formatter = clone $item;
+
+  if (isset($formatter->fapi)) {
     ob_start();
-    eval($item->fapi);
+    eval($formatter->fapi);
     ob_get_clean();
 
     if (isset($form)) {
-      $item->form = $form;
+      $formatter->form = $form;
     }
   }
 
-  return theme('custom_formatters_php_export', array('item' => $item, 'module' => $module));
+  // Modify #default_value for hook_field_formatter_settings_form() export.
+  include drupal_get_path('module', 'form_builder') . '/examples/form_builder_examples.module';
+  foreach (element_children($form) as $key) {
+    if (isset($form[$key]['#default_value'])) {
+      unset($form[$key]['#default_value']);
+    }
+    $form[$key]['#default_value'] = "[default-value::{$key}]";
+  }
+  $formatter->fapi = form_builder_examples_export_recurse($form);
+  preg_match_all('/\'\[default-value::(.*)?\]\'/', $formatter->fapi, $matches, PREG_SET_ORDER);
+  foreach ($matches as $match) {
+    $formatter->fapi = str_replace($match[0], "\$settings['{$match[1]}']", $formatter->fapi);
+  }
+
+  return theme('custom_formatters_php_export', array('item' => $formatter, 'module' => $module));
 }
 
 /**

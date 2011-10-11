@@ -35,7 +35,21 @@ array(
  * Implements hook_field_formatter_settings_summary().
  */
 function <?php echo $module; ?>_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
 
+  $summary = '';
+
+  if ($display['type'] == '<?php echo $module; ?>_<?php echo $item->name; ?>') {
+<?php foreach (element_children($item->form) as $key) : ?>
+    // <?php echo $item->form[$key]['#title'] ?>.
+    $value = empty($settings['<?php echo $key; ?>']) ? '<em>' . t('Empty') . '</em>' : $settings['<?php echo $key; ?>'];
+    $value = is_array($value) ? implode(', ', array_filter($value)) : $value;
+    $summary .= "<?php echo $item->form[$key]['#title'] ?>: {$value}<br />";
+<?php endforeach; ?>
+  }
+
+  return $summary;
 }
 
 /**

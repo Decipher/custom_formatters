@@ -4,6 +4,7 @@ be exported as CTools Exportables, Features or Drupal API Field Formatters.
 
 Custom Formatters was written and is maintained by Stuart Clark (deciphered).
 - http://stuar.tc/lark
+- http://twitter.com/Decipher
 
 
 Features
@@ -29,6 +30,7 @@ Features
       Custom Formatters.
   * Features module - Adds dependent Custom Formatters (from Views or Content
       types) to Feature.
+  * Form Builder - Drag'n'Drop interface for builder Formatter Settings forms.
   * Insert module - Exposes Custom Formatters to the Insert module.
   * Libraries API module and the EditArea javascript library - Adds real-time
       syntax highlighting.
