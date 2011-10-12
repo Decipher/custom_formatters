@@ -8,7 +8,7 @@
  *
  */
 function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'ctools_export_ui_edit_item_form' && $form['#formatters'] && isset($form['engine']['settings'])) {
+  if (in_array($form_id, array('ctools_export_ui_edit_item_form', 'ctools_export_ui_edit_item_wizard_form')) && isset($form['#formatters']) && isset($form['engine']['settings'])) {
     if ($form_state['op'] == 'add' || ($form_state['op'] == 'edit' && !custom_formatters_formatter_is_active($form_state['item']))) {
       module_load_include('inc', 'form_builder', 'includes/form_builder.admin');
       module_load_include('inc', 'form_builder', 'includes/form_builder.api');
