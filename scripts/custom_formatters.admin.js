@@ -25,9 +25,15 @@
           toolbar: "*",
           word_wrap: false,
           language: "en",
-          replace_tab_by_spaces: 2
+          replace_tab_by_spaces: 2,
+          change_callback: 'Drupal.behaviors.customFormattersAdmin.customFormattersEAUpdate',
         });
       }
+
+      // Make sure '#edit-code' gets updated before we preview the formatter.
+      $('#engine-wrapper .form-submit').bind('mouseover', function() {
+        Drupal.behaviors.customFormattersAdmin.customFormattersEAUpdate($('.form-item-code textarea').attr('id'))
+      });
     },
 
     detach: function(context) {
@@ -48,6 +54,11 @@
           $(this).removeClass('collapsed');
         }
       });
+    },
+
+    // Update '#edit-code' with the EditArea code.
+    customFormattersEAUpdate: function(editor_id) {
+      $('#' + editor_id).val(editAreaLoader.getValue(editor_id));
     }
   }
 })(jQuery);

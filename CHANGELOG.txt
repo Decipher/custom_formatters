@@ -6,6 +6,7 @@ Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 - #1184900 by mbopp: Fixed issue with CTools plugin decleration.
 - Added support for the EditArea real-time syntax highlighter.
 - Added Entity Label in preview.
+- Added initial Devel Generate support.
 - Fixed issue with Javascript attachment method.
 - Removed Contextual links support from Insert support.
 

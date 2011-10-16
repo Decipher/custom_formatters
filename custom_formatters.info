@@ -15,6 +15,7 @@ files[] = includes/contextual.inc
 files[] = includes/ctools.inc
 files[] = includes/custom_formatters.admin.inc
 files[] = includes/custom_formatters.inc
+files[] = includes/devel_generate.inc
 files[] = includes/features.inc
 files[] = includes/field.inc
 files[] = includes/form_builder.inc
