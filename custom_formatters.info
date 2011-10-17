@@ -22,8 +22,11 @@ files[] = includes/form_builder.inc
 files[] = includes/help.inc
 files[] = includes/insert.inc
 files[] = includes/libraries.inc
+files[] = includes/node.inc
 files[] = includes/system.inc
+files[] = includes/taxonomy.inc
 files[] = includes/token.inc
+files[] = includes/user.inc
 
 ; CTools plugins.
 files[] = plugins/export_ui/custom_formatters.inc

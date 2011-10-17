@@ -10,8 +10,12 @@
  */
 function devel_generate_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
   if (in_array($form_id, array('ctools_export_ui_edit_item_form', 'ctools_export_ui_edit_item_wizard_form')) && isset($form['#formatters'])) {
-    if (count($form['engine']['preview']['field']['#options']) > 0) {
-      $form['engine']['preview']['entity']['#options']['devel_generate'] = 'Devel generate*';
+    $item = !empty($form_state['values']) ? $form_state['values'] : (array) $form_state['item'];
+    $entity_type = !empty($item['preview']['entity_type']) ? $item['preview']['entity_type'] : 'node';
+
+    $info = module_invoke_all('custom_formatters_devel_generate_info');
+    if (in_array($entity_type, array_keys($info)) && count($form['engine']['preview']['field']['#options']) > 0) {
+      $form['engine']['preview']['entity']['#options']['devel_generate'] = 'Devel generate';
       $form['engine']['preview']['entity']['#disabled'] = FALSE;
       $form['engine']['preview']['button']['#ajax']['callback'] = 'custom_formatters_export_ui_form_js_preview_devel_generate';
       $form['engine']['preview']['button']['#disabled'] = FALSE;
@@ -20,37 +24,19 @@ function devel_generate_custom_formatters_form_alter_alter(&$form, &$form_state,
 }
 
 /**
- *
+ * Submit callback for Custom Formatters live preview via Devel Generate.
  */
 function custom_formatters_export_ui_form_js_preview_devel_generate($form, $form_state) {
-  if ($form_state['values']['preview']['entity'] !== 'devel_generate') {
+  $info = module_invoke_all('custom_formatters_devel_generate_info');
+  if ($form_state['values']['preview']['entity'] !== 'devel_generate' || !function_exists($function = $info[$form_state['values']['preview']['entity_type']]['process callback'])) {
     return custom_formatters_export_ui_form_js_preview($form, $form_state);
   }
-
-  module_load_include('inc', 'devel_generate', 'devel_generate');
 
   // Clear messages.
   drupal_get_messages(NULL, TRUE);
 
   $obj_type = $form_state['values']['preview']['entity_type'];
-  //$objects = entity_load($obj_type, array($form_state['values']['preview']['entity']));
-
-  $object = new stdClass();
-  $object->type = $form_state['values']['preview']['bundle'];
-  $object->uid = $GLOBALS['user']->uid;
-  $type = node_type_get_type($object);
-  $object->title = $type->has_title ? devel_create_greeking(mt_rand(2, rand(4, 10)), TRUE) : '';
-  $object->revision = mt_rand(0,1);
-  $object->promote = mt_rand(0, 1);
-
-  devel_generate_set_language(array(), $object);
-
-  $object->created = REQUEST_TIME;
-
-  // Populate all core fields on behalf of field.module
-  module_load_include('inc', 'devel_generate', 'devel_generate.fields');
-  devel_generate_fields($object, $obj_type, $object->type);
-
+  $object = $function($form_state);
   $field = field_info_field($form_state['values']['preview']['field']);
   $instance = field_info_instance($obj_type, $field['field_name'], $form_state['values']['preview']['bundle']);
   $langcode = field_language($obj_type, $object, $field['field_name']);

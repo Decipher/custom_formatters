@@ -24,7 +24,7 @@ Features
     * Custom Formatters export interface.
     * CTools Bulk Export module.
     * Features module.
-* Live preview using real entities.
+* Live preview using real entities or Devel Generate.
 * Integrates with:
   * Drupal Contextual links module - Adds a hover link for quick editing of
       Custom Formatters.
@@ -46,6 +46,7 @@ Recommended Modules
 --------------------------------------------------------------------------------
 
 * Devel - http://drupal.org/project/devel
+  * Devel Generate (via Devel)
 * Libraries API - http://drupal.org/project/libraries
 * Token - http://drupal.org/project/token
 
@@ -68,5 +69,4 @@ Roadmap
 --------------------------------------------------------------------------------
 
 7.x-2.1
-- Add Devel generate integration for Preview.
 - Add Coder validation for PHP Formatters.
