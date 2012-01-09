@@ -42,11 +42,11 @@ function custom_formatters_insert_content($item, $style, $widget) {
     $display = $instance['display']['default'];
     $formatter = custom_formatters_crud_load(drupal_substr($style['name'], 18));
 
-    $options = array(
+    $display['cf_options'] = array(
       '#contextual_links' => FALSE,
     );
 
-    return render(custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter, $options));
+    return render(custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter));
   }
   return FALSE;
 }
