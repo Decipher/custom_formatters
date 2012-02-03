@@ -16,6 +16,7 @@ function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $
         '#title' => t('Formatter settings'),
         '#collapsible' => TRUE,
         // '#collapsed' => TRUE,
+        '#tree' => TRUE,
       );
 
       module_load_include('inc', 'form_builder', 'includes/form_builder.admin');

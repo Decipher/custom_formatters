@@ -265,18 +265,28 @@ function custom_formatters_export_ui_form_js($form, $form_state) {
 /**
  *
  */
-function custom_formatters_export_ui_form_js_preview($form, $form_state) {
+function custom_formatters_export_ui_form_js_preview($form, $form_state, $object = NULL) {
   // Clear messages.
   drupal_get_messages(NULL, TRUE);
 
   $obj_type = $form_state['values']['preview']['entity_type'];
-  $objects = entity_load($obj_type, array($form_state['values']['preview']['entity']));
-  $object = $objects[$form_state['values']['preview']['entity']];
+  if (is_null($object)) {
+    $objects = entity_load($obj_type, array($form_state['values']['preview']['entity']));
+    $object = $objects[$form_state['values']['preview']['entity']];
+  }
   $field = field_info_field($form_state['values']['preview']['field']);
   $instance = field_info_instance($obj_type, $field['field_name'], $form_state['values']['preview']['bundle']);
   $langcode = field_language($obj_type, $object, $field['field_name']);
-  $items = $object->{$field['field_name']}[$langcode];
+  if (function_exists($function = "{$field['module']}_field_load")) {
+    $items = array(field_get_items($obj_type, $object, $instance['field_name'], $langcode));
+    $function($obj_type, array($object), $field, array($instance), $langcode, $items, FIELD_LOAD_CURRENT);
+    $items = $items[0];
+  }
+
   $display = $instance['display']['default'];
+  // @TODO - Allow this to be done via form_builder.inc or any other Foramtter
+  // Settings integration modules.
+  $display['settings'] = isset($form_state['input']['settings']['preview']) ? $form_state['input']['settings']['preview'] : $display['settings'];
   // Disable contextual links in preview.
   $display['#cf_options'] = array('#contextual_links' => FALSE);
   $formatter = (object) $form_state['values'];

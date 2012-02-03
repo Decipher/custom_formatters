@@ -39,17 +39,28 @@ function custom_formatters_custom_formatters_defaults() {
   $formatter->description = 'A PHP example formatter; Display a Thumbnail image linked to a Large image.';
   $formatter->mode = 'php';
   $formatter->field_types = 'image';
-  $formatter->code = '// Formatter settings.
+  $formatter->code = '$element = array();
+
+// Formatter settings.
 $settings = $variables[\'#display\'][\'settings\'];
 
 foreach (element_children($variables[\'#items\']) as $delta) {
   $item = $variables[\'#items\'][$delta];
 
-  $source = theme(\'image_style\', array(\'style_name\' => $settings[\'image_style_source\'], \'path\' => $item[\'uri\']));
-  $destination = image_style_path($settings[\'image_style_destination\'], $item[\'uri\']);
+  $element[$delta] = array(
+    \'#type\' => \'link\',
+    \'#href\' => file_create_url(image_style_path($settings[\'image_style_destination\'], $item[\'uri\'])),
+    \'#title\' => theme(\'image_style\', array(
+      \'style_name\' => $settings[\'image_style_source\'],
+      \'path\' => $item[\'uri\'],
+    )),
+    \'#options\' => array(
+      \'html\' => TRUE,
+    ),
+  );
+}
 
-  return l($source, file_create_url($destination), array(\'html\' => TRUE));
-}';
+return $element;';
   $formatter->fapi = '$form = array();
 $form[\'image_style_destination\'] = array(
   \'#weight\' => \'1\',
@@ -65,15 +76,17 @@ $form[\'image_style_destination\'] = array(
   \'#title\' => t(\'Destination image style\'),
 );
 $form[\'image_style_source\'] = array(
+  \'#required\' => \'0\',
   \'#default_value\' => \'thumbnail\',
   \'#options\' => array(
     \'thumbnail\' => t(\'thumbnail\'),
-    \'two\' => t(\'medium\'),
+    \'medium\' => t(\'medium\'),
     \'large\' => t(\'large\'),
   ),
   \'#type\' => \'select\',
   \'#multiple_toggle\' => \'1\',
   \'#title\' => t(\'Source image style\'),
+  \'#multiple\' => \'0\',
   \'#weight\' => \'1\',
   \'#key_type_toggled\' => \'1\',
 );
