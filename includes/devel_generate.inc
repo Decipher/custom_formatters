@@ -42,6 +42,8 @@ function custom_formatters_export_ui_form_js_preview_devel_generate($form, $form
   $langcode = field_language($obj_type, $object, $field['field_name']);
   $items = $object->{$field['field_name']}[$langcode];
   $display = $instance['display']['default'];
+  // Disable contextual links in preview.
+  $display['#cf_options'] = array('#contextual_links' => FALSE);
   $formatter = (object) $form_state['values'];
 
   $js = drupal_add_js();

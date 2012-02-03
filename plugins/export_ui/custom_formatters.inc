@@ -262,6 +262,9 @@ function custom_formatters_export_ui_form_js($form, $form_state) {
   return $form['engine'];
 }
 
+/**
+ *
+ */
 function custom_formatters_export_ui_form_js_preview($form, $form_state) {
   // Clear messages.
   drupal_get_messages(NULL, TRUE);
@@ -274,6 +277,8 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state) {
   $langcode = field_language($obj_type, $object, $field['field_name']);
   $items = $object->{$field['field_name']}[$langcode];
   $display = $instance['display']['default'];
+  // Disable contextual links in preview.
+  $display['#cf_options'] = array('#contextual_links' => FALSE);
   $formatter = (object) $form_state['values'];
 
   $js = drupal_add_js();

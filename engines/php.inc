@@ -26,15 +26,22 @@ function custom_formatters_engine_php_settings_form(&$form) {
   $form['code']['#attributes']['class'][] = 'syntax-php';
 
   $form['settings'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Formatter settings'),
-    '#collapsible' => TRUE,
-    //'#collapsed' => TRUE,
+    '#type' => 'container',
   );
 
+  // Additional debugging modes.
   $form['preview']['options']['dpm'] = array(
+    '#type' => 'container',
+  );
+  $form['preview']['options']['dpm']['vars'] = array(
     '#type' => 'checkbox',
     '#title' => t('Output !variables array (requires !devel module).', array('!variables' => '<strong>' . t('$variables') . '</strong>', '!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))),
+    '#default_value' => module_exists('devel'),
+    '#disabled' => !module_exists('devel'),
+  );
+  $form['preview']['options']['dpm']['html'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Output raw HTML (requires !devel module).', array('!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))),
     '#default_value' => module_exists('devel'),
     '#disabled' => !module_exists('devel'),
   );
@@ -70,15 +77,19 @@ function custom_formatters_engine_php_render($formatter, $obj_type, $object, $fi
     '#display' => $display,
   );
 
-  // DPM $variables.
-  if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']) {
+  ob_start();
+  $output = eval($formatter->code);
+  $output = !empty($output) ? $output : ob_get_contents();
+  ob_end_clean();
+
+  // Additional debugging options.
+  if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['vars']) {
     dpm($variables);
   }
-
-  ob_start();
-  print eval($formatter->code);
-  $output = ob_get_contents();
-  ob_end_clean();
+  if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['html']) {
+    $html = $output;
+    dpm(is_array($html) ? render($html) : $html);
+  }
 
   // Recover original theme path.
   $theme_path = $old_theme_path;
