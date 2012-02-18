@@ -103,12 +103,13 @@ function custom_formatters_field_formatter_view($obj_type, $object, $field, $ins
     }
 
     if (function_exists($function = $engines[$engine]['callbacks']['render'])) {
-      $element = array($function($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display));
-      if (is_string($element[0])) {
-        $element[0] = array(
-          '#markup' => $element[0],
+      $element = $function($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display);
+      if (is_string($element)) {
+        $element = array(
+          '#markup' => $element,
         );
       }
+      $element = array($element);
       $element[0]['#cf_options'] = isset($display['#cf_options']) ? $display['#cf_options'] : array();
     }
 

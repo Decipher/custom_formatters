@@ -24,6 +24,17 @@ function custom_formatters_engine_token_theme_alter(&$theme) {
 function custom_formatters_engine_token_settings_form(&$form, $form_state, $item) {
   $form['code']['#attributes']['class'][] = 'syntax-html';
 
+  // Additional debugging modes.
+  $form['preview']['options']['dpm'] = array(
+    '#type' => 'container',
+  );
+  $form['preview']['options']['dpm']['html'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Output raw HTML (requires !devel module).', array('!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))),
+    '#default_value' => module_exists('devel'),
+    '#disabled' => !module_exists('devel'),
+  );
+
   $options = array();
   foreach (field_info_field_types() as $type => $field) {
     $options[$field['module']][$type] = $field['label'];
@@ -36,7 +47,7 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
   $entity_types = entity_get_info();
   foreach ($entity_types as $entity_type => $entity) {
     if ($entity['fieldable']) {
-      $fieldable[] = $entity_type;
+      $fieldable[] = $entity['token type'];
     }
   }
 
@@ -74,6 +85,11 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
       $field_value => $item,
       'item' => $item,
     ));
+  }
+
+  if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['html']) {
+    $html = $output;
+    dpm(is_array($html) ? render($html) : $html);
   }
 
   return $output;
