@@ -1,5 +1,6 @@
 <?php
 /**
+ * @file
  * Insert module integration.
  */
 

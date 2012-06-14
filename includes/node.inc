@@ -28,7 +28,7 @@ function custom_formatters_node_devel_generate_process($form_state) {
   $object->uid = $GLOBALS['user']->uid;
   $type = node_type_get_type($object);
   $object->title = $type->has_title ? devel_create_greeking(mt_rand(2, rand(4, 10)), TRUE) : '';
-  $object->revision = mt_rand(0,1);
+  $object->revision = mt_rand(0, 1);
   $object->promote = mt_rand(0, 1);
 
   devel_generate_set_language(array(), $object);

@@ -28,12 +28,12 @@
           replace_tab_by_spaces: 2,
           change_callback: 'Drupal.behaviors.customFormattersAdmin.customFormattersEAUpdate',
         });
-      }
 
-      // Make sure '#edit-code' gets updated before we preview the formatter.
-      $('#engine-wrapper .form-submit').bind('mouseover', function() {
-        Drupal.behaviors.customFormattersAdmin.customFormattersEAUpdate($('.form-item-code textarea').attr('id'))
-      });
+        // Make sure '#edit-code' gets updated before we preview the formatter.
+        $('#engine-wrapper .form-submit').bind('mouseover', function() {
+          Drupal.behaviors.customFormattersAdmin.customFormattersEAUpdate($('.form-item-code textarea').attr('id'))
+        });
+      }
     },
 
     detach: function(context) {

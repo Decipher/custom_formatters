@@ -84,7 +84,8 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
       $obj_type => $object,
       $field_value => $item,
       'item' => $item,
-    ));
+    ),
+    array('clear' => TRUE));
   }
 
   if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['html']) {

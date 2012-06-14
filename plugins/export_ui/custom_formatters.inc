@@ -115,7 +115,7 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
   $form['engine']['code'] = array(
     '#title' => t('Formatter'),
     '#type' => 'textarea',
-    '#default_value' =>!empty($item->code) ? $item->code : '',
+    '#default_value' => !empty($item->code) ? $item->code : '',
     '#required' => TRUE,
     '#rows' => 10,
   );
@@ -236,6 +236,8 @@ function _custom_formatters_preview_variables($form, $form_state) {
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $entity_type)
       ->entityCondition('bundle', $bundle)
+      ->addTag('random')
+      ->range(0, 50)
       ->fieldCondition($field);
     $result = $query->execute();
     if (!empty($result)) {
@@ -247,6 +249,13 @@ function _custom_formatters_preview_variables($form, $form_state) {
   }
 
   return $options;
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
+function custom_formatters_query_random_alter($query) {
+  $query->orderRandom();
 }
 
 function custom_formatters_export_ui_form_js($form, $form_state) {
@@ -368,7 +377,7 @@ function custom_formatters_export_ui_export_form($form, &$form_state, $item, $ti
   $lines = substr_count($code, "\n");
   $form['export']['code'] = array(
     '#type' => 'textarea',
-    '#title' => $title,
+    '#title' => check_plain($title),
     '#value' => $code,
     '#rows' => $lines,
   );

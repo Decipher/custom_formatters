@@ -35,13 +35,13 @@ function custom_formatters_engine_php_settings_form(&$form) {
   );
   $form['preview']['options']['dpm']['vars'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Output !variables array (requires !devel module).', array('!variables' => '<strong>' . t('$variables') . '</strong>', '!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))),
+    '#title' => t('Output <strong>$variables</strong> array (requires <a href="http://drupal.org/project/devel">Devel</a> module).'),
     '#default_value' => module_exists('devel'),
     '#disabled' => !module_exists('devel'),
   );
   $form['preview']['options']['dpm']['html'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Output raw HTML (requires !devel module).', array('!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))),
+    '#title' => t('Output raw HTML (requires <a href="http://drupal.org/project/devel">Devel</a> module).'),
     '#default_value' => module_exists('devel'),
     '#disabled' => !module_exists('devel'),
   );

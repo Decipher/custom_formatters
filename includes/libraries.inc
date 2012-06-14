@@ -1,5 +1,6 @@
 <?php
 /**
+ * @file
  * Libraries API integration.
  */
 
