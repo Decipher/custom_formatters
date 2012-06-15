@@ -1,6 +1,7 @@
 Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 --------------------------------------------------------------------------------
 
+- #1562472: Fixed issue with menu on export page.
 - #1519918: Fixed issue with empty tokens.
 - #1498584: Fixed coder issues.
 - #1360388: Added support for Render arrays in PHP formatters.
@@ -14,6 +15,7 @@ Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 - Added Devel Generate support to preview.
 - Added PHP engine DPM of raw HTML option.
 - Fixed issue with Javascript attachment method.
+- Updated CTools Export UI integration.
 - Removed Contextual links support from Insert support.
 
 
