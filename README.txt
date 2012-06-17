@@ -47,6 +47,7 @@ Recommended Modules
 
 * Devel - http://drupal.org/project/devel
   * Devel Generate (via Devel)
+* Form Builder - http://drupal.org/project/form_builder
 * Libraries API - http://drupal.org/project/libraries
 * Token - http://drupal.org/project/token
 
@@ -68,5 +69,7 @@ it follow these steps:
 Roadmap
 --------------------------------------------------------------------------------
 
-7.x-2.1
+7.x-2.2
 - Add Coder validation for PHP Formatters.
+- Add Static cache mode (read Formatters from code instead of Database).
+- Improve HTML & Token mode.

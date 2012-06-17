@@ -15,7 +15,7 @@ function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $
         '#type' => 'fieldset',
         '#title' => t('Formatter settings'),
         '#collapsible' => TRUE,
-        // '#collapsed' => TRUE,
+        '#collapsed' => TRUE,
         '#tree' => TRUE,
       );
 
@@ -58,37 +58,41 @@ function custom_formatters_form_builder_submit($form, &$form_state) {
 }
 
 /**
- *
+ * Load Form Builder form.
  */
 function _custom_formatters_form_builder_load_form($formatter, $form_id) {
   $form = array();
 
-  if (!empty($formatter->name)) {
-    if (isset($formatter->fapi)) {
-      ob_start();
-      eval($formatter->fapi);
-      ob_get_clean();
+  // Load form from cache during AJAX callback.
+  if (strstr(request_uri(), 'system/ajax')) {
+    $form = form_builder_cache_load('custom_formatters', $form_id);
+  }
 
-      if (isset($form)) {
-        foreach ($form as $key => &$element) {
-          $element['#key'] = $key;
-          $element['#form_builder'] = array(
-            'element_id' => $key,
-            'element_type' => $element['#type'],
-            'configurable' => TRUE,
-            'removable' => TRUE,
-          );
-        }
+  // Load form from formatter.
+  elseif (!empty($formatter->name) && isset($formatter->fapi)) {
+    ob_start();
+    eval($formatter->fapi);
+    ob_get_clean();
+
+    if (isset($form)) {
+      foreach ($form as $key => &$element) {
+        $element['#key'] = $key;
+        $element['#form_builder'] = array(
+          'element_id' => $key,
+          'element_type' => $element['#type'],
+          'configurable' => TRUE,
+          'removable' => TRUE,
+        );
       }
     }
+    form_builder_cache_save('custom_formatters', $form_id, $form);
   }
-  form_builder_cache_save('custom_formatters', $form_id, $form);
 
   return $form;
 }
 
 /**
- * Implements hook_form_builder_types()..
+ * Implements hook_form_builder_types().
  */
 function custom_formatters_form_builder_types() {
   $fields = array();
