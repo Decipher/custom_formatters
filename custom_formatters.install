@@ -66,19 +66,6 @@ function custom_formatters_schema() {
 }
 
 /**
- * Implements hook_install().
- */
-function custom_formatters_install() {
-  if (!module_exists('token')) {
-    module_enable(array('token'));
-    if (!module_exists('token')) {
-      drupal_set_message(st('The <a href="http://drupal.org/project/token">Token</a> module is required for the Custom Formatters <strong>HTML + Tokens</strong> format, this functionality will be unavailble until the <a href="http://drupal.org/project/token">Token</a> module is installed.'), 'error');
-    }
-  }
-}
-
-/**
-/**
  * Implements hook_uninstall().
  */
 function custom_formatters_uninstall() {

@@ -11,7 +11,7 @@ Features
 --------------------------------------------------------------------------------
 
 * Two default editor/renderer engines:
-  * HTML + Tokens (requires Token module).
+  * HTML + Tokens.
   * PHP.
 * Supports for all fieldable entities, including but not limited to:
   * Drupal Core - Comment, Node, Taxonomy term and User entities.
@@ -28,12 +28,14 @@ Features
 * Integrates with:
   * Drupal Contextual links module - Adds a hover link for quick editing of
       Custom Formatters.
+  * Entity tokens module - Leverages entity tokens for Field token support.
   * Features module - Adds dependent Custom Formatters (from Views or Content
       types) to Feature.
   * Form Builder - Drag'n'Drop interface for builder Formatter Settings forms.
   * Insert module - Exposes Custom Formatters to the Insert module.
   * Libraries API module and the EditArea javascript library - Adds real-time
       syntax highlighting.
+  * Token module - Adds the Token tree browser to the HTML + Tokens engine.
 
 
 Required Modules
@@ -47,6 +49,8 @@ Recommended Modules
 
 * Devel - http://drupal.org/project/devel
   * Devel Generate (via Devel)
+* Entity - http://drupal.org/project/entity
+  * Entity tokens (via Entity)
 * Form Builder - http://drupal.org/project/form_builder
 * Libraries API - http://drupal.org/project/libraries
 * Token - http://drupal.org/project/token
@@ -72,4 +76,4 @@ Roadmap
 7.x-2.2
 - Add Coder validation for PHP Formatters.
 - Add Static cache mode (read Formatters from code instead of Database).
-- Improve HTML & Token mode.
+- Improve HTML + Tokens engine.

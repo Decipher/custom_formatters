@@ -42,58 +42,32 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
   $form['field_types']['#type'] = 'select';
   $form['field_types']['#options'] = $options;
   unset($form['field_types']['#description']);
-
-  $fieldable = array();
-  $entity_types = entity_get_info();
-  foreach ($entity_types as $entity_type => $entity) {
-    if ($entity['fieldable']) {
-      $fieldable[] = $entity['token type'];
-    }
-  }
-
-  $field_type = !empty($form_state['values']['field_types']) ? $form_state['values']['field_types'] : (
-    !empty($item->field_types) ? $item->field_types : key($options)
-  );
-  $field = str_replace('_', '-', $field_type) . '-field';
-  $info = token_get_info($field);
-  $field_value = $info['field-value-type'];
-  $form['tokens'] = array(
-    '#title' => t('Tokens'),
-    '#type' => 'fieldset',
-    '#description' => theme('token_tree', array('token_types' => array_merge(
-      array($field_value),
-      $fieldable
-    ))),
-    '#weight' => 50,
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
 }
 
 /**
  * Render callback for Custom Formatters Token engine.
  */
 function custom_formatters_engine_token_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
-  $output = '';
+  $element = array();
 
-  $info = token_get_info(str_replace('_', '-', $field['type']) . '-field');
-  $field_value = $info['field-value-type'];
-
-  foreach ($items as $item) {
-    $output .= token_replace($formatter->code, array(
+  foreach ($items as $delta => $item) {
+    $text = $formatter->code;
+    $token_data = array(
       $obj_type => $object,
-      $field_value => $item,
       'item' => $item,
-    ),
-    array('clear' => TRUE));
+    );
+    drupal_alter('custom_formatters_token_data', $token_data, $text, $field);
+    $element[$delta] = array(
+      '#markup' => token_replace($text, $token_data, array('clear' => TRUE))
+    );
   }
 
   if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['html']) {
-    $html = $output;
-    dpm(is_array($html) ? render($html) : $html);
+    $html = $element;
+    dpm(render($html));
   }
 
-  return $output;
+  return $element;
 }
 
 /**

@@ -1,3 +1,11 @@
+Custom Formatters 7.x-2.x-dev, xxxx-xx-xx
+--------------------------------------------------------------------------------
+
+- Added support for the Entity token module.
+- Removed Token module dependency for HTML + Token formatter engine.
+- Removed obsolete token integration.
+
+
 Custom Formatters 7.x-2.1, 2012-06-17
 --------------------------------------------------------------------------------
 
