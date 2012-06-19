@@ -51,7 +51,9 @@ function custom_formatters_form_builder_submit($form, &$form_state) {
 
   $form_id = drupal_substr($form['form_build_id']['#value'], 0, 32);
   $form_cache = form_builder_cache_load('custom_formatters', $form_id);
-  $form_state['item']->fapi = form_builder_examples_export_recurse($form_cache);
+  if (is_array($form_state['item']->fapi)) {
+    $form_state['item']->fapi = form_builder_examples_export_recurse($form_cache);
+  }
 
   // Remove the cached form_builder form.
   form_builder_cache_delete('custom_formatters', $form_id);
