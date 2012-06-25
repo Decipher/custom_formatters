@@ -1,0 +1,11 @@
+#form-builder-fields .block {
+  position: static !important;
+}
+
+#form-builder .form-builder-empty-form {
+  display: none;
+}
+
+#form-builder .form-builder-title + .form-builder-empty-form {
+  display: inherit;
+}

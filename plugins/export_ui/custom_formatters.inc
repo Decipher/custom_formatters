@@ -278,6 +278,7 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state, $object
   // Clear messages.
   drupal_get_messages(NULL, TRUE);
 
+  // Build preview elements.
   $obj_type = $form_state['values']['preview']['entity_type'];
   if (is_null($object)) {
     $objects = entity_load($obj_type, array($form_state['values']['preview']['entity']));
@@ -286,10 +287,16 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state, $object
   $field = field_info_field($form_state['values']['preview']['field']);
   $instance = field_info_instance($obj_type, $field['field_name'], $form_state['values']['preview']['bundle']);
   $langcode = field_language($obj_type, $object, $field['field_name']);
-  if (function_exists($function = "{$field['module']}_field_load")) {
-    $items = array(field_get_items($obj_type, $object, $instance['field_name'], $langcode));
-    $function($obj_type, array($object), $field, array($instance), $langcode, $items, FIELD_LOAD_CURRENT);
-    $items = $items[0];
+  $items = field_get_items($obj_type, $object, $instance['field_name'], $langcode);
+
+  // Prepare field view.
+  $functions = array("{$field['module']}_field_prepare_view", "{$field['module']}_field_load");
+  foreach ($functions as $function) {
+    if (function_exists($function)) {
+      $items = array($items);
+      $function($entity_type, array($entity), $field, array($instance), $langcode, $items, FIELD_LOAD_CURRENT);
+      $items = $items[0];
+    }
   }
 
   $display = $instance['display']['default'];

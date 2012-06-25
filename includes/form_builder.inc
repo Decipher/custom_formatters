@@ -11,6 +11,8 @@
 function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
   if (in_array($form_id, array('ctools_export_ui_edit_item_form', 'ctools_export_ui_edit_item_wizard_form')) && isset($form['#formatters']) && isset($form['engine']['settings'])) {
     if ($form_state['op'] == 'add' || ($form_state['op'] == 'edit' && !custom_formatters_formatter_is_active($form_state['item']))) {
+      drupal_add_css(drupal_get_path('module', 'custom_formatters') . '/styles/custom_formatters.form_builder.css');
+
       $form['engine']['settings'] = array(
         '#type' => 'fieldset',
         '#title' => t('Formatter settings'),
