@@ -7,6 +7,7 @@ Custom Formatters 7.x-2.x-dev, xxxx-xx-xx
 - Updated preview integration.
 - Updated render array/multifield support.
 - Updated example PHP formatter.
+- Updated raw HTML debug code.
 - Removed Token module dependency for HTML + Token formatter engine.
 - Removed obsolete token integration.
 

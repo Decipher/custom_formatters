@@ -309,13 +309,32 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state, $object
   $display['#cf_options'] = array('#contextual_links' => FALSE);
   $formatter = (object) $form_state['values'];
 
+  // Build the preview html.
+  $element = custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter);
+  $variables = array(
+    'element' => array_merge($element, array(
+      '#label_display' => 'hidden',
+      '#title' => NULL,
+      '#items' => $element,
+      '#field_name' => $field['field_name'],
+      '#field_type' => $field['type']
+    )),
+  );
+  foreach (array_keys($element) as $delta) {
+    $variables['item_attributes'][$delta] = NULL;
+  }
+
   $js = drupal_add_js();
   $form['engine']['preview']['preview']['content'] = array(
-    '#markup' => render(custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter)),
+    '#markup' => theme('field', $variables),
   );
-
   $js = array_diff_assoc(drupal_add_js(), $js);
   $form['engine']['preview']['preview']['content']['#markup'] .= drupal_get_js('header', $js);
+
+  // Preview debugging; Show the output HTML.
+  if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['html']) {
+    dpm(theme('field', $variables));
+  }
 
   return $form['engine']['preview']['preview'];
 }

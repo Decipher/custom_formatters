@@ -82,13 +82,9 @@ function custom_formatters_engine_php_render($formatter, $obj_type, $object, $fi
   $output = !empty($output) ? $output : ob_get_contents();
   ob_end_clean();
 
-  // Additional debugging options.
+  // Preview debugging; Show the available variables data.
   if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['vars']) {
     dpm($variables);
-  }
-  if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['html']) {
-    $html = $output;
-    dpm(is_array($html) ? render($html) : $html);
   }
 
   // Recover original theme path.

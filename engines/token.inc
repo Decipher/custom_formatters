@@ -62,11 +62,6 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
     );
   }
 
-  if (module_exists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['html']) {
-    $html = $element;
-    dpm(render($html));
-  }
-
   return $element;
 }
 
