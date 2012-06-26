@@ -4,6 +4,7 @@ Custom Formatters 7.x-2.x-dev, xxxx-xx-xx
 - Fixed issue with Form builder.
 - Added support for the Entity token module.
 - Improved preview.
+- Improved render array/multifield support.
 - Removed Token module dependency for HTML + Token formatter engine.
 - Removed obsolete token integration.
 

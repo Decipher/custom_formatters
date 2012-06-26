@@ -233,17 +233,19 @@ function _custom_formatters_preview_variables($form, $form_state) {
   $options['entities'] = array();
   if (!empty($options['fields'])) {
     $field = !empty($item['preview']['field']) ? $item['preview']['field'] : key($options['fields']);
-    $query = new EntityFieldQuery();
-    $query->entityCondition('entity_type', $entity_type)
-      ->entityCondition('bundle', $bundle)
-      ->addTag('random')
-      ->range(0, 50)
-      ->fieldCondition($field);
-    $result = $query->execute();
-    if (!empty($result)) {
-      $entities = entity_load($entity_type, array_keys($result[$entity_type]));
-      foreach ($entities as $key => $entity) {
-        $options['entities'][$key] = entity_label($entity_type, $entity) . " [eid:{$key}]";
+    if (strstr($field, 'field_')) {
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', $entity_type)
+        ->entityCondition('bundle', $bundle)
+        ->addTag('random')
+        ->range(0, 50)
+        ->fieldCondition($field);
+      $result = $query->execute();
+      if (!empty($result)) {
+        $entities = entity_load($entity_type, array_keys($result[$entity_type]));
+        foreach ($entities as $key => $entity) {
+          $options['entities'][$key] = entity_label($entity_type, $entity) . " [eid:{$key}]";
+        }
       }
     }
   }

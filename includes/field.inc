@@ -106,11 +106,14 @@ function custom_formatters_field_formatter_view($obj_type, $object, $field, $ins
       $element = $function($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display);
       if (is_string($element)) {
         $element = array(
-          '#markup' => $element,
+          array(
+            '#markup' => $element,
+          ),
         );
       }
-      $element = array($element);
-      $element[0]['#cf_options'] = isset($display['#cf_options']) ? $display['#cf_options'] : array();
+      foreach (element_children($element) as $delta) {
+        $element[$delta]['#cf_options'] = isset($display['#cf_options']) ? $display['#cf_options'] : array();
+      }
     }
 
     // Allow other modules to modify the element.

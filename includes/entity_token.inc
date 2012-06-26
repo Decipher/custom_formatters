@@ -44,9 +44,11 @@ function entity_token_custom_formatters_token_data_alter(&$token_data, &$text, $
       if (!empty($token_info['entity-token']) && isset($token_info['type']) && entity_token_types_chained($token_info['type'])) {
         $token_types = entity_token_types_chained();
         $item_token_type = entity_property_list_extract_type($token_info['type']);
-        $entity = entity_load($token_types[$item_token_type], array($token_data['item']['tid']));
-        $token_data[$token_info['type']] = array($entity[$token_data['item']['tid']]);
-        $text = str_replace('[list:', "[{$token_info['type']}:", $text);
+        if (isset($token_types[$item_token_type])) {
+          $entity = entity_load($token_types[$item_token_type], array($token_data['item']['tid']));
+          $token_data[$token_info['type']] = array($entity[$token_data['item']['tid']]);
+          $text = str_replace('[list:', "[{$token_info['type']}:", $text);
+        }
         return;
       }
     }

@@ -44,16 +44,18 @@ function contextual_custom_formatters_form_alter_alter(&$form, $form_state, $for
  */
 function contextual_custom_formatters_field_formatter_view_element_alter(&$element, $formatter) {
   if (_custom_formatters_contextual_access($formatter->name, $element)) {
-    $element[0] = array(
-      'markup' => $element[0],
-      'contextual_links' => array(
-        '#type' => 'contextual_links',
-        '#contextual_links' => array('custom_formatters' => array('admin/structure/formatters/list', array($formatter->name, 'edit'))),
-        '#element' => $element[0],
-      ),
-      '#prefix' => '<div class="contextual-links-region">',
-      '#suffix' => '</div>',
-    );
+    foreach (element_children($element) as $delta) {
+      $element[$delta] = array(
+        'markup' => $element[$delta],
+        'contextual_links' => array(
+          '#type' => 'contextual_links',
+          '#contextual_links' => array('custom_formatters' => array('admin/structure/formatters/list', array($formatter->name, 'edit'))),
+          '#element' => $element[$delta],
+        ),
+        '#prefix' => '<div class="contextual-links-region">',
+        '#suffix' => '</div>',
+      );
+    }
   }
 }
 
