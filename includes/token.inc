@@ -31,3 +31,25 @@ function token_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alte
     );
   }
 }
+
+/**
+ * Implements hook_custom_formatters_form_builder_types_alter() on behalf of
+ * token.module.
+ */
+function token_custom_formatters_form_builder_types_alter(&$fields) {
+  $fields['token_tree'] = array(
+    'title' => t('Token tree'),
+    'properties' => array(
+      'title',
+      'key'
+    ),
+    'default' => array(
+      '#title' => t('Tokens'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#theme' => 'token_tree',
+      '#token_types' => 'all',
+    ),
+  );
+}

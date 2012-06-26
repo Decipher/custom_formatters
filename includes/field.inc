@@ -52,10 +52,13 @@ function custom_formatters_field_formatter_settings_summary($field, $instance, $
 
     if (isset($form)) {
       foreach ($form as $key => $element) {
-        $value = empty($settings[$key]) ? '<em>' . t('Empty') . '</em>' : $settings[$key];
-        $value = is_array($value) ? implode(', ', array_filter($value)) : $value;
-        $summary .= "{$element['#title']}: {$value}<br />";
+        if (isset($element['#type']) && !in_array($element['#type'], array('fieldset'))) {
+          $value = empty($settings[$key]) ? '<em>' . t('Empty') . '</em>' : $settings[$key];
+          $value = is_array($value) ? implode(', ', array_filter($value)) : $value;
+          $summary .= "{$element['#title']}: {$value}<br />";
+        }
       }
+      $summary = !empty($summary) ? $summary : ' ';
     }
   }
 

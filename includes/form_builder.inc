@@ -53,7 +53,7 @@ function custom_formatters_form_builder_submit($form, &$form_state) {
 
   $form_id = drupal_substr($form['form_build_id']['#value'], 0, 32);
   $form_cache = form_builder_cache_load('custom_formatters', $form_id);
-  if (is_array($form_state['item']->fapi)) {
+  if (is_array($form_cache)) {
     $form_state['item']->fapi = form_builder_examples_export_recurse($form_cache);
   }
 
@@ -198,6 +198,9 @@ function custom_formatters_form_builder_types() {
       '#type' => 'textarea',
     ),
   );
+
+  // Allow other modules to modify the fields.
+  drupal_alter('custom_formatters_form_builder_types', $fields);
 
   return array(
     'custom_formatters' => $fields
