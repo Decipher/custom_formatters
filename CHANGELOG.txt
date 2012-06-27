@@ -4,6 +4,7 @@ Custom Formatters 7.x-2.x-dev, xxxx-xx-xx
 - Fixed issue with Form builder.
 - Added support for the Entity token module.
 - Added Image styles and Token tree Form builder elements.
+- Added force wrap style to preview debug.
 - Updated preview integration.
 - Updated render array/multifield support.
 - Updated example PHP formatter.

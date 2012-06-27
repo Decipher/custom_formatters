@@ -44,10 +44,22 @@ function entity_token_custom_formatters_token_data_alter(&$token_data, &$text, $
       if (!empty($token_info['entity-token']) && isset($token_info['type']) && entity_token_types_chained($token_info['type'])) {
         $token_types = entity_token_types_chained();
         $item_token_type = entity_property_list_extract_type($token_info['type']);
+
+        // List tokens.
         if (isset($token_types[$item_token_type])) {
-          $entity = entity_load($token_types[$item_token_type], array($token_data['item']['tid']));
-          $token_data[$token_info['type']] = array($entity[$token_data['item']['tid']]);
+          $entity_info = entity_get_info($token_types[$item_token_type]);
+          $entity = entity_load($token_types[$item_token_type], array($token_data['item'][$entity_info['entity keys']['id']]));
+          $token_data[$token_info['type']] = array($entity[$token_data['item'][$entity_info['entity keys']['id']]]);
           $text = str_replace('[list:', "[{$token_info['type']}:", $text);
+        }
+
+        // Structural tokens.
+        elseif ('struct' == $token_info['type']) {
+          $entity_info = entity_get_info($field['type']);
+          if (isset($entity_info['entity keys'])) {
+            $entity = entity_load($field['type'], array($token_data['item'][$entity_info['entity keys']['id']]));
+            $token_data['struct'] = entity_metadata_wrapper($field['type'], $entity[$token_data['item'][$entity_info['entity keys']['id']]]);
+          }
         }
         return;
       }

@@ -42,8 +42,13 @@ function custom_formatters_custom_formatters_ctools_export_ui() {
  * Custom Formatters settings form.
  */
 function custom_formatters_export_ui_form(&$form, &$form_state) {
-  $form['#attached']['js'] = array(
-    drupal_get_path('module', 'custom_formatters') . '/scripts/custom_formatters.admin.js'
+  $form['#attached'] = array(
+    'css' => array(
+      drupal_get_path('module', 'custom_formatters') . '/styles/custom_formatters.css',
+    ),
+    'js' => array(
+      drupal_get_path('module', 'custom_formatters') . '/scripts/custom_formatters.admin.js',
+    ),
   );
 
   $item = $form_state['item'];

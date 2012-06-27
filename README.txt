@@ -74,6 +74,11 @@ Roadmap
 --------------------------------------------------------------------------------
 
 7.x-2.2
+- Improve HTML + Tokens engine.
+
+7.x-2.3
 - Add Coder validation for PHP Formatters.
 - Add Static cache mode (read Formatters from code instead of Database).
-- Improve HTML + Tokens engine.
+
+7.x-2.4
+- Add Display Suite integration.
