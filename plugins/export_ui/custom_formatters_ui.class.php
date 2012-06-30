@@ -51,6 +51,7 @@ class custom_formatters_ui extends ctools_export_ui {
     }
     $this->rows[$name]['data'][] = array('data' => check_plain($name), 'class' => array('ctools-export-ui-name'));
     $this->rows[$name]['data'][] = array('data' => check_plain($engines[$item->mode]['label']), 'class' => array('ctools-export-ui-format'));
+    $this->rows[$name]['data'][] = array('data' => !empty($item->fapi) && drupal_strlen($item->fapi) > 17 ? t('Yes') : t('No'), 'class' => array('ctools-export-ui-fapi'));
     $this->rows[$name]['data'][] = array('data' => check_plain($item->{$schema['export']['export type string']}), 'class' => array('ctools-export-ui-storage'));
 
     $ops = theme('links__ctools_dropbutton', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline'))));
@@ -77,6 +78,7 @@ class custom_formatters_ui extends ctools_export_ui {
 
     $header[] = array('data' => t('Name'), 'class' => array('ctools-export-ui-name'));
     $header[] = array('data' => t('Format'), 'class' => array('ctools-export-ui-format'));
+    $header[] = array('data' => t('Formater settings'), 'class' => array('ctools-export-ui-fapi'));
     $header[] = array('data' => t('Storage'), 'class' => array('ctools-export-ui-storage'));
     $header[] = array('data' => t('Operations'), 'class' => array('ctools-export-ui-operations'));
 
