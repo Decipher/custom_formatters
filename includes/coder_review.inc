@@ -19,6 +19,11 @@ function coder_review_custom_formatters_form_alter_alter(&$form, &$form_state, $
       '#collapsed' => TRUE,
     );
 
+    $reviews = _coder_review_settings_form(_coder_review_get_default_settings('files'), $system = array(), $files = array());
+    $form['engine']['coder_review']['reviews'] = array_merge($reviews['coder_reviews_group'], array(
+      '#collapsed' => TRUE,
+    ));
+
     $form['engine']['coder_review']['review'] = array(
       '#type' => 'container',
       '#prefix' => '<div id="coder-review-wrapper">',
@@ -49,23 +54,25 @@ function custom_formatters_coder_review(&$form, $form_state) {
     $file = str_replace($base_url . base_path(), '', file_create_url("{$directory}/{$md5}.php"));
 
     $form_state = array(
-      'storage' => array_merge(_coder_review_get_default_settings('files'), array(
-        'coder_severity' => 1,
+      'storage' => array(
+        'coder_reviews' => $form_state['values']['coder_reviews'],
+        'coder_severity' => $form_state['values']['coder_severity'],
         'coder_file_list' => $file,
         'coder_files' => 1,
-      ))
+      )
     );
     $review = coder_review_page_form(array(), $form_state, 'files');
 
     $form['engine']['coder_review']['review'][$file] = $review[$file]['output'];
     foreach ($form['engine']['coder_review']['review'][$file]['#results'] as &$result) {
       // Adjust the line numbering.
-      $result = preg_replace('/\/\>Line (\d)+:(.*?<pre>)/e', '"/>Line " . ($1 - 5) . ":$2"', $result);
+      $result = preg_replace('/\/\>Line (\d+):(.*?<pre>)/e', '"/>Line " . ($1 - 5) . ":$2"', $result);
     }
     unset($form['engine']['coder_review']['review'][$file]['#filename']);
 
     file_unmanaged_delete("{$directory}/{$md5}.php");
   }
 
+  drupal_get_messages(NULL, TRUE);
   return $form['engine']['coder_review']['review'];
 }

@@ -26,6 +26,8 @@ Features
     * Features module.
 * Live preview using real entities or Devel Generate.
 * Integrates with:
+  * Coder Review module - review your Custom Formatter code for Drupal coding
+      standards and more.
   * Drupal Contextual links module - Adds a hover link for quick editing of
       Custom Formatters.
   * Entity tokens module - Leverages entity tokens for Field token support.
@@ -47,6 +49,8 @@ Required Modules
 Recommended Modules
 --------------------------------------------------------------------------------
 
+* Coder - http://drupal.org/project/coder
+  * Coder Review (via Coder)
 * Devel - http://drupal.org/project/devel
   * Devel Generate (via Devel)
 * Entity - http://drupal.org/project/entity
