@@ -130,6 +130,6 @@ function custom_formatters_engine_php_export($item, $module) {
  * Help callback for Custom Formatters PHP engine.
  */
 function custom_formatters_engine_php_help() {
-  return t('A PHP Formatter is essentially a standard Drupal API Field Formatter, the primary difference is that all availble parameters have been bundled into a !variables array for ease of use.', array('!variables' => '<strong>$variables</strong>')) . "<br />\n"
-       . t('The Formatter should be PHP code that returns a value and it should NOT include %php tags.', array('%php' => '<?php ?>')) . "\n";
+  return t('A PHP Formatter is essentially a standard Drupal API Field Formatter, the primary difference is that all availble parameters have been bundled into a <strong>$variables</strong> array for ease of use.') . "<br />\n"
+       . t('The Formatter should be PHP code that returns either a value or <a href="http://drupal.org/node/930760">Render Array</a> and it should NOT include <em><?php ?></em> tags.') . "\n";
 }

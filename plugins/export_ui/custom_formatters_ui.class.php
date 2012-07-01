@@ -78,7 +78,7 @@ class custom_formatters_ui extends ctools_export_ui {
 
     $header[] = array('data' => t('Name'), 'class' => array('ctools-export-ui-name'));
     $header[] = array('data' => t('Format'), 'class' => array('ctools-export-ui-format'));
-    $header[] = array('data' => t('Formater settings'), 'class' => array('ctools-export-ui-fapi'));
+    $header[] = array('data' => t('Formatter settings'), 'class' => array('ctools-export-ui-fapi'));
     $header[] = array('data' => t('Storage'), 'class' => array('ctools-export-ui-storage'));
     $header[] = array('data' => t('Operations'), 'class' => array('ctools-export-ui-operations'));
 
