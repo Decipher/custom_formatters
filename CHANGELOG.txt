@@ -1,4 +1,4 @@
-Custom Formatters 7.x-2.x-dev, xxxx-xx-xx
+Custom Formatters 7.x-2.2, 2012-07-04
 --------------------------------------------------------------------------------
 
 - Fixed issue with Form builder.
