@@ -14,7 +14,7 @@ function custom_formatters_features_pipe_field_alter(&$pipe, $data, $export) {
     foreach ($field['display'] as $display) {
       if (isset($display['module']) && $display['module'] == 'custom_formatters') {
         $formatter = custom_formatters_crud_load(drupal_substr($display['type'], 18));
-        if ($formatter->export_type == EXPORT_IN_DATABASE) {
+        if ($formatter && isset($formatter->export_type) && $formatter->export_type == EXPORT_IN_DATABASE) {
           $pipe['formatters'][$formatter->name] = $formatter->name;
         }
       }
