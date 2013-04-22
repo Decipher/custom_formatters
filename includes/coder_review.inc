@@ -19,7 +19,9 @@ function coder_review_custom_formatters_form_alter_alter(&$form, &$form_state, $
       '#collapsed' => TRUE,
     );
 
-    $reviews = _coder_review_settings_form(_coder_review_get_default_settings('files'), $system = array(), $files = array());
+    module_load_include('common.inc', 'coder_review');
+    $system = $files = array();
+    $reviews = _coder_review_settings_form(_coder_review_get_default_settings('files'), $system, $files);
     $form['engine']['coder_review']['reviews'] = array_merge($reviews['coder_reviews_group'], array(
       '#collapsed' => TRUE,
     ));

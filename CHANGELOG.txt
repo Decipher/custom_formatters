@@ -1,3 +1,10 @@
+Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
+--------------------------------------------------------------------------------
+
+- #1920220: Fixed issue with coder review integration.
+
+
+
 Custom Formatters 7.x-2.2, 2012-07-04
 --------------------------------------------------------------------------------
 
@@ -14,6 +21,7 @@ Custom Formatters 7.x-2.2, 2012-07-04
 - Updated documentation.
 - Removed Token module dependency for HTML + Token formatter engine.
 - Removed obsolete token integration.
+
 
 
 Custom Formatters 7.x-2.1, 2012-06-17
@@ -38,12 +46,14 @@ Custom Formatters 7.x-2.1, 2012-06-17
 - Removed Contextual links support from Insert support.
 
 
+
 Custom Formatters 7.x-2.0, 2011-07-01
 --------------------------------------------------------------------------------
 
 - #1188398: Added Contextual links integration settings.
 - Added documentation.
 - Added PHP engine DPM option to preview.
+
 
 
 Custom Formatters 7.x-2.0-beta3, 2011-06-15
@@ -56,11 +66,13 @@ Custom Formatters 7.x-2.0-beta3, 2011-06-15
 - Fixed issue with Fieldsets states being reverted on AJAX callback.
 
 
+
 Custom Formatters 7.x-2.0-beta2, 2011-06-02
 --------------------------------------------------------------------------------
 
 - Fixed critical install issue.
 - Removed support for non-fieldable entities.
+
 
 
 Custom Formatters 7.x-2.0-beta1, 2011-06-01
