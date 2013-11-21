@@ -2,6 +2,7 @@ Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 --------------------------------------------------------------------------------
 
 - #1920220: Fixed issue with coder review integration.
+- #1721294: Removed makefile.
 
 
 

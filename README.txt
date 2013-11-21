@@ -7,6 +7,7 @@ Custom Formatters was written and is maintained by Stuart Clark (deciphered).
 - http://twitter.com/Decipher
 
 
+
 Features
 --------------------------------------------------------------------------------
 
@@ -26,7 +27,7 @@ Features
     * Features module.
 * Live preview using real entities or Devel Generate.
 * Integrates with:
-  * Coder Review module - review your Custom Formatter code for Drupal coding
+  * Coder Review module - Review your Custom Formatter code for Drupal coding
       standards and more.
   * Drupal Contextual links module - Adds a hover link for quick editing of
       Custom Formatters.
@@ -40,10 +41,12 @@ Features
   * Token module - Adds the Token tree browser to the HTML + Tokens engine.
 
 
+
 Required Modules
 --------------------------------------------------------------------------------
 
 * Chaos tool suite - http://drupal.org/project/ctools
+
 
 
 Recommended Modules
@@ -60,6 +63,7 @@ Recommended Modules
 * Token - http://drupal.org/project/token
 
 
+
 EditArea - Real-time syntax highlighting
 --------------------------------------------------------------------------------
 
@@ -74,13 +78,48 @@ it follow these steps:
     http://sourceforge.net/projects/editarea/files/EditArea/EditArea%200.8.2/editarea_0_8_2.zip/download
 
 
+
+Makefile entries
+--------------------------------------------------------------------------------
+
+For easy downloading of Custom Formatters and it's required/recommended modules
+and/or libraries, you can use the following entries in your makefile:
+
+
+  projects[coder][subdir] = contrib
+  projects[coder][version] = 2.0
+
+  projects[ctools][subdir] = contrib
+  projects[ctools][version] = 1.3
+
+  projects[devel][subdir] = contrib
+  projects[devel][version] = 1.3
+
+  projects[entity][subdir] = contrib
+  projects[entity][version] = 1.2
+
+  projects[form_builder][subdir] = contrib
+  projects[form_builder][version] = 1.4
+
+  projects[libraries][subdir] = contrib
+  projects[libraries][version] = 2.1
+
+  projects[options_element][subdir] = contrib
+  projects[options_element][version] = 1.9
+
+  projects[token][subdir] = contrib
+  projects[token][version] = 1.5
+
+  libraries[editarea][download][type] = get
+  libraries[editarea][download][url] = http://downloads.sourceforge.net/project/editarea/EditArea/EditArea%200.8.2/editarea_0_8_2.zip?r=&ts=1334742944&use_mirror=internode
+
+
+
 Roadmap
 --------------------------------------------------------------------------------
 
-7.x-2.2
-- Improve HTML + Tokens engine.
-
 7.x-2.3
+- Improve HTML + Tokens engine.
 - Add Static cache mode (read Formatters from code instead of Database).
 
 7.x-2.4
