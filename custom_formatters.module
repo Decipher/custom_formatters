@@ -101,3 +101,30 @@ function custom_formatters_crud_load_all($flush_cache = FALSE) {
 
   return $formatters;
 }
+
+/**
+ *
+ */
+function custom_formatters_mode() {
+  $mode = isset($GLOBALS['conf']['custom_formatters_settings']['mode'])
+    ? $GLOBALS['conf']['custom_formatters_settings']['mode']
+    : 'static';
+  if ($mode == 'static') {
+    $file = 'public://custom_formatters/custom_formatters.inc';
+    if (!file_exists($file) || md5_file($file) != variable_get('custom_formatters_static_cache', '')) {
+      custom_formatters_static_cache_rebuild($file);
+    }
+  }
+  return '';
+}
+
+/**
+ *
+ */
+function custom_formatters_static_cache_rebuild($file) {
+  $engines = module_invoke_all('custom_formatters_engine_info');
+  $pathinfo = pathinfo($file);
+  if (file_prepare_directory($pathinfo['dirname'], FILE_CREATE_DIRECTORY)) {
+    custom_formatters_crud_load_all();
+  }
+}
