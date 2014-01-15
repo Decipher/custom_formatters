@@ -90,7 +90,7 @@ function custom_formatters_engine_php_render($formatter, $obj_type, $object, $fi
   // Recover original theme path.
   $theme_path = $old_theme_path;
 
-  return $output;
+  return empty($output) ? FALSE : $output;
 }
 
 /**
