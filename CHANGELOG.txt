@@ -3,6 +3,7 @@ Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 
 - #1920220: Fixed issue with coder review integration.
 - #1721294: Removed makefile.
+- #816924: Added Display suite integration.
 - Fixed issue when returning an empty result.
 
 

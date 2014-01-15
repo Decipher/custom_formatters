@@ -107,6 +107,9 @@ function custom_formatters_field_formatter_view($obj_type, $object, $field, $ins
 
     if (function_exists($function = $engines[$engine]['callbacks']['render'])) {
       $element = $function($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display);
+      if (!$element) {
+        return FALSE;
+      }
       if (is_string($element)) {
         $element = array(
           array(

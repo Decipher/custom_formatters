@@ -29,6 +29,7 @@ Features
 * Integrates with:
   * Coder Review module - Review your Custom Formatter code for Drupal coding
       standards and more.
+  * Display Suite module - Format Display Suite fields.
   * Drupal Contextual links module - Adds a hover link for quick editing of
       Custom Formatters.
   * Entity tokens module - Leverages entity tokens for Field token support.
@@ -119,8 +120,8 @@ Roadmap
 --------------------------------------------------------------------------------
 
 7.x-2.3
+- Add Display Suite integration.
 - Improve HTML + Tokens engine.
-- Add Static cache mode (read Formatters from code instead of Database).
 
 7.x-2.4
-- Add Display Suite integration.
+- Add Static cache mode (read Formatters from code instead of Database).

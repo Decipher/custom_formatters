@@ -286,27 +286,34 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state, $object
   drupal_get_messages(NULL, TRUE);
 
   // Build preview elements.
-  $obj_type = $form_state['values']['preview']['entity_type'];
+  $elements['obj_type'] = $form_state['values']['preview']['entity_type'];
   if (is_null($object)) {
-    $objects = entity_load($obj_type, array($form_state['values']['preview']['entity']));
-    $object = $objects[$form_state['values']['preview']['entity']];
+    $objects = entity_load($elements['obj_type'], array($form_state['values']['preview']['entity']));
+    $elements['object'] = $objects[$form_state['values']['preview']['entity']];
   }
-  $field = field_info_field($form_state['values']['preview']['field']);
-  $instance = field_info_instance($obj_type, $field['field_name'], $form_state['values']['preview']['bundle']);
-  $langcode = field_language($obj_type, $object, $field['field_name']);
-  $items = field_get_items($obj_type, $object, $instance['field_name'], $langcode);
 
-  // Prepare field view.
-  $functions = array("{$field['module']}_field_prepare_view", "{$field['module']}_field_load");
-  foreach ($functions as $function) {
-    if (function_exists($function)) {
-      $items = array($items);
-      $function($entity_type, array($entity), $field, array($instance), $langcode, $items, FIELD_LOAD_CURRENT);
-      $items = $items[0];
+  if (strstr($form_state['values']['preview']['field'], 'field_')) {
+    $elements['field'] = field_info_field($form_state['values']['preview']['field']);
+    $elements['instance'] = field_info_instance($elements['obj_type'], $elements['field']['field_name'], $form_state['values']['preview']['bundle']);
+    $elements['langcode'] = field_language($elements['obj_type'], $elements['object'], $elements['field']['field_name']);
+    $elements['items'] = field_get_items($elements['obj_type'], $elements['object'], $elements['instance']['field_name'], $elements['langcode']);
+
+    // Prepare field view.
+    $functions = array("{$elements['field']['module']}_field_prepare_view", "{$elements['field']['module']}_field_load");
+    foreach ($functions as $function) {
+      if (function_exists($function)) {
+        $elements['items'] = array($elements['items']);
+        $function($elements['obj_type'], array($elements['object']), $elements['field'], array($elements['instance']), $elements['langcode'], $elements['items'], FIELD_LOAD_CURRENT);
+        $elements['items'] = $elements['items'][0];
+      }
     }
+
+    $elements['display'] = $elements['instance']['display']['default'];
   }
 
-  $display = $instance['display']['default'];
+  drupal_alter('custom_formatters_preview_elements', $elements, $form_state['values']);
+  extract($elements);
+
   // @TODO - Allow this to be done via form_builder.inc or any other Foramtter
   // Settings integration modules.
   $display['settings'] = isset($form_state['input']['settings']['preview']) ? $form_state['input']['settings']['preview'] : $display['settings'];
@@ -435,9 +442,10 @@ function custom_formatters_autocomplete($string = '') {
   if ($last_string != '') {
     $prefix = count($array) ? implode(', ', $array) . ', ' : '';
 
-    $fields = array_keys(field_info_field_types());
+    $fields = field_info_field_types();
     // Give modules a chance to alter fields.
-    //drupal_alter('custom_formatters_fields', $fields);
+    drupal_alter('custom_formatters_fields', $fields);
+    $fields = array_keys($fields);
 
     sort($fields);
     foreach ($fields as $field) {

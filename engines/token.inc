@@ -36,9 +36,15 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
   );
 
   $options = array();
-  foreach (field_info_field_types() as $type => $field) {
+  $fields = field_info_field_types();
+  // Give modules a chance to alter fields.
+  drupal_alter('custom_formatters_fields', $fields);
+  ksort($fields);
+
+  foreach ($fields as $type => $field) {
     $options[$field['module']][$type] = $field['label'];
   }
+  ksort($options);
   $form['field_types']['#type'] = 'select';
   $form['field_types']['#options'] = $options;
   unset($form['field_types']['#description']);
