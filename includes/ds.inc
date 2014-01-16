@@ -11,7 +11,7 @@ function ds_custom_formatters_fields_alter(&$fields) {
   foreach (array_keys(entity_get_info()) as $entity_type) {
     $ds_fields = module_invoke_all('ds_fields_info', $entity_type);
     if (is_array($ds_fields) && !empty($ds_fields)) {
-      foreach ($ds_fields[$entity] as $id => $field) {
+      foreach ($ds_fields[$entity_type] as $id => $field) {
         if ($field['field_type'] == DS_FIELD_TYPE_FUNCTION) {
           $fields['ds_' . $id] = array(
             'module' => 'ds',
