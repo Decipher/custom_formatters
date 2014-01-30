@@ -5,6 +5,38 @@
  */
 
 /**
+ * Implements hook_theme_registry_alter().
+ *
+ * Copied and modified from ds/includes/ds.registry.inc#263
+ */
+function custom_formatters_theme_registry_alter(&$theme_registry) {
+  // Inject custom_formatters_ds_entity_variables in all entity theming functions.
+  $entity_info = entity_get_info();
+  foreach ($entity_info as $entity => $info) {
+    if (isset($entity_info[$entity]['fieldable']) && $entity_info[$entity]['fieldable']) {
+
+      // User uses user_profile for theming.
+      if ($entity == 'user') $entity = 'user_profile';
+
+      // Only add preprocess functions if entity exposes theme function.
+      if (isset($theme_registry[$entity])) {
+        $theme_registry[$entity]['preprocess functions'][] = 'custom_formatters_ds_entity_variables';
+      }
+    }
+  }
+
+  // Support for File Entity.
+  if (isset($theme_registry['file_entity'])) {
+    $theme_registry['file_entity']['preprocess functions'][] = 'custom_formatters_ds_entity_variables';
+  }
+
+  // Support for Entity API.
+  if (isset($theme_registry['entity'])) {
+    $theme_registry['entity']['preprocess functions'][] = 'custom_formatters_ds_entity_variables';
+  }
+}
+
+/**
  * Implements hook_custom_formatters_fields_alter() on behalf of ds.module.
  */
 function ds_custom_formatters_fields_alter(&$fields) {
@@ -12,7 +44,7 @@ function ds_custom_formatters_fields_alter(&$fields) {
     $ds_fields = module_invoke_all('ds_fields_info', $entity_type);
     if (is_array($ds_fields) && !empty($ds_fields)) {
       foreach ($ds_fields[$entity_type] as $id => $field) {
-        if ($field['field_type'] == DS_FIELD_TYPE_FUNCTION) {
+        if (in_array($field['field_type'], array(DS_FIELD_TYPE_PREPROCESS, DS_FIELD_TYPE_FUNCTION))) {
           $fields['ds_' . $id] = array(
             'module' => 'ds',
             'label' => $field['title'],
@@ -32,14 +64,61 @@ function custom_formatters_ds_fields_info_alter(&$fields, $entity_type) {
     foreach (drupal_explode_tags($formatter->field_types) as $field_type) {
       if (strpos($field_type, 'ds_') === 0) {
         $field_type = substr($field_type, 3);
-        if (isset($fields[$field_type]) && $fields[$field_type]['field_type'] == DS_FIELD_TYPE_FUNCTION) {
-          if (!isset($fields[$field_type]['#custom_formatters'])) {
-            $fields[$field_type]['#original_field'] = $fields[$field_type];
-            $fields[$field_type]['#custom_formatters'] = TRUE;
-            $fields[$field_type]['function'] = 'custom_formatters_ds_render_field';
-          }
+        if (isset($fields[$field_type])) {
+          switch ($fields[$field_type]['field_type']) {
+            case DS_FIELD_TYPE_PREPROCESS:
+              if (!isset($fields[$field_type]['properties']['formatters'])) {
+                $fields[$field_type]['properties']['formatters'] = array('default' => t('Default'));
+              }
+              $fields[$field_type]['properties']['formatters']['custom_formatters_' . $formatter->name] = $formatter->label;
+              break;
 
-          $fields[$field_type]['properties']['formatters']['custom_formatters_' . $formatter->name] = $formatter->label;
+            case DS_FIELD_TYPE_FUNCTION:
+              if (!isset($fields[$field_type]['#custom_formatters'])) {
+                $fields[$field_type]['#original_field'] = $fields[$field_type];
+                $fields[$field_type]['#custom_formatters'] = TRUE;
+                $fields[$field_type]['function'] = 'custom_formatters_ds_render_field';
+              }
+
+              $fields[$field_type]['properties']['formatters']['custom_formatters_' . $formatter->name] = $formatter->label;
+              break;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Format variables on an entity.
+ *
+ * Copied and modified from ds.module#588
+ */
+function custom_formatters_ds_entity_variables(&$vars) {
+  if (isset($vars['elements']) && isset($vars['elements']['#bundle']) && $layout = ds_get_layout($vars['elements']['#entity_type'], $vars['elements']['#bundle'], $vars['elements']['#view_mode'])) {
+
+    $render_container = 'content';
+    // User uses user_profile as container.
+    if ($vars['elements']['#entity_type'] == 'user') {
+      $render_container = 'user_profile';
+    }
+
+    // Move any preprocess fields to render container.
+    // Inconsitency in taxonomy term naming.
+    $object = $vars['elements']['#entity_type'];
+    if ($vars['elements']['#entity_type'] == 'taxonomy_term') {
+      $object = 'term';
+    }
+
+    if (isset($vars[$object]->preprocess_fields)) {
+      $fields = ds_get_fields($object);
+      $field_values = ds_get_field_settings($object, $vars['elements']['#bundle'], $layout['view_mode']);
+      foreach ($vars[$object]->preprocess_fields as $field) {
+        if (isset($field_values[$field]['format']) && strpos($field_values[$field]['format'], 'custom_formatters_') === 0) {
+          $display = array('type' => $field_values[$field]['format']);
+          $items = array($vars[$field]);
+          $element = custom_formatters_field_formatter_view($object, $vars[$object], $fields[$field], array(), language_default('language'), $items, $display);
+          $vars[$field] = render($element);
         }
       }
     }
