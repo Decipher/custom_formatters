@@ -71,6 +71,22 @@ function custom_formatters_ds_fields_info_alter(&$fields, $entity_type) {
                 $fields[$field_type]['properties']['formatters'] = array('default' => t('Default'));
               }
               $fields[$field_type]['properties']['formatters']['custom_formatters_' . $formatter->name] = $formatter->label;
+              if (isset($formatter->fapi)) {
+                ob_start();
+                eval($formatter->fapi);
+                ob_get_clean();
+
+                if (isset($form)) {
+                  foreach ($form as $form_key => $element) {
+                    $fields[$field_type]['properties']['default'][$form_key]  = isset($element['#default_value']) ? $element['#default_value'] : '';
+                    $fields[$field_type]['properties']['settings'][$form_key] = array(
+                      'type'        => $element['#type'],
+                      'description' => isset($element['#description']) ? $element['#description'] : '',
+                      'options'     => isset($element['#options']) ? $element['#options'] : array(),
+                    );
+                  }
+                }
+              }
               break;
 
             case DS_FIELD_TYPE_FUNCTION:
@@ -115,10 +131,15 @@ function custom_formatters_ds_entity_variables(&$vars) {
       $field_values = ds_get_field_settings($object, $vars['elements']['#bundle'], $layout['view_mode']);
       foreach ($vars[$object]->preprocess_fields as $field) {
         if (isset($field_values[$field]['format']) && strpos($field_values[$field]['format'], 'custom_formatters_') === 0) {
-          $display = array('type' => $field_values[$field]['format']);
-          $items = array($vars[$field]);
-          $element = custom_formatters_field_formatter_view($object, $vars[$object], $fields[$field], array(), language_default('language'), $items, $display);
-          $vars[$field] = render($element);
+
+          $field_settings = ds_get_field_settings($vars['elements']['#entity_type'], $vars['elements']['#bundle'], $vars['elements']['#view_mode']);
+          $display        = array(
+            'type'     => $field_values[$field]['format'],
+            'settings' => isset($field_settings[$field]['formatter_settings']) ? $field_settings[$field]['formatter_settings'] : array(),
+          );
+          $items          = array($vars[$field]);
+          $element        = custom_formatters_field_formatter_view($object, $vars[$object], $fields[$field], array(), language_default('language'), $items, $display);
+          $vars[$field]   = render($element);
         }
       }
     }
