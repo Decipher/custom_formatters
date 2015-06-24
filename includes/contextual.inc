@@ -29,8 +29,8 @@ function contextual_custom_formatters_form_alter_alter(&$form, $form_state, $for
       '#default_value' => isset($settings['contextual_list']) ? $settings['contextual_list'] : '',
       '#description'   => t('Specify Formatters by using their machine names. Enter one machine name per line.'),
       '#states'        => array(
-        'visible' => array(
-          'input[name="settings[contextual]"]' => array('checked' => FALSE),
+        'invisible' => array(
+          ':input[name="settings[contextual]"]' => array('value' => 0),
         ),
       ),
     );
