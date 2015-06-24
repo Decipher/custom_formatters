@@ -35,6 +35,20 @@ function custom_formatters_custom_formatters_engine_info() {
     'file'      => drupal_get_path('module', 'custom_formatters') . '/engines/token.inc',
   );
 
+  // Formatter presets engine.
+  $engines['formatter_preset'] = array(
+    'label'     => t('Formatter preset'),
+    'callbacks' => array(
+      'settings form'        => 'custom_formatters_engine_formatter_preset_settings_form',
+      'settings form submit' => 'custom_formatters_engine_formatter_preset_settings_form_submit',
+      'render'               => 'custom_formatters_engine_formatter_preset_render',
+      'export'               => 'custom_formatters_engine_formatter_preset_export',
+      'help'                 => 'custom_formatters_engine_formatter_preset_help',
+    ),
+    'file'      => drupal_get_path('module', 'custom_formatters') . '/engines/formatter_preset.inc',
+  );
+
+
   return $engines;
 }
 

@@ -14,8 +14,9 @@ function hook_custom_formatters_engine_info() {
   $engines['MY_MODULE'] = array(
     'label'     => t('MY_MODULE'),
     'callbacks' => array(
-      'settings form' => 'MYMODULE_engine_settings_form',
-      'render'        => 'MYMODULE_engine_render',
+      'settings form'        => 'MYMODULE_engine_settings_form',
+      'settings form submit' => 'MYMODULE_engine_settings_form_submit',
+      'render'               => 'MYMODULE_engine_render',
     ),
     'file'      => drupal_get_path('module', 'MYMODULE') . '/engines/MYMODULE.inc',
   );

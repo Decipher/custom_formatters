@@ -13,7 +13,7 @@
       }
 
       // EditArea real-time syntax highlighter.
-      if (typeof editAreaLoader !== 'undefined' && !$('.form-item-code textarea').hasClass('editarea-processed')) {
+      if ($('.form-item-code textarea').length >= 1 && typeof editAreaLoader !== 'undefined' && !$('.form-item-code textarea').hasClass('editarea-processed')) {
         $('.form-item-code textarea').addClass('editarea-processed');
         syntax = $('.form-item-code textarea').attr('class').match(/syntax-(\w+)\b/m);
         editAreaLoader.init({

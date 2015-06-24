@@ -11,7 +11,8 @@ Custom Formatters was written and is maintained by Stuart Clark (deciphered).
 Features
 --------------------------------------------------------------------------------
 
-* Two default editor/renderer engines:
+* Three default editor/renderer engines:
+  * Formatter presets.
   * HTML + Tokens.
   * PHP.
 * Supports for all fieldable entities, including but not limited to:
@@ -113,15 +114,3 @@ and/or libraries, you can use the following entries in your makefile:
 
   libraries[editarea][download][type] = get
   libraries[editarea][download][url] = http://downloads.sourceforge.net/project/editarea/EditArea/EditArea%200.8.2/editarea_0_8_2.zip?r=&ts=1334742944&use_mirror=internode
-
-
-
-Roadmap
---------------------------------------------------------------------------------
-
-7.x-2.3
-- Add Display Suite integration.
-- Improve HTML + Tokens engine.
-
-7.x-2.4
-- Add Static cache mode (read Formatters from code instead of Database).

@@ -352,6 +352,20 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state, $object
  */
 function custom_formatters_export_ui_form_submit(&$form, &$form_state) {
   field_cache_clear();
+
+  $engines = module_invoke_all('custom_formatters_engine_info');
+  if (isset($engines[$form_state['values']['mode']])) {
+    $engine = $engines[$form_state['values']['mode']];
+    if (isset($engine['file']) && file_exists($engine['file'])) {
+      require_once $engine['file'];
+    }
+    if (isset($engine['callbacks']['settings form submit']) && function_exists($engine['callbacks']['settings form submit'])) {
+      $engine['callbacks']['settings form submit']($form, $form_state);
+    }
+  }
+
+  //  $engines[$engine]['callbacks']['settings form']($form['engine'], $form_state, $item);
+
   if ($form_state['values']['op'] == t('Save & Edit')) {
     $destination         = "admin/structure/formatters/list/{$form_state['values']['name']}/edit";
     $_GET['destination'] = isset($_GET['destination']) ? $destination . "?destination={$_GET['destination']}" : $destination;
@@ -395,7 +409,8 @@ function custom_formatters_export_ui_export_form($form, &$form_state, $item, $ti
         require_once $engines[$engine]['file'];
       }
 
-      $module                   = isset($form_state['values']['module']) ? $form_state['values']['module'] : t('MYMODULE');
+      $module = isset($form_state['values']['module']) ? $form_state['values']['module'] : t('MYMODULE');
+
       $form['export']['module'] = array(
         '#type'          => 'textfield',
         '#title'         => t('Module name'),
@@ -410,7 +425,8 @@ function custom_formatters_export_ui_export_form($form, &$form_state, $item, $ti
       break;
   }
 
-  $lines                  = substr_count($code, "\n");
+  $lines = substr_count($code, "\n");
+
   $form['export']['code'] = array(
     '#type'  => 'textarea',
     '#title' => check_plain($title),
