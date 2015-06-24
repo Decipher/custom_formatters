@@ -80,7 +80,7 @@ function custom_formatters_field_formatter_settings_form($field, $instance, $vie
 
   $element = array();
 
-  if (isset($formatter->fapi)) {
+  if (isset($formatter->fapi) && !empty($formatter->fapi)) {
     ob_start();
     eval($formatter->fapi);
     ob_get_clean();
@@ -88,7 +88,9 @@ function custom_formatters_field_formatter_settings_form($field, $instance, $vie
     if (isset($form)) {
       $element = $form;
       foreach (array_keys($element) as $key) {
-        $element[$key]['#default_value'] = $settings[$key];
+        if (is_array($element[$key])) {
+          $element[$key]['#default_value'] = $settings[$key];
+        }
       }
     }
   }
