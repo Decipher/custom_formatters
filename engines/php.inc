@@ -111,17 +111,19 @@ function custom_formatters_engine_php_export($item, $module) {
   }
 
   // Modify #default_value for hook_field_formatter_settings_form() export.
-  include drupal_get_path('module', 'form_builder') . '/examples/form_builder_examples.module';
-  foreach (element_children($form) as $key) {
-    if (isset($form[$key]['#default_value'])) {
-      unset($form[$key]['#default_value']);
+  if (module_exists('form_builder')) {
+    include drupal_get_path('module', 'form_builder') . '/examples/form_builder_examples.module';
+    foreach (element_children($form) as $key) {
+      if (isset($form[$key]['#default_value'])) {
+        unset($form[$key]['#default_value']);
+      }
+      $form[$key]['#default_value'] = "[default-value::{$key}]";
     }
-    $form[$key]['#default_value'] = "[default-value::{$key}]";
-  }
-  $formatter->fapi = form_builder_examples_export_recurse($form);
-  preg_match_all('/\'\[default-value::(.*)?\]\'/', $formatter->fapi, $matches, PREG_SET_ORDER);
-  foreach ($matches as $match) {
-    $formatter->fapi = str_replace($match[0], "\$settings['{$match[1]}']", $formatter->fapi);
+    $formatter->fapi = form_builder_examples_export_recurse($form);
+    preg_match_all('/\'\[default-value::(.*)?\]\'/', $formatter->fapi, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      $formatter->fapi = str_replace($match[0], "\$settings['{$match[1]}']", $formatter->fapi);
+    }
   }
 
   return theme('custom_formatters_php_export', array(
