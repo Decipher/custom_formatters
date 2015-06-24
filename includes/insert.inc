@@ -37,7 +37,8 @@ function custom_formatters_insert_content($item, $style, $widget) {
   $form_build_id = end($menu_item['page_arguments']);
 
   if (is_string($form_build_id)) {
-    $form = form_get_cache($form_build_id, $form_state = array());
+    $form_state = array();
+    $form       = form_get_cache($form_build_id, $form_state);
 
     $obj_type  = $form['#entity_type'];
     $object    = $form["#{$obj_type}"];
@@ -52,7 +53,9 @@ function custom_formatters_insert_content($item, $style, $widget) {
       '#contextual_links' => FALSE,
     );
 
-    return render(custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter));
+    $element = custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter);
+
+    return render($element);
   }
 
   return FALSE;

@@ -1,6 +1,7 @@
 Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 --------------------------------------------------------------------------------
 
+- #2108235: Fixed strict warnings in Insert module integration.
 - #1990692: Fixed issue with PHP export and Form builder module.
 - #1920220: Fixed issue with coder review integration.
 - #1784848 by Deciphered, aaronbauman: Added token dialog.
