@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * System module integration.
@@ -17,6 +18,7 @@ function custom_formatters_init() {
 function custom_formatters_element_info() {
   $types = array();
   drupal_alter('custom_formatters_element_info', $types);
+
   return $types;
 }
 
@@ -26,6 +28,7 @@ function custom_formatters_element_info() {
 function custom_formatters_theme() {
   $theme = array();
   drupal_alter('custom_formatters_theme', $theme);
+
   return $theme;
 }
 

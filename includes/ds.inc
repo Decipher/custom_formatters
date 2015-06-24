@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Display Suite module integration.
@@ -16,7 +17,9 @@ function custom_formatters_theme_registry_alter(&$theme_registry) {
     if (isset($entity_info[$entity]['fieldable']) && $entity_info[$entity]['fieldable']) {
 
       // User uses user_profile for theming.
-      if ($entity == 'user') $entity = 'user_profile';
+      if ($entity == 'user') {
+        $entity = 'user_profile';
+      }
 
       // Only add preprocess functions if entity exposes theme function.
       if (isset($theme_registry[$entity])) {
@@ -44,10 +47,13 @@ function ds_custom_formatters_fields_alter(&$fields) {
     $ds_fields = module_invoke_all('ds_fields_info', $entity_type);
     if (is_array($ds_fields) && !empty($ds_fields)) {
       foreach ($ds_fields[$entity_type] as $id => $field) {
-        if (in_array($field['field_type'], array(DS_FIELD_TYPE_PREPROCESS, DS_FIELD_TYPE_FUNCTION))) {
+        if (in_array($field['field_type'], array(
+          DS_FIELD_TYPE_PREPROCESS,
+          DS_FIELD_TYPE_FUNCTION
+        ))) {
           $fields['ds_' . $id] = array(
             'module' => 'ds',
-            'label' => $field['title'],
+            'label'  => $field['title'],
           );
         }
       }
@@ -91,9 +97,9 @@ function custom_formatters_ds_fields_info_alter(&$fields, $entity_type) {
 
             case DS_FIELD_TYPE_FUNCTION:
               if (!isset($fields[$field_type]['#custom_formatters'])) {
-                $fields[$field_type]['#original_field'] = $fields[$field_type];
+                $fields[$field_type]['#original_field']    = $fields[$field_type];
                 $fields[$field_type]['#custom_formatters'] = TRUE;
-                $fields[$field_type]['function'] = 'custom_formatters_ds_render_field';
+                $fields[$field_type]['function']           = 'custom_formatters_ds_render_field';
               }
 
               $fields[$field_type]['properties']['formatters']['custom_formatters_' . $formatter->name] = $formatter->label;
@@ -127,7 +133,7 @@ function custom_formatters_ds_entity_variables(&$vars) {
     }
 
     if (isset($vars[$object]->preprocess_fields)) {
-      $fields = ds_get_fields($object);
+      $fields       = ds_get_fields($object);
       $field_values = ds_get_field_settings($object, $vars['elements']['#bundle'], $layout['view_mode']);
       foreach ($vars[$object]->preprocess_fields as $field) {
         if (isset($field_values[$field]['format']) && strpos($field_values[$field]['format'], 'custom_formatters_') === 0) {
@@ -154,12 +160,13 @@ function custom_formatters_ds_render_field($field) {
     $display = array('type' => $field['formatter']);
     foreach (array_keys($field['properties']['formatters']) as $formatter) {
       if (strpos($formatter, 'custom_formatters_') !== 0) {
-        $temp_field = $field;
+        $temp_field              = $field;
         $temp_field['formatter'] = $formatter;
-        $items[$formatter] = $field['#original_field']['function']($temp_field);
+        $items[$formatter]       = $field['#original_field']['function']($temp_field);
       }
     }
     $element = custom_formatters_field_formatter_view($field['entity_type'], $field['entity'], $field, array(), language_default('language'), $items, $display);
+
     return render($element);
   }
 
@@ -174,11 +181,11 @@ function custom_formatters_ds_render_field($field) {
 function ds_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter(&$form, $form_state) {
   if (!empty($form['engine']['preview']['bundle']['#options'])) {
     $entity_type = $form['engine']['preview']['entity_type']['#default_value'];
-    $bundle = key($form['engine']['preview']['bundle']['#options']);
+    $bundle      = key($form['engine']['preview']['bundle']['#options']);
     $field_types = $form['engine']['field_types']['#default_value'];
     if (isset($form_state['values'])) {
       $entity_type = $form_state['values']['preview']['entity_type'];
-      $bundle = $form_state['values']['preview']['bundle'];
+      $bundle      = $form_state['values']['preview']['bundle'];
       $field_types = $form_state['values']['field_types'];
     }
     $field_types = drupal_explode_tags($field_types);
@@ -187,7 +194,7 @@ function ds_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter(&
     foreach ($ds_fields[$entity_type] as $name => $field) {
       if ($field['field_type'] == DS_FIELD_TYPE_FUNCTION && in_array('ds_' . $name, $field_types)) {
         $form['engine']['preview']['field']['#options'][$name] = $field['title'];
-        $form['engine']['preview']['field']['#disabled'] = FALSE;
+        $form['engine']['preview']['field']['#disabled']       = FALSE;
       }
     }
     ksort($form['engine']['preview']['field']['#options']);
@@ -223,21 +230,21 @@ function ds_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter(&
 function ds_custom_formatters_preview_elements_alter(&$elements, $values) {
   $ds_fields = ds_get_fields($elements['obj_type']);
   if (in_array($values['preview']['field'], array_keys($ds_fields))) {
-    $elements['field'] = $ds_fields[$values['preview']['field']];
-    $elements['field']['field_name'] = $values['preview']['field'];
-    $elements['field']['entity'] = $elements['object'];
+    $elements['field']                = $ds_fields[$values['preview']['field']];
+    $elements['field']['field_name']  = $values['preview']['field'];
+    $elements['field']['entity']      = $elements['object'];
     $elements['field']['entity_type'] = $elements['obj_type'];
-    $elements['field']['bundle'] = $values['preview']['bundle'];
-    $elements['field']['view_mode'] = 'full';
-    $elements['field']['build'] = array();
+    $elements['field']['bundle']      = $values['preview']['bundle'];
+    $elements['field']['view_mode']   = 'full';
+    $elements['field']['build']       = array();
 
     $elements['instance'] = array();
     $elements['langcode'] = language_default('language');
 
     foreach (array_keys($elements['field']['properties']['formatters']) as $formatter) {
       if (strpos($formatter, 'custom_formatters_') !== 0) {
-        $temp_field = $elements['field'];
-        $temp_field['formatter'] = $formatter;
+        $temp_field                    = $elements['field'];
+        $temp_field['formatter']       = $formatter;
         $elements['items'][$formatter] = $elements['field']['#original_field']['function']($temp_field);
       }
     }

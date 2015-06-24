@@ -1,8 +1,8 @@
-(function($) {
+(function ($) {
   Drupal.settings.customFormattersAdmin = {};
 
   Drupal.behaviors.customFormattersAdmin = {
-    attach: function(context) {
+    attach: function (context) {
       // Set initial fieldset states.
       if (typeof Drupal.settings.customFormattersAdmin.fieldsets == 'undefined') {
         Drupal.settings.customFormattersAdmin.fieldsets = {};
@@ -30,25 +30,25 @@
         });
 
         // Make sure '#edit-code' gets updated before we preview the formatter.
-        $('#engine-wrapper .form-submit').bind('mouseover', function() {
+        $('#engine-wrapper .form-submit').bind('mouseover', function () {
           Drupal.behaviors.customFormattersAdmin.customFormattersEAUpdate($('.form-item-code textarea').attr('id'))
         });
       }
     },
 
-    detach: function(context) {
+    detach: function (context) {
       this.storeStates();
     },
 
-    storeStates: function() {
-      $('fieldset').each(function() {
+    storeStates: function () {
+      $('fieldset').each(function () {
         id = $(this).attr('id').indexOf('--') > 0 ? $(this).attr('id').substr(0, $(this).attr('id').indexOf('--')) : $(this).attr('id');
         Drupal.settings.customFormattersAdmin.fieldsets[id] = $(this).hasClass('collapsed');
       });
     },
 
-    restoreStates: function() {
-      $('fieldset').each(function() {
+    restoreStates: function () {
+      $('fieldset').each(function () {
         id = $(this).attr('id').indexOf('--') > 0 ? $(this).attr('id').substr(0, $(this).attr('id').indexOf('--')) : $(this).attr('id');
         if (Drupal.settings.customFormattersAdmin.fieldsets[id] == false) {
           $(this).removeClass('collapsed');
@@ -57,7 +57,7 @@
     },
 
     // Update '#edit-code' with the EditArea code.
-    customFormattersEAUpdate: function(editor_id) {
+    customFormattersEAUpdate: function (editor_id) {
       $('#' + editor_id).val(editAreaLoader.getValue(editor_id));
     }
   }

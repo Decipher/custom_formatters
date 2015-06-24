@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Contains core functions for the Custom Formatters module.
@@ -31,22 +32,22 @@ function custom_formatters_menu() {
   $items = array();
 
   $items['admin/structure/formatters/settings'] = array(
-    'title' => 'Settings',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('custom_formatters_settings_form'),
+    'title'            => 'Settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('custom_formatters_settings_form'),
     'access arguments' => array('administer custom formatters'),
-    'file' => 'custom_formatters.admin.inc',
-    'file path' => drupal_get_path('module', 'custom_formatters') . '/includes',
-    'type' => MENU_LOCAL_TASK,
+    'file'             => 'custom_formatters.admin.inc',
+    'file path'        => drupal_get_path('module', 'custom_formatters') . '/includes',
+    'type'             => MENU_LOCAL_TASK,
   );
 
   $items['js/formatters/autocomplete'] = array(
-    'title' => 'Formatters autocomplete',
-    'page callback' => 'custom_formatters_autocomplete',
+    'title'            => 'Formatters autocomplete',
+    'page callback'    => 'custom_formatters_autocomplete',
     'access arguments' => array('administer custom formatters'),
-    'file' => 'custom_formatters.inc',
-    'file path' => drupal_get_path('module', 'custom_formatters') . '/plugins/export_ui',
-    'type' => MENU_CALLBACK,
+    'file'             => 'custom_formatters.inc',
+    'file path'        => drupal_get_path('module', 'custom_formatters') . '/plugins/export_ui',
+    'type'             => MENU_CALLBACK,
   );
 
   return $items;
@@ -57,7 +58,7 @@ function custom_formatters_menu() {
  */
 function custom_formatters_formatter_is_active($formatter) {
   $field_types = drupal_explode_tags($formatter->field_types);
-  $field_info = field_info_fields();
+  $field_info  = field_info_fields();
 
   foreach (field_info_instances() as $bundles) {
     foreach ($bundles as $fields) {
@@ -81,6 +82,7 @@ function custom_formatters_formatter_is_active($formatter) {
  */
 function custom_formatters_crud_load($formatter) {
   $formatters = custom_formatters_crud_load_all();
+
   return isset($formatters[$formatter]) ? $formatters[$formatter] : NULL;
 }
 
@@ -106,15 +108,14 @@ function custom_formatters_crud_load_all($flush_cache = FALSE) {
  *
  */
 function custom_formatters_mode() {
-  $mode = isset($GLOBALS['conf']['custom_formatters_settings']['mode'])
-    ? $GLOBALS['conf']['custom_formatters_settings']['mode']
-    : 'static';
+  $mode = isset($GLOBALS['conf']['custom_formatters_settings']['mode']) ? $GLOBALS['conf']['custom_formatters_settings']['mode'] : 'static';
   if ($mode == 'static') {
     $file = 'public://custom_formatters/custom_formatters.inc';
     if (!file_exists($file) || md5_file($file) != variable_get('custom_formatters_static_cache', '')) {
       custom_formatters_static_cache_rebuild($file);
     }
   }
+
   return '';
 }
 
@@ -122,7 +123,7 @@ function custom_formatters_mode() {
  *
  */
 function custom_formatters_static_cache_rebuild($file) {
-  $engines = module_invoke_all('custom_formatters_engine_info');
+  $engines  = module_invoke_all('custom_formatters_engine_info');
   $pathinfo = pathinfo($file);
   if (file_prepare_directory($pathinfo['dirname'], FILE_CREATE_DIRECTORY)) {
     custom_formatters_crud_load_all();

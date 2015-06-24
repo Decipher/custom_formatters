@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Token engine for Custom Formatters modules.
@@ -10,11 +11,11 @@
 function custom_formatters_engine_token_theme_alter(&$theme) {
   $theme['custom_formatters_token_export'] = array(
     'variables' => array(
-      'item' => NULL,
+      'item'   => NULL,
       'module' => NULL,
     ),
-    'template' => 'token.export',
-    'path' => drupal_get_path('module', 'custom_formatters') . '/engines',
+    'template'  => 'token.export',
+    'path'      => drupal_get_path('module', 'custom_formatters') . '/engines',
   );
 }
 
@@ -25,18 +26,18 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
   $form['code']['#attributes']['class'][] = 'syntax-html';
 
   // Additional debugging modes.
-  $form['preview']['options']['dpm'] = array(
+  $form['preview']['options']['dpm']         = array(
     '#type' => 'container',
   );
   $form['preview']['options']['dpm']['html'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Output raw HTML (requires !devel module).', array('!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))),
+    '#type'          => 'checkbox',
+    '#title'         => t('Output raw HTML (requires !devel module).', array('!devel' => l(t('Devel'), 'http://drupal.org/project/devel'))),
     '#default_value' => module_exists('devel'),
-    '#disabled' => !module_exists('devel'),
+    '#disabled'      => !module_exists('devel'),
   );
 
   $options = array();
-  $fields = field_info_field_types();
+  $fields  = field_info_field_types();
   // Give modules a chance to alter fields.
   drupal_alter('custom_formatters_fields', $fields);
   ksort($fields);
@@ -45,7 +46,7 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
     $options[$field['module']][$type] = $field['label'];
   }
   ksort($options);
-  $form['field_types']['#type'] = 'select';
+  $form['field_types']['#type']    = 'select';
   $form['field_types']['#options'] = $options;
   unset($form['field_types']['#description']);
 }
@@ -57,10 +58,10 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
   $element = array();
 
   foreach ($items as $delta => $item) {
-    $text = $formatter->code;
+    $text       = $formatter->code;
     $token_data = array(
       $obj_type => $object,
-      'item' => $item,
+      'item'    => $item,
     );
     drupal_alter('custom_formatters_token_data', $token_data, $text, $field);
     $element[$delta] = array(
@@ -75,7 +76,10 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
  * Export callback for Custom Formatters Token engine.
  */
 function custom_formatters_engine_token_export($item, $module) {
-  return theme('custom_formatters_token_export', array('item' => $item, 'module' => $module));
+  return theme('custom_formatters_token_export', array(
+    'item'   => $item,
+    'module' => $module
+  ));
 }
 
 /**

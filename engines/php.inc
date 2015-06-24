@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Token engine for Custom Formatters modules.
+ * PHP engine for Custom Formatters modules.
  */
 
 /**
@@ -10,11 +11,11 @@
 function custom_formatters_engine_php_theme_alter(&$theme) {
   $theme['custom_formatters_php_export'] = array(
     'variables' => array(
-      'item' => NULL,
+      'item'   => NULL,
       'module' => NULL,
     ),
-    'template' => 'php.export',
-    'path' => drupal_get_path('module', 'custom_formatters') . '/engines',
+    'template'  => 'php.export',
+    'path'      => drupal_get_path('module', 'custom_formatters') . '/engines',
   );
 }
 
@@ -22,7 +23,7 @@ function custom_formatters_engine_php_theme_alter(&$theme) {
  * Settings form callback for Custom Formatters PHP engine.
  */
 function custom_formatters_engine_php_settings_form(&$form) {
-  $form['code']['#description'] = t('Enter the PHP code that will be evaluated. You should NOT include %php tags. The $variables object is available.', array('%php' => '<?php ?>'));
+  $form['code']['#description']           = t('Enter the PHP code that will be evaluated. You should NOT include %php tags. The $variables object is available.', array('%php' => '<?php ?>'));
   $form['code']['#attributes']['class'][] = 'syntax-php';
 
   $form['settings'] = array(
@@ -30,20 +31,20 @@ function custom_formatters_engine_php_settings_form(&$form) {
   );
 
   // Additional debugging modes.
-  $form['preview']['options']['dpm'] = array(
+  $form['preview']['options']['dpm']         = array(
     '#type' => 'container',
   );
   $form['preview']['options']['dpm']['vars'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Output <strong>$variables</strong> array (requires <a href="http://drupal.org/project/devel">Devel</a> module).'),
+    '#type'          => 'checkbox',
+    '#title'         => t('Output <strong>$variables</strong> array (requires <a href="http://drupal.org/project/devel">Devel</a> module).'),
     '#default_value' => module_exists('devel'),
-    '#disabled' => !module_exists('devel'),
+    '#disabled'      => !module_exists('devel'),
   );
   $form['preview']['options']['dpm']['html'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Output raw HTML (requires <a href="http://drupal.org/project/devel">Devel</a> module).'),
+    '#type'          => 'checkbox',
+    '#title'         => t('Output raw HTML (requires <a href="http://drupal.org/project/devel">Devel</a> module).'),
     '#default_value' => module_exists('devel'),
-    '#disabled' => !module_exists('devel'),
+    '#disabled'      => !module_exists('devel'),
   );
 }
 
@@ -69,12 +70,12 @@ function custom_formatters_engine_php_render($formatter, $obj_type, $object, $fi
   // Build variables array for formatter.
   $variables = array(
     '#obj_type' => $obj_type,
-    '#object' => $object,
-    '#field' => $field,
+    '#object'   => $object,
+    '#field'    => $field,
     '#instance' => $instance,
     '#langcode' => $langcode,
-    '#items' => $items,
-    '#display' => $display,
+    '#items'    => $items,
+    '#display'  => $display,
   );
 
   ob_start();
@@ -123,7 +124,10 @@ function custom_formatters_engine_php_export($item, $module) {
     $formatter->fapi = str_replace($match[0], "\$settings['{$match[1]}']", $formatter->fapi);
   }
 
-  return theme('custom_formatters_php_export', array('item' => $formatter, 'module' => $module));
+  return theme('custom_formatters_php_export', array(
+    'item'   => $formatter,
+    'module' => $module
+  ));
 }
 
 /**

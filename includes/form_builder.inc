@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Form Builder module integration.
@@ -9,16 +10,20 @@
  * form_builder.module.
  */
 function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
-  if (in_array($form_id, array('ctools_export_ui_edit_item_form', 'ctools_export_ui_edit_item_wizard_form')) && isset($form['#formatters']) && isset($form['engine']['settings'])) {
+  if (in_array($form_id, array(
+      'ctools_export_ui_edit_item_form',
+      'ctools_export_ui_edit_item_wizard_form'
+    )) && isset($form['#formatters']) && isset($form['engine']['settings'])
+  ) {
     if ($form_state['op'] == 'add' || ($form_state['op'] == 'edit' && !custom_formatters_formatter_is_active($form_state['item']))) {
       drupal_add_css(drupal_get_path('module', 'custom_formatters') . '/styles/custom_formatters.form_builder.css');
 
       $form['engine']['settings'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Formatter settings'),
+        '#type'        => 'fieldset',
+        '#title'       => t('Formatter settings'),
         '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
-        '#tree' => TRUE,
+        '#collapsed'   => TRUE,
+        '#tree'        => TRUE,
       );
 
       module_load_include('inc', 'form_builder', 'includes/form_builder.admin');
@@ -26,7 +31,7 @@ function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $
       module_load_include('inc', 'form_builder', 'includes/form_builder.cache');
 
       $form_type = 'custom_formatters';
-      $form_id = drupal_substr($form['#build_id'], 0, 32);
+      $form_id   = drupal_substr($form['#build_id'], 0, 32);
 
       // Set the current form type (used for display of the sidebar block).
       form_builder_active_form($form_type, $form_id);
@@ -35,7 +40,7 @@ function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $
       $form_structure = _custom_formatters_form_builder_load_form($form['#item'], $form_id);
 
       $form['engine']['settings']['preview'] = form_builder_preview($form, $form_state, $form_structure, $form_type, $form_id);
-      $form['#submit'][] = 'custom_formatters_form_builder_submit';
+      $form['#submit'][]                     = 'custom_formatters_form_builder_submit';
     }
   }
 }
@@ -51,7 +56,7 @@ function custom_formatters_form_builder_submit($form, &$form_state) {
   // @TODO - Reproduce this functionality or require form_builder_examples.module.
   include drupal_get_path('module', 'form_builder') . '/examples/form_builder_examples.module';
 
-  $form_id = drupal_substr($form['form_build_id']['#value'], 0, 32);
+  $form_id    = drupal_substr($form['form_build_id']['#value'], 0, 32);
   $form_cache = form_builder_cache_load('custom_formatters', $form_id);
   if (is_array($form_cache)) {
     $form_state['item']->fapi = form_builder_examples_export_recurse($form_cache);
@@ -80,12 +85,12 @@ function _custom_formatters_form_builder_load_form($formatter, $form_id) {
 
     if (isset($form)) {
       foreach ($form as $key => &$element) {
-        $element['#key'] = $key;
+        $element['#key']          = $key;
         $element['#form_builder'] = array(
-          'element_id' => $key,
+          'element_id'   => $key,
           'element_type' => $element['#type'],
           'configurable' => TRUE,
-          'removable' => TRUE,
+          'removable'    => TRUE,
         );
       }
     }
@@ -102,7 +107,7 @@ function custom_formatters_form_builder_types() {
   $fields = array();
 
   $fields['select'] = array(
-    'title' => t('Select list'),
+    'title'      => t('Select list'),
     'properties' => array(
       'title',
       'description',
@@ -115,16 +120,16 @@ function custom_formatters_form_builder_types() {
       'key_type_toggled', // Handled by options element.
       'key',
     ),
-    'default' => array(
-      '#title' => t('New select list'),
-      '#type' => 'select',
-      '#options' => array('1' => 'one', '2' => 'two', '3' => 'three'),
+    'default'    => array(
+      '#title'           => t('New select list'),
+      '#type'            => 'select',
+      '#options'         => array('1' => 'one', '2' => 'two', '3' => 'three'),
       '#multiple_toggle' => TRUE,
     ),
   );
 
   $fields['checkboxes'] = array(
-    'title' => t('Checkboxes'),
+    'title'      => t('Checkboxes'),
     'properties' => array(
       'title',
       'description',
@@ -137,15 +142,15 @@ function custom_formatters_form_builder_types() {
       'key_type_toggled', // Handled by options element.
       'key',
     ),
-    'default' => array(
-      '#title' => t('New checkboxes'),
-      '#type' => 'checkboxes',
+    'default'    => array(
+      '#title'   => t('New checkboxes'),
+      '#type'    => 'checkboxes',
       '#options' => array('one' => 'one', 'two' => 'two', 'three' => 'three'),
     ),
   );
 
   $fields['radios'] = array(
-    'title' => t('Radios'),
+    'title'      => t('Radios'),
     'properties' => array(
       'title',
       'description',
@@ -157,15 +162,15 @@ function custom_formatters_form_builder_types() {
       'key_type_toggled', // Handled by options element.
       'key',
     ),
-    'default' => array(
-      '#title' => t('New radios'),
-      '#type' => 'radios',
+    'default'    => array(
+      '#title'   => t('New radios'),
+      '#type'    => 'radios',
       '#options' => array('one' => 'one', 'two' => 'two', 'three' => 'three'),
     ),
   );
 
   $fields['textfield'] = array(
-    'title' => t('Textfield'),
+    'title'      => t('Textfield'),
     'properties' => array(
       'title',
       'description',
@@ -176,14 +181,14 @@ function custom_formatters_form_builder_types() {
       'size',
       'key',
     ),
-    'default' => array(
+    'default'    => array(
       '#title' => t('New textfield'),
-      '#type' => 'textfield',
+      '#type'  => 'textfield',
     ),
   );
 
   $fields['textarea'] = array(
-    'title' => t('Textarea'),
+    'title'      => t('Textarea'),
     'properties' => array(
       'title',
       'description',
@@ -193,9 +198,9 @@ function custom_formatters_form_builder_types() {
       'cols',
       'key',
     ),
-    'default' => array(
+    'default'    => array(
       '#title' => t('New textarea'),
-      '#type' => 'textarea',
+      '#type'  => 'textarea',
     ),
   );
 

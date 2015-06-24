@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Custom Formatters Administration functionality.
@@ -8,7 +9,10 @@
  *
  */
 function custom_formatters_settings_form($form, $form_state) {
-  $settings = variable_get('custom_formatters_settings', array('label_prefix' => TRUE, 'label_prefix_value' => t('Custom')));
+  $settings = variable_get('custom_formatters_settings', array(
+    'label_prefix'       => TRUE,
+    'label_prefix_value' => t('Custom')
+  ));
 
   $form['settings'] = array(
     '#type' => 'container',
@@ -16,17 +20,17 @@ function custom_formatters_settings_form($form, $form_state) {
   );
 
   $form['settings']['label_prefix'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use Label prefix?'),
-    '#description' => t('If checked, all Custom Formatters labels will be prefixed with a set value.'),
+    '#type'          => 'checkbox',
+    '#title'         => t('Use Label prefix?'),
+    '#description'   => t('If checked, all Custom Formatters labels will be prefixed with a set value.'),
     '#default_value' => $settings['label_prefix'],
   );
 
   $form['settings']['label_prefix_value'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Label prefix'),
+    '#type'          => 'textfield',
+    '#title'         => t('Label prefix'),
     '#default_value' => $settings['label_prefix_value'],
-    '#states' => array(
+    '#states'        => array(
       'invisible' => array(
         'input[name="settings[label_prefix]"]' => array('checked' => FALSE),
       ),
@@ -34,7 +38,7 @@ function custom_formatters_settings_form($form, $form_state) {
   );
 
   $form['submit'] = array(
-    '#type' => 'submit',
+    '#type'  => 'submit',
     '#value' => t('Save'),
   );
 
