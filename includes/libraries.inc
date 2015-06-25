@@ -17,7 +17,10 @@ function libraries_custom_formatters_form_alter_alter(&$form, $form_state, $form
   ) {
     // EditArea library support.
     if (in_array('editarea', array_keys(libraries_get_libraries()))) {
-      $form['#attached']['js'][] = libraries_get_path('editarea') . '/edit_area/edit_area_full.js';
+      $form['#attached']['js'][] = array(
+        'data'  => libraries_get_path('editarea') . '/edit_area/edit_area_full.js',
+        'cache' => FALSE,
+      );
 
       $form['engine']['code']['#resizable'] = FALSE;
     }
