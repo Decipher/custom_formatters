@@ -6,6 +6,20 @@
  */
 
 /**
+ * Implements custom_formatters_engine_hook_theme_alter().
+ */
+function custom_formatters_engine_formatter_preset_theme_alter(&$theme) {
+  $theme['custom_formatters_formatter_preset_export'] = array(
+    'variables' => array(
+      'item'   => NULL,
+      'module' => NULL,
+    ),
+    'template'  => 'formatter_preset.export',
+    'path'      => drupal_get_path('module', 'custom_formatters') . '/engines',
+  );
+}
+
+/**
  * Settings form callback for Custom Formatters Formatter preset engine.
  */
 function custom_formatters_engine_formatter_preset_settings_form(&$form, $form_state, $item) {
@@ -119,8 +133,14 @@ function custom_formatters_engine_formatter_preset_render($formatter, $obj_type,
  * Export callback for Custom Formatters Formatter preset engine.
  */
 function custom_formatters_engine_formatter_preset_export($item, $module) {
-  // @TODO.
-  return '';
+  if (!is_array($item->code)) {
+    $item->code = unserialize($item->code);
+  }
+
+  return theme('custom_formatters_formatter_preset_export', array(
+    'item'   => $item,
+    'module' => $module
+  ));
 }
 
 /**

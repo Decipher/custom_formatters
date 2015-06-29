@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Implements custom_formatters_engine_hook_theme_alter().
  */
 function custom_formatters_engine_php_theme_alter(&$theme) {
   $theme['custom_formatters_php_export'] = array(
