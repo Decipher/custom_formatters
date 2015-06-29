@@ -75,7 +75,7 @@ foreach ($variables[\'#items\'] as $delta => $item) {
     \'#type\' => \'link\',
     \'#href\' => file_create_url(image_style_path($settings[\'destination_image_style\'], $item[\'uri\'])),
     \'#title\' => theme(\'image_style\', array(
-      \'style_name\' => $settings[\'source_image_style\'],
+      \'style_name\' => isset($settings[\'source_image_style\']) ? $settings[\'source_image_style\'] : \'thumbnail\',
       \'path\' => $item[\'uri\'],
     )),
     \'#options\' => array(
@@ -107,11 +107,27 @@ $form[\'destination_image_style\'] = array(
   $formatter->api_version            = 2;
   $formatter->name                   = 'example_token_image';
   $formatter->label                  = 'Example: Image (HTML + Token)';
-  $formatter->description            = 'A HTML + Tokens example formatter; Display a Thumbnail image linked to a Large image.';
+  $formatter->description = 'A HTML + Tokens example formatter; Display a Thumbnail image linked to a Large image.
+
+Requires the Image URL Formatter and Field tokens modules:
+- https://www.drupal.org/project/image_url_formatter
+- https://www.drupal.org/project/field_tokens';
   $formatter->mode                   = 'token';
   $formatter->field_types            = 'image';
-  $formatter->code                   = '<a href="[image-field-value:styles:url:large]"><img src="[image-field-value:styles:url:thumbnail]" alt="[image-field-value:alt]" title="[image-field-value:title]" /></a>';
+  $formatter->code                   = '<a href="[node:field_image-formatted:0:image_url:image_style-large]"><img src="[node:field_image-formatted:0:image_url:image_style-thumbnail]" alt="[node:field_image-property:0:alt]" title="[node:field_image-property:0:title]" /></a>';
   $formatters['example_token_image'] = $formatter;
+
+  $formatter = new stdClass();
+  $formatter->disabled = TRUE; /* Edit this to true to make a default formatter disabled initially */
+  $formatter->api_version = 2;
+  $formatter->name = 'example_formatter_preset_image_thumbnail';
+  $formatter->label = 'Example: Image thumbnail (Formatter preset)';
+  $formatter->description = 'A Formatter preset example formatter; Render a Thumbnail image.';
+  $formatter->mode = 'formatter_preset';
+  $formatter->field_types = 'image';
+  $formatter->code = 'a:2:{s:9:"formatter";s:5:"image";s:8:"settings";a:2:{s:11:"image_style";s:9:"thumbnail";s:10:"image_link";s:0:"";}}';
+  $formatter->fapi = '';
+  $formatters['example_formatter_preset_image_thumbnail'] = $formatter;
 
   return $formatters;
 }
