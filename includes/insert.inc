@@ -49,7 +49,7 @@ function custom_formatters_insert_content($item, $style, $widget) {
     $display   = $instance['display']['default'];
     $formatter = custom_formatters_crud_load(drupal_substr($style['name'], 18));
 
-    $display['cf_options'] = array(
+    $display['#cf_options'] = array(
       '#contextual_links' => FALSE,
     );
 
