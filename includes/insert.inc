@@ -31,6 +31,12 @@ function custom_formatters_insert_styles() {
 
 /**
  * Implements hook_insert_content().
+ *
+ * @param $item
+ * @param $style
+ * @param $widget
+ *
+ * @return bool|string
  */
 function custom_formatters_insert_content($item, $style, $widget) {
   $menu_item     = menu_get_item();

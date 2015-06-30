@@ -8,25 +8,33 @@
 /**
  * Implements hook_custom_formatters_token_tree_types_alter() on behalf of
  * entity_tokens.module.
+ *
+ * @param $token_types
+ * @param $field_type
  */
 function entity_token_custom_formatters_token_tree_types_alter(&$token_types, $field_type) {
   $field = field_info_field_types($field_type);
 
   module_load_include('inc', 'entity_token', 'entity_token.tokens');
   $entity_token_types = entity_token_types_chained();
-  foreach ($entity_token_types as $token_type => $type) {
-    foreach (entity_get_all_property_info($type) as $name => $property) {
-      $property += array('type' => 'text', 'description' => $property['label']);
-      if ($property['type'] == $field['property_type'] || entity_property_list_extract_type($property['type']) == $field['property_type']) {
-        $property_token_type = _entity_token_map_to_token_type($property);
-        if (isset($entity_token_types[$property_token_type])) {
-          $token_types[] = $property_token_type;
-        }
-        if (isset($property['property info'])) {
-          foreach ($property['property info'] as $property_info) {
-            $property_token_type = _entity_token_map_to_token_type($property_info);
-            if (isset($entity_token_types[$property_token_type])) {
-              $token_types[] = $property_token_type;
+  if (is_array($entity_token_types)) {
+    foreach ($entity_token_types as $token_type => $type) {
+      foreach (entity_get_all_property_info($type) as $name => $property) {
+        $property += array(
+          'type'        => 'text',
+          'description' => $property['label']
+        );
+        if ($property['type'] == $field['property_type'] || entity_property_list_extract_type($property['type']) == $field['property_type']) {
+          $property_token_type = _entity_token_map_to_token_type($property);
+          if (isset($entity_token_types[$property_token_type])) {
+            $token_types[] = $property_token_type;
+          }
+          if (isset($property['property info'])) {
+            foreach ($property['property info'] as $property_info) {
+              $property_token_type = _entity_token_map_to_token_type($property_info);
+              if (isset($entity_token_types[$property_token_type])) {
+                $token_types[] = $property_token_type;
+              }
             }
           }
         }
@@ -40,6 +48,13 @@ function entity_token_custom_formatters_token_tree_types_alter(&$token_types, $f
 /**
  * Implements hook_custom_formatters_token_data_alter() on behalf of
  * entity_token.module.
+ *
+ * @param $token_data
+ * @param $text
+ * @param $field
+ * @param $delta
+ *
+ * @throws EntityMetadataWrapperException
  */
 function entity_token_custom_formatters_token_data_alter(&$token_data, &$text, $field, $delta) {
   module_load_include('inc', 'entity_token', 'entity_token.tokens');

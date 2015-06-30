@@ -1,4 +1,4 @@
-Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
+Custom Formatters 7.x-2.3-beta1, 2015-06-30
 --------------------------------------------------------------------------------
 
 - #2108235: Fixed strict warnings in Insert module integration.
@@ -7,9 +7,12 @@ Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
 - #1920220: Fixed issue with coder review integration.
 - #1784848 by Deciphered, aaronbauman: Added token dialog.
 - #1721294: Removed makefile.
+- #1511830: Fix Entity Tokens integration.
 - #816924: Added Display suite integration.
 - Added 'Formatter preset' engine.
 - Fixed issue when returning an empty result.
+- Fixed Insert / Contextual links issue.
+- Fixed bug with Devel generate integration.
 
 
 

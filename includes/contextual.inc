@@ -42,6 +42,9 @@ function contextual_custom_formatters_form_alter_alter(&$form, $form_state, $for
  * behalf of contextual.module.
  *
  * Adds contextual links to Custom Formatter fields.
+ *
+ * @param $element
+ * @param $formatter
  */
 function contextual_custom_formatters_field_formatter_view_element_alter(&$element, $formatter) {
   if (_custom_formatters_contextual_access($formatter->name, $element)) {
@@ -65,6 +68,14 @@ function contextual_custom_formatters_field_formatter_view_element_alter(&$eleme
   }
 }
 
+/**
+ * Access check for contextual link in Custom formatters.
+ *
+ * @param $name
+ * @param $element
+ *
+ * @return bool
+ */
 function _custom_formatters_contextual_access($name, $element) {
   if (isset($element[0]['#cf_options']['#contextual_links']) && $element[0]['#cf_options']['#contextual_links'] == FALSE) {
     return FALSE;
@@ -80,24 +91,27 @@ function _custom_formatters_contextual_access($name, $element) {
   $list       = array_unique(explode("\r\n", isset($settings['contextual_list']) ? $settings['contextual_list'] : ''));
 
   switch ($contextual) {
-    case 0:
-      return FALSE;
-
     case 1:
       return !in_array($name, $list) ? TRUE : FALSE;
 
     case 2:
       return in_array($name, $list) ? TRUE : FALSE;
   }
+
+  return FALSE;
 }
 
 /**
  * Implements hook_menu_contextual_links_alter().
+ *
+ * @param $links
+ * @param $router_item
+ * @param $root_path
  */
 function custom_formatters_menu_contextual_links_alter(&$links, $router_item, $root_path) {
   if ($root_path == 'admin/structure/formatters/list/%/edit') {
     $links['custom_formatters-edit'] = array_merge($router_item, array(
-        'title' => 'Edit formatter',
-      ));
+      'title' => 'Edit formatter',
+    ));
   }
 }

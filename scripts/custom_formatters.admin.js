@@ -26,7 +26,7 @@
           word_wrap: false,
           language: "en",
           replace_tab_by_spaces: 2,
-          change_callback: 'Drupal.behaviors.customFormattersAdmin.customFormattersEAUpdate',
+          change_callback: 'Drupal.behaviors.customFormattersAdmin.customFormattersEAUpdate'
         });
 
         // Make sure '#edit-code' gets updated before we preview the formatter.

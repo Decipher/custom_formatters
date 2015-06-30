@@ -2,14 +2,17 @@
 
 /**
  * @file
- * Contains core functions for the Custom Formatters module.
+ * Core functions for the Custom Formatters module.
  */
 
 /**
  * Include additional files.
  */
+$dirname  = dirname(__FILE__) . '/includes';
+$includes = file_scan_directory($dirname, '/.inc$/');
 foreach (module_list() as $module) {
-  if (file_exists($file = dirname(__FILE__) . "/includes/{$module}.inc")) {
+  $file = "{$dirname}/{$module}.inc";
+  if (isset($includes[$file])) {
     require_once $file;
   }
 }
@@ -54,7 +57,11 @@ function custom_formatters_menu() {
 }
 
 /**
+ * Check if the supplied formatter is currently in use.
  *
+ * @param $formatter
+ *
+ * @return bool
  */
 function custom_formatters_formatter_is_active($formatter) {
   $field_types = drupal_explode_tags($formatter->field_types);
@@ -78,7 +85,11 @@ function custom_formatters_formatter_is_active($formatter) {
 }
 
 /**
+ * Load specified Custom formatter object.
  *
+ * @param $formatter
+ *
+ * @return null
  */
 function custom_formatters_crud_load($formatter) {
   $formatters = custom_formatters_crud_load_all();
@@ -87,7 +98,11 @@ function custom_formatters_crud_load($formatter) {
 }
 
 /**
+ * Load all Custom formatter objects.
  *
+ * @param bool $flush_cache
+ *
+ * @return mixed
  */
 function custom_formatters_crud_load_all($flush_cache = FALSE) {
   $formatters = &drupal_static(__FUNCTION__, array());
@@ -102,30 +117,4 @@ function custom_formatters_crud_load_all($flush_cache = FALSE) {
   }
 
   return $formatters;
-}
-
-/**
- *
- */
-function custom_formatters_mode() {
-  $mode = isset($GLOBALS['conf']['custom_formatters_settings']['mode']) ? $GLOBALS['conf']['custom_formatters_settings']['mode'] : 'static';
-  if ($mode == 'static') {
-    $file = 'public://custom_formatters/custom_formatters.inc';
-    if (!file_exists($file) || md5_file($file) != variable_get('custom_formatters_static_cache', '')) {
-      custom_formatters_static_cache_rebuild($file);
-    }
-  }
-
-  return '';
-}
-
-/**
- *
- */
-function custom_formatters_static_cache_rebuild($file) {
-  $engines  = module_invoke_all('custom_formatters_engine_info');
-  $pathinfo = pathinfo($file);
-  if (file_prepare_directory($pathinfo['dirname'], FILE_CREATE_DIRECTORY)) {
-    custom_formatters_crud_load_all();
-  }
 }

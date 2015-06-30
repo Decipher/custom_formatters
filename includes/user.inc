@@ -19,6 +19,10 @@ function user_custom_formatters_devel_generate_info() {
 
 /**
  * Process callback for User Devel Generate integration.
+ *
+ * @param $form_state
+ *
+ * @return stdClass
  */
 function custom_formatters_user_devel_generate_process($form_state) {
   module_load_include('inc', 'devel_generate', 'devel_generate');

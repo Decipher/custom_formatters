@@ -8,6 +8,10 @@
 /**
  * Implements hook_custom_formatters_form_alter_alter() on behalf of
  * form_builder.module.
+ *
+ * @param $form
+ * @param $form_state
+ * @param $form_id
  */
 function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
   if (in_array($form_id, array(
@@ -46,7 +50,10 @@ function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $
 }
 
 /**
+ * Submit callback for Custom Formatters form builder integration.
  *
+ * @param $form
+ * @param $form_state
  */
 function custom_formatters_form_builder_submit($form, &$form_state) {
   module_load_include('inc', 'form_builder', 'includes/form_builder.admin');
@@ -68,6 +75,11 @@ function custom_formatters_form_builder_submit($form, &$form_state) {
 
 /**
  * Load Form Builder form.
+ *
+ * @param $formatter
+ * @param $form_id
+ *
+ * @return array|mixed|null
  */
 function _custom_formatters_form_builder_load_form($formatter, $form_id) {
   $form = array();

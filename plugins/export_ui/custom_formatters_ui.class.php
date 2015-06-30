@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file
+ * Class custom_formatters_ui
  */
 class custom_formatters_ui extends ctools_export_ui {
   /**

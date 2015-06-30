@@ -34,6 +34,10 @@ function custom_formatters_theme() {
 
 /**
  * Implements hook_form_alter().
+ *
+ * @param $form
+ * @param $form_state
+ * @param $form_id
  */
 function custom_formatters_form_alter(&$form, &$form_state, $form_id) {
   drupal_alter('custom_formatters_form_alter', $form, $form_state, $form_id);

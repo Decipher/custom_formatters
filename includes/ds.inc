@@ -9,6 +9,8 @@
  * Implements hook_theme_registry_alter().
  *
  * Copied and modified from ds/includes/ds.registry.inc#263
+ *
+ * @param $theme_registry
  */
 function custom_formatters_theme_registry_alter(&$theme_registry) {
   // Inject custom_formatters_ds_entity_variables in all entity theming functions.
@@ -41,6 +43,8 @@ function custom_formatters_theme_registry_alter(&$theme_registry) {
 
 /**
  * Implements hook_custom_formatters_fields_alter() on behalf of ds.module.
+ *
+ * @param $fields
  */
 function ds_custom_formatters_fields_alter(&$fields) {
   foreach (array_keys(entity_get_info()) as $entity_type) {
@@ -63,6 +67,9 @@ function ds_custom_formatters_fields_alter(&$fields) {
 
 /**
  * Implements hook_ds_fields_info_alter().
+ *
+ * @param $fields
+ * @param $entity_type
  */
 function custom_formatters_ds_fields_info_alter(&$fields, $entity_type) {
   $formatters = custom_formatters_crud_load_all();
@@ -115,6 +122,8 @@ function custom_formatters_ds_fields_info_alter(&$fields, $entity_type) {
  * Format variables on an entity.
  *
  * Copied and modified from ds.module#588
+ *
+ * @param $vars
  */
 function custom_formatters_ds_entity_variables(&$vars) {
   if (isset($vars['elements']) && isset($vars['elements']['#bundle']) && $layout = ds_get_layout($vars['elements']['#entity_type'], $vars['elements']['#bundle'], $vars['elements']['#view_mode'])) {
@@ -154,6 +163,10 @@ function custom_formatters_ds_entity_variables(&$vars) {
 
 /**
  * Display Suite render function for Custom Formatters integration.
+ *
+ * @param $field
+ *
+ * @return string
  */
 function custom_formatters_ds_render_field($field) {
   if (strpos($field['formatter'], 'custom_formatters_') === 0) {
@@ -177,6 +190,9 @@ function custom_formatters_ds_render_field($field) {
 /**
  * Implements hook_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter()
  * on behalf of ds.module.
+ *
+ * @param $form
+ * @param $form_state
  */
 function ds_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter(&$form, $form_state) {
   if (!empty($form['engine']['preview']['bundle']['#options'])) {
@@ -226,6 +242,9 @@ function ds_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter(&
 /**
  * Implements hook_custom_formatters_preview_elements_alter() on behalf of
  * ds.module.
+ *
+ * @param $elements
+ * @param $values
  */
 function ds_custom_formatters_preview_elements_alter(&$elements, $values) {
   $ds_fields = ds_get_fields($elements['obj_type']);

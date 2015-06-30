@@ -19,6 +19,10 @@ function taxonomy_custom_formatters_devel_generate_info() {
 
 /**
  * Process callback for Taxonomy term Devel Generate integration.
+ *
+ * @param $form_state
+ *
+ * @return stdClass
  */
 function custom_formatters_taxonomy_term_devel_generate_process($form_state) {
   module_load_include('inc', 'devel_generate', 'devel_generate');

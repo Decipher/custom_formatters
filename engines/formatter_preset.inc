@@ -7,6 +7,8 @@
 
 /**
  * Implements custom_formatters_engine_hook_theme_alter().
+ *
+ * @param $theme
  */
 function custom_formatters_engine_formatter_preset_theme_alter(&$theme) {
   $theme['custom_formatters_formatter_preset_export'] = array(
@@ -21,6 +23,10 @@ function custom_formatters_engine_formatter_preset_theme_alter(&$theme) {
 
 /**
  * Settings form callback for Custom Formatters Formatter preset engine.
+ *
+ * @param $form
+ * @param $form_state
+ * @param $item
  */
 function custom_formatters_engine_formatter_preset_settings_form(&$form, $form_state, $item) {
   $options = array();
@@ -110,6 +116,17 @@ function custom_formatters_engine_formatter_preset_settings_form_submit($form, &
 
 /**
  * Render callback for Custom Formatters Formatter preset engine.
+ *
+ * @param $formatter
+ * @param $obj_type
+ * @param $object
+ * @param $field
+ * @param $instance
+ * @param $langcode
+ * @param $items
+ * @param $display
+ *
+ * @return bool
  */
 function custom_formatters_engine_formatter_preset_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
   if (!is_array($formatter->code)) {
@@ -131,6 +148,12 @@ function custom_formatters_engine_formatter_preset_render($formatter, $obj_type,
 
 /**
  * Export callback for Custom Formatters Formatter preset engine.
+ *
+ * @param $item
+ * @param $module
+ *
+ * @return string
+ * @throws Exception
  */
 function custom_formatters_engine_formatter_preset_export($item, $module) {
   if (!is_array($item->code)) {
@@ -141,12 +164,4 @@ function custom_formatters_engine_formatter_preset_export($item, $module) {
     'item'   => $item,
     'module' => $module
   ));
-}
-
-/**
- * Help callback for Custom Formatters Formatter preset engine.
- */
-function custom_formatters_engine_formatter_preset_help() {
-  return t('A Formatter preset is a formatter created from an existing formatter, bundled together with pre-set formatter settings.') . "<br />\n"
-       . t('This allows for simplified formatters in areas where the formatter choice is provided to the end user, formatters with the power of settings without the confusion.');
 }

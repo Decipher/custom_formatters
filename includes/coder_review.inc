@@ -51,6 +51,11 @@ function coder_review_custom_formatters_form_alter_alter(&$form, &$form_state, $
 
 /**
  * Ajax callback for Custom Formatters Coder Review integration.
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @return mixed
  */
 function custom_formatters_coder_review(&$form, $form_state) {
   $directory = 'public://custom_formatters/coder_review';

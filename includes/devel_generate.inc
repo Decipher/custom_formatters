@@ -8,6 +8,10 @@
 /**
  * Implements hook_custom_formatters_form_alter_alter on behalf of
  * devel_generate.module.
+ *
+ * @param $form
+ * @param $form_state
+ * @param $form_id
  */
 function devel_generate_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
   if (in_array($form_id, array(
@@ -30,6 +34,11 @@ function devel_generate_custom_formatters_form_alter_alter(&$form, &$form_state,
 
 /**
  * Submit callback for Custom Formatters live preview via Devel Generate.
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @return mixed
  */
 function custom_formatters_export_ui_form_js_preview_devel_generate($form, $form_state) {
   $info = module_invoke_all('custom_formatters_devel_generate_info');

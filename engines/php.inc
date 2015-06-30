@@ -7,6 +7,8 @@
 
 /**
  * Implements custom_formatters_engine_hook_theme_alter().
+ *
+ * @param $theme
  */
 function custom_formatters_engine_php_theme_alter(&$theme) {
   $theme['custom_formatters_php_export'] = array(
@@ -21,6 +23,8 @@ function custom_formatters_engine_php_theme_alter(&$theme) {
 
 /**
  * Settings form callback for Custom Formatters PHP engine.
+ *
+ * @param $form
  */
 function custom_formatters_engine_php_settings_form(&$form) {
   $form['code']['#description']           = t('Enter the PHP code that will be evaluated. You should NOT include %php tags. The $variables object is available.', array('%php' => '<?php ?>'));
@@ -50,6 +54,17 @@ function custom_formatters_engine_php_settings_form(&$form) {
 
 /**
  * Render callback for Custom Formatters PHP engine.
+ *
+ * @param $formatter
+ * @param $obj_type
+ * @param $object
+ * @param $field
+ * @param $instance
+ * @param $langcode
+ * @param $items
+ * @param $display
+ *
+ * @return bool|mixed|string
  */
 function custom_formatters_engine_php_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
   global $theme_path, $theme_info, $conf;
@@ -96,6 +111,12 @@ function custom_formatters_engine_php_render($formatter, $obj_type, $object, $fi
 
 /**
  * Export callback for Custom Formatters PHP engine.
+ *
+ * @param $item
+ * @param $module
+ *
+ * @return string
+ * @throws Exception
  */
 function custom_formatters_engine_php_export($item, $module) {
   $formatter = clone $item;
@@ -130,12 +151,4 @@ function custom_formatters_engine_php_export($item, $module) {
     'item'   => $formatter,
     'module' => $module
   ));
-}
-
-/**
- * Help callback for Custom Formatters PHP engine.
- */
-function custom_formatters_engine_php_help() {
-  return t('A PHP Formatter is essentially a standard Drupal API Field Formatter, the primary difference is that all availble parameters have been bundled into a <strong>$variables</strong> array for ease of use.') . "<br />\n"
-       . t('The Formatter should be PHP code that returns either a value or <a href="http://drupal.org/node/930760">Render Array</a> and it should NOT include <em><?php ?></em> tags.') . "\n";
 }

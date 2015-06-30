@@ -8,6 +8,11 @@
 /**
  * Implements hook_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter()
  * on behalf of token.module.
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @throws Exception
  */
 function token_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter(&$form, $form_state) {
   if (isset($form['#formatters']) && $form['#formatters'] && 'token' == $form['info']['mode']['#default_value']) {
@@ -36,6 +41,8 @@ function token_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alte
 /**
  * Implements hook_custom_formatters_form_builder_types_alter() on behalf of
  * token.module.
+ *
+ * @param $fields
  */
 function token_custom_formatters_form_builder_types_alter(&$fields) {
   $fields['token_tree'] = array(

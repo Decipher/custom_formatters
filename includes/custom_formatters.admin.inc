@@ -6,7 +6,12 @@
  */
 
 /**
+ * Custom Formatters administration settings form.
  *
+ * @param $form
+ * @param $form_state
+ *
+ * @return mixed
  */
 function custom_formatters_settings_form($form, $form_state) {
   $settings = variable_get('custom_formatters_settings', array(
@@ -46,7 +51,10 @@ function custom_formatters_settings_form($form, $form_state) {
 }
 
 /**
+ * Validate callback for Custom Formatters administration settings form.
  *
+ * @param $form
+ * @param $form_state
  */
 function custom_formatters_settings_form_validate($form, $form_state) {
   if ($form_state['values']['settings']['label_prefix'] && empty($form_state['values']['settings']['label_prefix_value'])) {
@@ -55,7 +63,10 @@ function custom_formatters_settings_form_validate($form, $form_state) {
 }
 
 /**
+ * Submit callback for Custom Formatters administration settings form.
  *
+ * @param $form
+ * @param $form_state
  */
 function custom_formatters_settings_form_submit($form, $form_state) {
   drupal_set_message(t('Custom Formatters settings have been updated.'));

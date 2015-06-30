@@ -18,7 +18,6 @@ function custom_formatters_custom_formatters_engine_info() {
       'settings form' => 'custom_formatters_engine_php_settings_form',
       'render'        => 'custom_formatters_engine_php_render',
       'export'        => 'custom_formatters_engine_php_export',
-      'help'          => 'custom_formatters_engine_php_help',
     ),
     'file'      => drupal_get_path('module', 'custom_formatters') . '/engines/php.inc',
   );
@@ -30,7 +29,6 @@ function custom_formatters_custom_formatters_engine_info() {
       'settings form' => 'custom_formatters_engine_token_settings_form',
       'render'        => 'custom_formatters_engine_token_render',
       'export'        => 'custom_formatters_engine_token_export',
-      'help'          => 'custom_formatters_engine_token_help',
     ),
     'file'      => drupal_get_path('module', 'custom_formatters') . '/engines/token.inc',
   );
@@ -43,7 +41,6 @@ function custom_formatters_custom_formatters_engine_info() {
       'settings form submit' => 'custom_formatters_engine_formatter_preset_settings_form_submit',
       'render'               => 'custom_formatters_engine_formatter_preset_render',
       'export'               => 'custom_formatters_engine_formatter_preset_export',
-      'help'                 => 'custom_formatters_engine_formatter_preset_help',
     ),
     'file'      => drupal_get_path('module', 'custom_formatters') . '/engines/formatter_preset.inc',
   );
@@ -107,26 +104,26 @@ $form[\'destination_image_style\'] = array(
   $formatter->api_version            = 2;
   $formatter->name                   = 'example_token_image';
   $formatter->label                  = 'Example: Image (HTML + Token)';
-  $formatter->description = 'A HTML + Tokens example formatter; Display a Thumbnail image linked to a Large image.
+  $formatter->description            = 'A HTML + Tokens example formatter; Display a Thumbnail image linked to a Large image.
 
 Requires the Image URL Formatter and Field tokens modules:
 - https://www.drupal.org/project/image_url_formatter
 - https://www.drupal.org/project/field_tokens';
   $formatter->mode                   = 'token';
   $formatter->field_types            = 'image';
-  $formatter->code                   = '<a href="[node:field_image-formatted:0:image_url:image_style-large]"><img src="[node:field_image-formatted:0:image_url:image_style-thumbnail]" alt="[node:field_image-property:0:alt]" title="[node:field_image-property:0:title]" /></a>';
+  $formatter->code                   = '<a href="[formatted_field-image:image_url:image_style-large]"><img src="[formatted_field-image:image_url:image_style-thumbnail]" alt="[field_property:alt]" title="[field_property:title]" /></a>';
   $formatters['example_token_image'] = $formatter;
 
-  $formatter = new stdClass();
-  $formatter->disabled = TRUE; /* Edit this to true to make a default formatter disabled initially */
-  $formatter->api_version = 2;
-  $formatter->name = 'example_formatter_preset_image_thumbnail';
-  $formatter->label = 'Example: Image thumbnail (Formatter preset)';
-  $formatter->description = 'A Formatter preset example formatter; Render a Thumbnail image.';
-  $formatter->mode = 'formatter_preset';
-  $formatter->field_types = 'image';
-  $formatter->code = 'a:2:{s:9:"formatter";s:5:"image";s:8:"settings";a:2:{s:11:"image_style";s:9:"thumbnail";s:10:"image_link";s:0:"";}}';
-  $formatter->fapi = '';
+  $formatter                                              = new stdClass();
+  $formatter->disabled                                    = TRUE; /* Edit this to true to make a default formatter disabled initially */
+  $formatter->api_version                                 = 2;
+  $formatter->name                                        = 'example_formatter_preset_image_thumbnail';
+  $formatter->label                                       = 'Example: Image thumbnail (Formatter preset)';
+  $formatter->description                                 = 'A Formatter preset example formatter; Render a Thumbnail image.';
+  $formatter->mode                                        = 'formatter_preset';
+  $formatter->field_types                                 = 'image';
+  $formatter->code                                        = 'a:2:{s:9:"formatter";s:5:"image";s:8:"settings";a:2:{s:11:"image_style";s:9:"thumbnail";s:10:"image_link";s:0:"";}}';
+  $formatter->fapi                                        = '';
   $formatters['example_formatter_preset_image_thumbnail'] = $formatter;
 
   return $formatters;
@@ -134,6 +131,8 @@ Requires the Image URL Formatter and Field tokens modules:
 
 /**
  * Implements hook_custom_formatters_theme_alter().
+ *
+ * @param $theme
  */
 function custom_formatters_custom_formatters_theme_alter(&$theme) {
   $engines = module_invoke_all('custom_formatters_engine_info');

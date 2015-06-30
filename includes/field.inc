@@ -100,6 +100,17 @@ function custom_formatters_field_formatter_settings_form($field, $instance, $vie
 
 /**
  * Implements hook_field_formatter_view().
+ *
+ * @param      $obj_type
+ * @param      $object
+ * @param      $field
+ * @param      $instance
+ * @param      $langcode
+ * @param      $items
+ * @param      $display
+ * @param null $formatter
+ *
+ * @return array|bool
  */
 function custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter = NULL) {
   $element = array();

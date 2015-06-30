@@ -7,6 +7,8 @@
 
 /**
  * Implements custom_formatters_engine_hook_theme_alter().
+ *
+ * @param $theme
  */
 function custom_formatters_engine_token_theme_alter(&$theme) {
   $theme['custom_formatters_token_export'] = array(
@@ -21,6 +23,10 @@ function custom_formatters_engine_token_theme_alter(&$theme) {
 
 /**
  * Settings form callback for Custom Formatters Token engine.
+ *
+ * @param $form
+ * @param $form_state
+ * @param $item
  */
 function custom_formatters_engine_token_settings_form(&$form, $form_state, $item) {
   $form['code']['#attributes']['class'][] = 'syntax-html';
@@ -53,6 +59,17 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
 
 /**
  * Render callback for Custom Formatters Token engine.
+ *
+ * @param $formatter
+ * @param $obj_type
+ * @param $object
+ * @param $field
+ * @param $instance
+ * @param $langcode
+ * @param $items
+ * @param $display
+ *
+ * @return array
  */
 function custom_formatters_engine_token_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
   $element = array();
@@ -60,8 +77,9 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
   foreach ($items as $delta => $item) {
     $text       = $formatter->code;
     $token_data = array(
-      $obj_type => $object,
-      'item'    => $item,
+      'obj_type' => $obj_type,
+      $obj_type  => $object,
+      'item'     => $item,
     );
     drupal_alter('custom_formatters_token_data', $token_data, $text, $field, $delta);
     $element[$delta] = array(
@@ -74,6 +92,12 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
 
 /**
  * Export callback for Custom Formatters Token engine.
+ *
+ * @param $item
+ * @param $module
+ *
+ * @return string
+ * @throws Exception
  */
 function custom_formatters_engine_token_export($item, $module) {
   return theme('custom_formatters_token_export', array(
@@ -82,10 +106,3 @@ function custom_formatters_engine_token_export($item, $module) {
   ));
 }
 
-/**
- * Help callback for Custom Formatters Token engine.
- */
-function custom_formatters_engine_token_help() {
-  return t('A HTML + Token Formatter utilizes Drupal Tokens and the Token module to create easy yet powerful formatters.') . "<br />\n"
-       . t('All available Tokens can be navigated via the Tokens fieldset displayed below the Formatter field.');
-}

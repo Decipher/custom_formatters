@@ -36,6 +36,11 @@ function custom_formatters_ctools_plugin_api() {
 
 /**
  * Implements hook_ctools_plugin_directory().
+ *
+ * @param $module
+ * @param $plugin
+ *
+ * @return string
  */
 function custom_formatters_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools' && !empty($plugin)) {
@@ -45,6 +50,8 @@ function custom_formatters_ctools_plugin_directory($module, $plugin) {
 
 /**
  * Implements hook_custom_formatters_theme_alter() on behalf of ctools.module.
+ *
+ * @param $theme
  */
 function ctools_custom_formatters_theme_alter(&$theme) {
   $theme['custom_formatters_export_ui_form_preview'] = array(
