@@ -280,7 +280,8 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state, $object
 
   // Build preview elements.
   $elements['obj_type'] = $form_state['values']['preview']['entity_type'];
-  if (is_null($object)) {
+  $elements['object'] = $object;
+  if (is_null($elements['object'])) {
     $objects            = entity_load($elements['obj_type'], array($form_state['values']['preview']['entity']));
     $elements['object'] = $objects[$form_state['values']['preview']['entity']];
   }
