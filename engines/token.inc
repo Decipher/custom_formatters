@@ -63,7 +63,7 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
       $obj_type => $object,
       'item'    => $item,
     );
-    drupal_alter('custom_formatters_token_data', $token_data, $text, $field);
+    drupal_alter('custom_formatters_token_data', $token_data, $text, $field, $delta);
     $element[$delta] = array(
       '#markup' => token_replace($text, $token_data, array('clear' => TRUE))
     );
