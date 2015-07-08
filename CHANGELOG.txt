@@ -1,17 +1,11 @@
-Custom Formatters 7.x-dev, xxxx-xx-xx (development release)
+Custom Formatters 7.x-2.3, 2015-07-08
 --------------------------------------------------------------------------------
 
 - #2515038: Added entity_type/bundle to Formatter preset fake instance.
-- #1979894: Updated Field type selection form.
-
-
-
-Custom Formatters 7.x-2.3-beta1, 2015-06-30
---------------------------------------------------------------------------------
-
 - #2108235: Fixed strict warnings in Insert module integration.
 - #1990692: Fixed issue with PHP export and Form builder module.
 - #1987336: Fixed issue with Editarea library and JS aggregation.
+- #1979894: Updated Field type selection form.
 - #1920220: Fixed issue with coder review integration.
 - #1784848 by Deciphered, aaronbauman: Added token dialog.
 - #1721294: Removed makefile.
