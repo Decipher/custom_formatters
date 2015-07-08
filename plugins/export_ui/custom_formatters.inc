@@ -102,18 +102,28 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     '#suffix' => '</div>'
   );
 
+  // Build list of available field types.
+  $options = array();
+  $fields  = field_info_field_types();
+  // Give modules a chance to alter fields.
+  drupal_alter('custom_formatters_fields', $fields);
+  ksort($fields);
+  foreach ($fields as $type => $field) {
+    $options[$field['module']][$type] = $field['label'];
+  }
+  ksort($options);
+
   $form['engine']['field_types'] = array(
-    '#title'             => t('Field type(s)'),
-    '#type'              => 'textfield',
-    '#default_value'     => $item->field_types,
-    '#required'          => TRUE,
-    '#description'       => t('Enter a comma-separated list of field types (file, image, text, text_long, etc).'),
-    '#autocomplete_path' => 'js/formatters/autocomplete',
-    '#ajax'              => array(
+    '#title'         => t('Field type(s)'),
+    '#type'          => 'select',
+    '#options'       => $options,
+    '#default_value' => $item->field_types,
+    '#required'      => TRUE,
+    '#ajax'          => array(
       'callback' => 'custom_formatters_export_ui_form_js',
       'wrapper'  => 'engine-wrapper',
     ),
-    '#disabled'          => $disable,
+    '#disabled'      => $disable,
   );
 
   $form['engine']['code'] = array(
@@ -492,37 +502,6 @@ function custom_formatters_export_ui_export_form($form, &$form_state, $item, $ti
  */
 function custom_formatters_export_ui_export_form_js($form, $form_state) {
   return $form['export'];
-}
-
-/**
- * Field Types autocomplete callback.
- *
- * @param string $string
- */
-function custom_formatters_autocomplete($string = '') {
-  // The user enters a comma-separated list of fields. We only autocomplete the last tag.
-  $array = drupal_explode_tags($string);
-
-  // Fetch last field.
-  $last_string = trim(array_pop($array));
-  $matches     = array();
-  if ($last_string != '') {
-    $prefix = count($array) ? implode(', ', $array) . ', ' : '';
-
-    $fields = field_info_field_types();
-    // Give modules a chance to alter fields.
-    drupal_alter('custom_formatters_fields', $fields);
-    $fields = array_keys($fields);
-
-    sort($fields);
-    foreach ($fields as $field) {
-      if (preg_match('/^' . drupal_strtolower($last_string) . '/', $field)) {
-        $matches[$prefix . $field] = check_plain($field);
-      }
-    }
-  }
-
-  drupal_json_output($matches);
 }
 
 /**

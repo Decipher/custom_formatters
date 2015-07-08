@@ -27,6 +27,8 @@ function custom_formatters_engine_php_theme_alter(&$theme) {
  * @param $form
  */
 function custom_formatters_engine_php_settings_form(&$form) {
+  $form['field_types']['#multiple'] = TRUE;
+
   $form['code']['#description']           = t('Enter the PHP code that will be evaluated. You should NOT include %php tags. The $variables object is available.', array('%php' => '<?php ?>'));
   $form['code']['#attributes']['class'][] = 'syntax-php';
 
@@ -35,15 +37,17 @@ function custom_formatters_engine_php_settings_form(&$form) {
   );
 
   // Additional debugging modes.
-  $form['preview']['options']['dpm']         = array(
+  $form['preview']['options']['dpm'] = array(
     '#type' => 'container',
   );
+
   $form['preview']['options']['dpm']['vars'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Output <strong>$variables</strong> array (requires <a href="http://drupal.org/project/devel">Devel</a> module).'),
     '#default_value' => module_exists('devel'),
     '#disabled'      => !module_exists('devel'),
   );
+
   $form['preview']['options']['dpm']['html'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Output raw HTML (requires <a href="http://drupal.org/project/devel">Devel</a> module).'),

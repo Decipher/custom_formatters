@@ -29,24 +29,6 @@ function custom_formatters_engine_formatter_preset_theme_alter(&$theme) {
  * @param $item
  */
 function custom_formatters_engine_formatter_preset_settings_form(&$form, $form_state, $item) {
-  $options = array();
-  $fields  = field_info_field_types();
-  // Give modules a chance to alter fields.
-  drupal_alter('custom_formatters_fields', $fields);
-  ksort($fields);
-
-  foreach ($fields as $type => $field) {
-    $options[$field['module']][$type] = $field['label'];
-  }
-  ksort($options);
-  $form['field_types']['#type']    = 'select';
-  $form['field_types']['#options'] = $options;
-  $form['field_types']['#ajax']    = array(
-    'callback' => 'custom_formatters_export_ui_form_js',
-    'wrapper'  => 'engine-wrapper',
-  );
-  unset($form['field_types']['#description']);
-
   // Turn code field into nested fields.
   $item->code   = unserialize($item->code);
   $form['code'] = array(
