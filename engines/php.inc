@@ -57,6 +57,16 @@ function custom_formatters_engine_php_settings_form(&$form) {
 }
 
 /**
+ * Settings form submit callback for Custom Formatters PHP engine.
+ *
+ * @param $form
+ * @param $form_state
+ */
+function custom_formatters_engine_php_settings_form_submit($form, &$form_state) {
+  $form_state['values']['field_types'] = implode(', ', $form_state['values']['field_types']);
+}
+
+/**
  * Render callback for Custom Formatters PHP engine.
  *
  * @param $formatter

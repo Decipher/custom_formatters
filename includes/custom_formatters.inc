@@ -15,9 +15,10 @@ function custom_formatters_custom_formatters_engine_info() {
   $engines['php'] = array(
     'label'     => t('PHP'),
     'callbacks' => array(
-      'settings form' => 'custom_formatters_engine_php_settings_form',
-      'render'        => 'custom_formatters_engine_php_render',
-      'export'        => 'custom_formatters_engine_php_export',
+      'settings form'        => 'custom_formatters_engine_php_settings_form',
+      'settings form submit' => 'custom_formatters_engine_php_settings_form_submit',
+      'render'               => 'custom_formatters_engine_php_render',
+      'export'               => 'custom_formatters_engine_php_export',
     ),
     'file'      => drupal_get_path('module', 'custom_formatters') . '/engines/php.inc',
   );

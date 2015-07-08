@@ -1,3 +1,10 @@
+Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
+--------------------------------------------------------------------------------
+
+- #1979894: Fixed issue with PHP field types format.
+
+
+
 Custom Formatters 7.x-2.3, 2015-07-08
 --------------------------------------------------------------------------------
 
