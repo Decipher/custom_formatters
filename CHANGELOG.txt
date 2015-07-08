@@ -1,3 +1,10 @@
+Custom Formatters 7.x-dev, xxxx-xx-xx (development release)
+--------------------------------------------------------------------------------
+
+- #2515038: Added entity_type/bundle to Formatter preset fake instance.
+
+
+
 Custom Formatters 7.x-2.3-beta1, 2015-06-30
 --------------------------------------------------------------------------------
 

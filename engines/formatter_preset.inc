@@ -91,6 +91,9 @@ function custom_formatters_engine_formatter_preset_settings_form(&$form, $form_s
     $view_mode = '_custom_display';
     $field     = field_info_field($field_type);
 
+    $instance['entity_type'] = $form['preview']['entity_type']['#default_value'];
+    $instance['bundle']      = $form['preview']['bundle']['#default_value'];
+    
     $instance['display'][$view_mode] = array(
       'type'     => $formatter_name,
       'settings' => isset($item->code['settings']) ? $item->code['settings'] : $formatter['settings'],
