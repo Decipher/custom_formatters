@@ -73,8 +73,8 @@ function custom_formatters_engine_formatter_preset_settings_form(&$form, $form_s
     $view_mode = '_custom_display';
     $field     = field_info_field($field_type);
 
-    $instance['entity_type'] = $form['preview']['entity_type']['#default_value'];
-    $instance['bundle']      = $form['preview']['bundle']['#default_value'];
+    $instance['entity_type'] = isset($form['preview']['entity_type']['#default_value']) ? $form['preview']['entity_type']['#default_value'] : key($form['preview']['entity_type']['#options']);
+    $instance['bundle']      = isset($form['preview']['bundle']['#default_value']) ? $form['preview']['bundle']['#default_value'] : key($form['preview']['bundle']['#options']);
     
     $instance['display'][$view_mode] = array(
       'type'     => $formatter_name,
