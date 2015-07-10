@@ -226,6 +226,9 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
 function _custom_formatters_preview_variables($form, $form_state) {
   $options = array();
   $item    = !empty($form_state['values']) ? $form_state['values'] : (array) $form_state['item'];
+  if (!is_array($item['field_types'])) {
+    $item['field_types'] = drupal_explode_tags($item['field_types']);
+  }
 
   // Entity Types
   $options['entity_types'] = array();
@@ -252,7 +255,7 @@ function _custom_formatters_preview_variables($form, $form_state) {
     $fields = field_info_instances($entity_type, $bundle);
     foreach ($fields as $key => $field) {
       $field_info = field_info_field_by_id($field['field_id']);
-      if (in_array($field_info['type'], drupal_explode_tags($item['field_types']))) {
+      if (in_array($field_info['type'], $item['field_types'])) {
         $options['fields'][$key] = $field['label'];
       }
     }
