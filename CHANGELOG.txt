@@ -1,3 +1,10 @@
+Custom Formatters 7.x-2.x-dev, xxxx-xx-xx (development release)
+--------------------------------------------------------------------------------
+
+- #2535426: Fixed issue with undefined index property_type.
+
+
+
 Custom Formatters 7.x-2.4, 2015-07-08
 --------------------------------------------------------------------------------
 

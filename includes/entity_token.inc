@@ -24,7 +24,7 @@ function entity_token_custom_formatters_token_tree_types_alter(&$token_types, $f
           'type'        => 'text',
           'description' => $property['label']
         );
-        if ($property['type'] == $field['property_type'] || entity_property_list_extract_type($property['type']) == $field['property_type']) {
+        if (isset($field['property_type']) && ($property['type'] == $field['property_type'] || entity_property_list_extract_type($property['type']) == $field['property_type'])) {
           $property_token_type = _entity_token_map_to_token_type($property);
           if (isset($entity_token_types[$property_token_type])) {
             $token_types[] = $property_token_type;
