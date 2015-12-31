@@ -1,6 +1,7 @@
 <?php
 /**
  * @file
+ * PHP engine export template.
  */
 ?>
 /**
@@ -17,7 +18,7 @@ function <?php echo $module; ?>_field_formatter_info() {
         '<?php echo $form_key; ?>' => <?php if (is_array($element['#default_value'])) : ?>
 array(
 <?php foreach ($element['#default_value'] as $key => $value) : ?>
-          <?php echo is_integer($key) ? $key : "'{$key}'"; ?> => '<?php echo $value; ?>',
+          <?php echo is_int($key) ? $key : "'{$key}'"; ?> => '<?php echo $value; ?>',
 <?php endforeach; ?>
         ),
 <?php else: ?>

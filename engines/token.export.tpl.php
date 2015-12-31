@@ -1,6 +1,7 @@
 <?php
 /**
  * @file
+ * HTML + Token engine export template.
  */
 ?>
 /**

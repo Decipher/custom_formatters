@@ -6,11 +6,7 @@
  */
 
 /**
- * Implements hook_custom_formatters_token_tree_types_alter() on behalf of
- * entity_tokens.module.
- *
- * @param $token_types
- * @param $field_type
+ * Implements hook_custom_formatters_token_tree_types_alter().
  */
 function entity_token_custom_formatters_token_tree_types_alter(&$token_types, $field_type) {
   $field = field_info_field_types($field_type);
@@ -22,7 +18,7 @@ function entity_token_custom_formatters_token_tree_types_alter(&$token_types, $f
       foreach (entity_get_all_property_info($type) as $name => $property) {
         $property += array(
           'type'        => 'text',
-          'description' => $property['label']
+          'description' => $property['label'],
         );
         if (isset($field['property_type']) && ($property['type'] == $field['property_type'] || entity_property_list_extract_type($property['type']) == $field['property_type'])) {
           $property_token_type = _entity_token_map_to_token_type($property);
@@ -46,21 +42,13 @@ function entity_token_custom_formatters_token_tree_types_alter(&$token_types, $f
 }
 
 /**
- * Implements hook_custom_formatters_token_data_alter() on behalf of
- * entity_token.module.
- *
- * @param $token_data
- * @param $text
- * @param $field
- * @param $delta
- *
- * @throws EntityMetadataWrapperException
+ * Implements hook_custom_formatters_token_data_alter().
  */
 function entity_token_custom_formatters_token_data_alter(&$token_data, &$text, $field, $delta) {
   module_load_include('inc', 'entity_token', 'entity_token.tokens');
   $token_types = entity_token_types_chained();
-  $field_name  = str_replace('_', '-', $field['field_name']);
-  $info        = module_exists('token') ? token_get_info() : token_info();
+  $field_name = str_replace('_', '-', $field['field_name']);
+  $info = module_exists('token') ? token_get_info() : token_info();
   foreach (element_children($info['tokens']) as $type) {
     if (isset($token_data[$type]) && isset($info['tokens'][$type][$field_name])) {
       $wrapper = !isset($wrapper) ? _entity_token_wrap_data($type, $token_types[$type], $token_data[$type], array()) : $wrapper;

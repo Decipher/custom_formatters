@@ -8,7 +8,7 @@
 /**
  * Include additional files.
  */
-$dirname  = dirname(__FILE__) . '/includes';
+$dirname = dirname(__FILE__) . '/includes';
 $includes = file_scan_directory($dirname, '/.inc$/');
 foreach (module_list() as $module) {
   $file = "{$dirname}/{$module}.inc";
@@ -32,8 +32,6 @@ function custom_formatters_permission() {
  * Implements hook_menu().
  */
 function custom_formatters_menu() {
-  $items = array();
-
   $items['admin/structure/formatters/settings'] = array(
     'title'            => 'Settings',
     'page callback'    => 'drupal_get_form',
@@ -50,13 +48,15 @@ function custom_formatters_menu() {
 /**
  * Check if the supplied formatter is currently in use.
  *
- * @param $formatter
+ * @param object $formatter
+ *   The Custom formatter object to check.
  *
  * @return bool
+ *   The boolean value of Custom formatters active status.
  */
 function custom_formatters_formatter_is_active($formatter) {
   $field_types = drupal_explode_tags($formatter->field_types);
-  $field_info  = field_info_fields();
+  $field_info = field_info_fields();
 
   foreach (field_info_instances() as $bundles) {
     foreach ($bundles as $fields) {
@@ -78,9 +78,11 @@ function custom_formatters_formatter_is_active($formatter) {
 /**
  * Load specified Custom formatter object.
  *
- * @param $formatter
+ * @param string $formatter
+ *   The name of the Custom formatter to load.
  *
- * @return null
+ * @return array|null
+ *   The desired Custom formatter object, or NULL if no formatter found.
  */
 function custom_formatters_crud_load($formatter) {
   $formatters = custom_formatters_crud_load_all();
@@ -92,8 +94,10 @@ function custom_formatters_crud_load($formatter) {
  * Load all Custom formatter objects.
  *
  * @param bool $flush_cache
+ *   If TRUE, reload all Custom formatter objects.
  *
- * @return mixed
+ * @return array
+ *   A keyed array of Custom formatter objects.
  */
 function custom_formatters_crud_load_all($flush_cache = FALSE) {
   $formatters = &drupal_static(__FUNCTION__, array());

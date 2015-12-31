@@ -6,9 +6,10 @@
  */
 
 /**
- * Implements custom_formatters_engine_hook_theme_alter().
+ * Theme alter for 'HTML + Token' engine.
  *
- * @param $theme
+ * @param array $theme
+ *   A keyed array as expected by hook_theme().
  */
 function custom_formatters_engine_token_theme_alter(&$theme) {
   $theme['custom_formatters_token_export'] = array(
@@ -24,15 +25,14 @@ function custom_formatters_engine_token_theme_alter(&$theme) {
 /**
  * Settings form callback for Custom Formatters Token engine.
  *
- * @param $form
- * @param $form_state
- * @param $item
+ * @param array $form
+ *   The form api array.
  */
-function custom_formatters_engine_token_settings_form(&$form, $form_state, $item) {
+function custom_formatters_engine_token_settings_form(&$form) {
   $form['code']['#attributes']['class'][] = 'syntax-html';
 
   // Additional debugging modes.
-  $form['preview']['options']['dpm']         = array(
+  $form['preview']['options']['dpm'] = array(
     '#type' => 'container',
   );
   $form['preview']['options']['dpm']['html'] = array(
@@ -46,22 +46,31 @@ function custom_formatters_engine_token_settings_form(&$form, $form_state, $item
 /**
  * Render callback for Custom Formatters Token engine.
  *
- * @param $formatter
- * @param $obj_type
- * @param $object
- * @param $field
- * @param $instance
- * @param $langcode
- * @param $items
- * @param $display
+ * @param object $formatter
+ *   The Custom formatter object.
+ * @param string $obj_type
+ *   The Entity type.
+ * @param object $object
+ *   The Entity object.
+ * @param array $field
+ *   The Field settings.
+ * @param array $instance
+ *   The Field instance.
+ * @param string $langcode
+ *   The language code.
+ * @param array $items
+ *   The Field items.
+ * @param array $display
+ *   The display settings.
  *
- * @return array
+ * @return mixed|bool
+ *   The output of the Custom formatter or FALSE.
  */
 function custom_formatters_engine_token_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
   $element = array();
 
   foreach ($items as $delta => $item) {
-    $text       = $formatter->code;
+    $text = $formatter->code;
     $token_data = array(
       'obj_type' => $obj_type,
       $obj_type  => $object,
@@ -69,7 +78,7 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
     );
     drupal_alter('custom_formatters_token_data', $token_data, $text, $field, $delta);
     $element[$delta] = array(
-      '#markup' => token_replace($text, $token_data, array('clear' => TRUE))
+      '#markup' => token_replace($text, $token_data, array('clear' => TRUE)),
     );
   }
 
@@ -79,16 +88,18 @@ function custom_formatters_engine_token_render($formatter, $obj_type, $object, $
 /**
  * Export callback for Custom Formatters Token engine.
  *
- * @param $item
- * @param $module
+ * @param object $item
+ *   The Custom formatter object.
+ * @param string $module
+ *   The user defined module name.
  *
  * @return string
- * @throws Exception
+ *   The exported formatter value.
  */
 function custom_formatters_engine_token_export($item, $module) {
   return theme('custom_formatters_token_export', array(
     'item'   => $item,
-    'module' => $module
+    'module' => $module,
   ));
 }
 

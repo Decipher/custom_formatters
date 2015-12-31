@@ -40,7 +40,7 @@ function custom_formatters_schema() {
         'type'     => 'varchar',
         'length'   => 255,
         'not null' => FALSE,
-        'default'  => ''
+        'default'  => '',
       ),
       'mode'        => array(
         'type'     => 'varchar',
@@ -54,10 +54,10 @@ function custom_formatters_schema() {
         'not null' => TRUE,
       ),
       'code'        => array(
-        'type' => 'blob'
+        'type' => 'blob',
       ),
       'fapi'        => array(
-        'type' => 'blob'
+        'type' => 'blob',
       ),
     ),
     'primary key' => array('name'),

@@ -6,9 +6,10 @@
  */
 
 /**
- * Implements custom_formatters_engine_hook_theme_alter().
+ * Theme alter for 'Formatter preset' engine.
  *
- * @param $theme
+ * @param array $theme
+ *   A keyed array as expected by hook_theme().
  */
 function custom_formatters_engine_formatter_preset_theme_alter(&$theme) {
   $theme['custom_formatters_formatter_preset_export'] = array(
@@ -24,13 +25,16 @@ function custom_formatters_engine_formatter_preset_theme_alter(&$theme) {
 /**
  * Settings form callback for Custom Formatters Formatter preset engine.
  *
- * @param $form
- * @param $form_state
- * @param $item
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
+ * @param object $item
+ *   The Custom Formatter object.
  */
 function custom_formatters_engine_formatter_preset_settings_form(&$form, $form_state, $item) {
   // Turn code field into nested fields.
-  $item->code   = unserialize($item->code);
+  $item->code = unserialize($item->code);
   $form['code'] = array(
     '#type' => 'container',
     '#tree' => TRUE,
@@ -38,7 +42,7 @@ function custom_formatters_engine_formatter_preset_settings_form(&$form, $form_s
 
   // Build formatters list.
   $field_type = isset($form_state['values']['field_types']) ? $form_state['values']['field_types'] : $item->field_types;
-  $options    = array();
+  $options = array();
   $formatters = field_info_formatter_types();
   foreach ($formatters as $formatter_name => $formatter) {
     if (in_array($field_type, $formatter['field types'])) {
@@ -71,11 +75,11 @@ function custom_formatters_engine_formatter_preset_settings_form(&$form, $form_s
   $function = "{$formatter['module']}_field_formatter_settings_form";
   if (!empty($formatter['settings']) && function_exists($function)) {
     $view_mode = '_custom_display';
-    $field     = field_info_field($field_type);
+    $field = field_info_field($field_type);
 
     $instance['entity_type'] = isset($form['preview']['entity_type']['#default_value']) ? $form['preview']['entity_type']['#default_value'] : key($form['preview']['entity_type']['#options']);
-    $instance['bundle']      = isset($form['preview']['bundle']['#default_value']) ? $form['preview']['bundle']['#default_value'] : key($form['preview']['bundle']['#options']);
-    
+    $instance['bundle'] = isset($form['preview']['bundle']['#default_value']) ? $form['preview']['bundle']['#default_value'] : key($form['preview']['bundle']['#options']);
+
     $instance['display'][$view_mode] = array(
       'type'     => $formatter_name,
       'settings' => isset($item->code['settings']) ? $item->code['settings'] : $formatter['settings'],
@@ -92,8 +96,10 @@ function custom_formatters_engine_formatter_preset_settings_form(&$form, $form_s
 /**
  * Settings form submit callback for Custom Formatters Formatter preset engine.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  */
 function custom_formatters_engine_formatter_preset_settings_form_submit($form, &$form_state) {
   $form_state['values']['code'] = serialize($form_state['values']['code']);
@@ -102,16 +108,25 @@ function custom_formatters_engine_formatter_preset_settings_form_submit($form, &
 /**
  * Render callback for Custom Formatters Formatter preset engine.
  *
- * @param $formatter
- * @param $obj_type
- * @param $object
- * @param $field
- * @param $instance
- * @param $langcode
- * @param $items
- * @param $display
+ * @param object $formatter
+ *   The Custom formatter object.
+ * @param string $obj_type
+ *   The Entity type.
+ * @param object $object
+ *   The Entity object.
+ * @param array $field
+ *   The Field settings.
+ * @param array $instance
+ *   The Field instance.
+ * @param string $langcode
+ *   The language code.
+ * @param array $items
+ *   The Field items.
+ * @param array $display
+ *   The display settings.
  *
- * @return bool
+ * @return mixed|bool
+ *   The output of the Custom formatter or FALSE.
  */
 function custom_formatters_engine_formatter_preset_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
   if (!is_array($formatter->code)) {
@@ -119,11 +134,11 @@ function custom_formatters_engine_formatter_preset_render($formatter, $obj_type,
   }
 
   $formatter_preset = field_info_formatter_types($formatter->code['formatter']);
-  $function         = "{$formatter_preset['module']}_field_formatter_view";
+  $function = "{$formatter_preset['module']}_field_formatter_view";
   if (function_exists($function)) {
     $display['settings'] = $formatter->code['settings'];
-    $display['type']     = $formatter->code['formatter'];
-    $display['module']   = $formatter_preset['module'];
+    $display['type'] = $formatter->code['formatter'];
+    $display['module'] = $formatter_preset['module'];
 
     return $function($obj_type, $object, $field, $instance, $langcode, $items, $display);
   }
@@ -134,11 +149,13 @@ function custom_formatters_engine_formatter_preset_render($formatter, $obj_type,
 /**
  * Export callback for Custom Formatters Formatter preset engine.
  *
- * @param $item
- * @param $module
+ * @param object $item
+ *   The Custom formatter object.
+ * @param string $module
+ *   The user defined module name.
  *
  * @return string
- * @throws Exception
+ *   The exported formatter value.
  */
 function custom_formatters_engine_formatter_preset_export($item, $module) {
   if (!is_array($item->code)) {
@@ -147,6 +164,6 @@ function custom_formatters_engine_formatter_preset_export($item, $module) {
 
   return theme('custom_formatters_formatter_preset_export', array(
     'item'   => $item,
-    'module' => $module
+    'module' => $module,
   ));
 }

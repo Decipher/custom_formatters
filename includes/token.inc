@@ -6,18 +6,12 @@
  */
 
 /**
- * Implements hook_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter()
- * on behalf of token.module.
- *
- * @param $form
- * @param $form_state
- *
- * @throws Exception
+ * Implements hook_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter().
  */
-function token_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter(&$form, $form_state) {
+function token_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alter(&$form) {
   if (isset($form['#formatters']) && $form['#formatters'] && 'token' == $form['info']['mode']['#default_value']) {
     // Add token tree.
-    $fieldable    = array();
+    $fieldable = array();
     $entity_types = entity_get_info();
     foreach ($entity_types as $entity_type => $entity) {
       if ($entity['fieldable']) {
@@ -25,13 +19,13 @@ function token_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alte
       }
     }
     $token_types = $fieldable;
-    $field_type  = $form['engine']['field_types']['#default_value'];
+    $field_type = $form['engine']['field_types']['#default_value'];
     drupal_alter('custom_formatters_token_tree_types', $token_types, $field_type);
     $form['engine']['tokens'] = array(
       '#type'   => 'markup',
       '#markup' => theme('token_tree', array(
         'dialog'      => TRUE,
-        'token_types' => $token_types
+        'token_types' => $token_types,
       )),
       '#weight' => 50,
     );
@@ -39,17 +33,14 @@ function token_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alte
 }
 
 /**
- * Implements hook_custom_formatters_form_builder_types_alter() on behalf of
- * token.module.
- *
- * @param $fields
+ * Implements hook_custom_formatters_form_builder_types_alter().
  */
 function token_custom_formatters_form_builder_types_alter(&$fields) {
   $fields['token_tree'] = array(
     'title'      => t('Token tree'),
     'properties' => array(
       'title',
-      'key'
+      'key',
     ),
     'default'    => array(
       '#title'       => t('Tokens'),

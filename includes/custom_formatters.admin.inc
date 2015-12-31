@@ -8,15 +8,18 @@
 /**
  * Custom Formatters administration settings form.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  *
- * @return mixed
+ * @return array
+ *   The updated form api array.
  */
 function custom_formatters_settings_form($form, $form_state) {
   $settings = variable_get('custom_formatters_settings', array(
     'label_prefix'       => TRUE,
-    'label_prefix_value' => t('Custom')
+    'label_prefix_value' => t('Custom'),
   ));
 
   $form['settings'] = array(
@@ -53,8 +56,10 @@ function custom_formatters_settings_form($form, $form_state) {
 /**
  * Validate callback for Custom Formatters administration settings form.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  */
 function custom_formatters_settings_form_validate($form, $form_state) {
   if ($form_state['values']['settings']['label_prefix'] && empty($form_state['values']['settings']['label_prefix_value'])) {
@@ -65,8 +70,10 @@ function custom_formatters_settings_form_validate($form, $form_state) {
 /**
  * Submit callback for Custom Formatters administration settings form.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  */
 function custom_formatters_settings_form_submit($form, $form_state) {
   drupal_set_message(t('Custom Formatters settings have been updated.'));

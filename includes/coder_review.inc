@@ -6,15 +6,10 @@
  */
 
 /**
- * Implements hook_custom_formatters_form_alter_alter() on behalf of
- * coder_review.module.
+ * Implements hook_custom_formatters_form_alter_alter().
  */
 function coder_review_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
-  if (in_array($form_id, array(
-      'ctools_export_ui_edit_item_form',
-      'ctools_export_ui_edit_item_wizard_form'
-    )) && isset($form['#formatters']) && 'php' == $form['info']['mode']['#default_value']
-  ) {
+  if (in_array($form_id, array('ctools_export_ui_edit_item_form', 'ctools_export_ui_edit_item_wizard_form')) && isset($form['#formatters']) && 'php' == $form['info']['mode']['#default_value']) {
     drupal_add_css(drupal_get_path('module', 'coder_review') . '/coder_review.css');
 
     $form['engine']['coder_review'] = array(
@@ -25,7 +20,7 @@ function coder_review_custom_formatters_form_alter_alter(&$form, &$form_state, $
     );
 
     module_load_include('common.inc', 'coder_review');
-    $system  = $files = array();
+    $system = $files = array();
     $reviews = _coder_review_settings_form(_coder_review_get_default_settings('files'), $system, $files);
 
     $form['engine']['coder_review']['reviews'] = array_merge($reviews['coder_reviews_group'], array(
@@ -52,10 +47,13 @@ function coder_review_custom_formatters_form_alter_alter(&$form, &$form_state, $
 /**
  * Ajax callback for Custom Formatters Coder Review integration.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  *
  * @return mixed
+ *   The Coder Review result render array.
  */
 function custom_formatters_coder_review(&$form, $form_state) {
   $directory = 'public://custom_formatters/coder_review';
@@ -72,7 +70,7 @@ function custom_formatters_coder_review(&$form, $form_state) {
         'coder_severity'  => $form_state['values']['coder_severity'],
         'coder_file_list' => $file,
         'coder_files'     => 1,
-      )
+      ),
     );
 
     $review = coder_review_page_form(array(), $form_state, 'files');

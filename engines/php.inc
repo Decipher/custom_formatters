@@ -6,9 +6,10 @@
  */
 
 /**
- * Implements custom_formatters_engine_hook_theme_alter().
+ * Theme alter for 'PHP' engine.
  *
- * @param $theme
+ * @param array $theme
+ *   A keyed array as expected by hook_theme().
  */
 function custom_formatters_engine_php_theme_alter(&$theme) {
   $theme['custom_formatters_php_export'] = array(
@@ -24,12 +25,13 @@ function custom_formatters_engine_php_theme_alter(&$theme) {
 /**
  * Settings form callback for Custom Formatters PHP engine.
  *
- * @param $form
+ * @param array $form
+ *   The form api array.
  */
 function custom_formatters_engine_php_settings_form(&$form) {
   $form['field_types']['#multiple'] = TRUE;
 
-  $form['code']['#description']           = t('Enter the PHP code that will be evaluated. You should NOT include %php tags. The $variables object is available.', array('%php' => '<?php ?>'));
+  $form['code']['#description'] = t('Enter the PHP code that will be evaluated. You should NOT include %php tags. The $variables object is available.', array('%php' => '<?php ?>'));
   $form['code']['#attributes']['class'][] = 'syntax-php';
 
   $form['settings'] = array(
@@ -58,9 +60,11 @@ function custom_formatters_engine_php_settings_form(&$form) {
 
 /**
  * Settings form submit callback for Custom Formatters PHP engine.
- *
- * @param $form
- * @param $form_state
+
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  */
 function custom_formatters_engine_php_settings_form_submit($form, &$form_state) {
   $form_state['values']['field_types'] = implode(', ', $form_state['values']['field_types']);
@@ -69,16 +73,25 @@ function custom_formatters_engine_php_settings_form_submit($form, &$form_state) 
 /**
  * Render callback for Custom Formatters PHP engine.
  *
- * @param $formatter
- * @param $obj_type
- * @param $object
- * @param $field
- * @param $instance
- * @param $langcode
- * @param $items
- * @param $display
+ * @param object $formatter
+ *   The Custom formatter object.
+ * @param string $obj_type
+ *   The Entity type.
+ * @param object $object
+ *   The Entity object.
+ * @param array $field
+ *   The Field settings.
+ * @param array $instance
+ *   The Field instance.
+ * @param string $langcode
+ *   The language code.
+ * @param array $items
+ *   The Field items.
+ * @param array $display
+ *   The display settings.
  *
- * @return bool|mixed|string
+ * @return mixed|bool
+ *   The output of the Custom formatter or FALSE.
  */
 function custom_formatters_engine_php_render($formatter, $obj_type, $object, $field, $instance, $langcode, $items, $display) {
   global $theme_path, $theme_info, $conf;
@@ -126,11 +139,13 @@ function custom_formatters_engine_php_render($formatter, $obj_type, $object, $fi
 /**
  * Export callback for Custom Formatters PHP engine.
  *
- * @param $item
- * @param $module
+ * @param object $item
+ *   The Custom formatter object.
+ * @param string $module
+ *   The user defined module name.
  *
  * @return string
- * @throws Exception
+ *   The exported formatter value.
  */
 function custom_formatters_engine_php_export($item, $module) {
   $formatter = clone $item;
@@ -146,7 +161,7 @@ function custom_formatters_engine_php_export($item, $module) {
   }
 
   // Modify #default_value for hook_field_formatter_settings_form() export.
-  if (module_exists('form_builder')) {
+  if (module_exists('form_builder') && function_exists('form_builder_examples_export_recurse')) {
     include drupal_get_path('module', 'form_builder') . '/examples/form_builder_examples.module';
     foreach (element_children($form) as $key) {
       if (isset($form[$key]['#default_value'])) {
@@ -163,6 +178,6 @@ function custom_formatters_engine_php_export($item, $module) {
 
   return theme('custom_formatters_php_export', array(
     'item'   => $formatter,
-    'module' => $module
+    'module' => $module,
   ));
 }

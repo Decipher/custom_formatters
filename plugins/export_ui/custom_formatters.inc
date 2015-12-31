@@ -6,7 +6,7 @@
  */
 
 /**
- * CTools Export UI required function for plugin definition
+ * CTools Export UI required function for plugin definition.
  */
 function custom_formatters_custom_formatters_ctools_export_ui() {
   return array(
@@ -37,8 +37,10 @@ function custom_formatters_custom_formatters_ctools_export_ui() {
 /**
  * Custom Formatters settings form.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  */
 function custom_formatters_export_ui_form(&$form, &$form_state) {
   $form['#attached'] = array(
@@ -50,12 +52,12 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     ),
   );
 
-  $item                = $form_state['item'];
-  $form['#item']       = $item;
+  $item = $form_state['item'];
+  $form['#item'] = $item;
   $form['#formatters'] = TRUE;
 
   $engines = module_invoke_all('custom_formatters_engine_info');
-  $engine  = !empty($form_state['values']['mode']) ? $form_state['values']['mode'] : (!empty($item->mode) ? $item->mode : key($engines));
+  $engine = !empty($form_state['values']['mode']) ? $form_state['values']['mode'] : (!empty($item->mode) ? $item->mode : key($engines));
   if (isset($engines[$engine]['file']) && file_exists($engines[$engine]['file'])) {
     require_once $engines[$engine]['file'];
   }
@@ -68,10 +70,10 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
     }
   }
 
-  $form['info']['#title']       = t('Basic information');
-  $form['info']['#type']        = 'fieldset';
+  $form['info']['#title'] = t('Basic information');
+  $form['info']['#type'] = 'fieldset';
   $form['info']['#collapsible'] = TRUE;
-  $form['info']['#collapsed']   = $form_state['op'] != 'add';
+  $form['info']['#collapsed'] = $form_state['op'] != 'add';
 
   $form['info']['label']['#title'] = t('Formatter name');
 
@@ -99,12 +101,12 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
   $form['engine'] = array(
     '#type'   => 'container',
     '#prefix' => '<div id="engine-wrapper">',
-    '#suffix' => '</div>'
+    '#suffix' => '</div>',
   );
 
   // Build list of available field types.
   $options = array();
-  $fields  = field_info_field_types();
+  $fields = field_info_field_types();
   // Give modules a chance to alter fields.
   drupal_alter('custom_formatters_fields', $fields);
   ksort($fields);
@@ -218,28 +220,31 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
 /**
  * Gets available options for the Preview form controls.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  *
  * @return array
+ *   A keyed arary of options for the JS Preview.
  */
 function _custom_formatters_preview_variables($form, $form_state) {
   $options = array();
-  $item    = !empty($form_state['values']) ? $form_state['values'] : (array) $form_state['item'];
+  $item = !empty($form_state['values']) ? $form_state['values'] : (array) $form_state['item'];
   if (!is_array($item['field_types'])) {
     $item['field_types'] = drupal_explode_tags($item['field_types']);
   }
 
-  // Entity Types
+  // Entity Types.
   $options['entity_types'] = array();
-  $entity_types            = entity_get_info();
+  $entity_types = entity_get_info();
   foreach ($entity_types as $key => $entity) {
     if ($entity['fieldable']) {
       $options['entity_types'][$key] = $entity['label'];
     }
   }
 
-  // Bundles
+  // Bundles.
   $options['bundles'] = array();
   if (!empty($options['entity_types'])) {
     $entity_type = !empty($item['preview']['entity_type']) ? $item['preview']['entity_type'] : 'node';
@@ -248,7 +253,7 @@ function _custom_formatters_preview_variables($form, $form_state) {
     }
   }
 
-  // Fields
+  // Fields.
   $options['fields'] = array();
   if (isset($entity_type) && !empty($options['bundles'])) {
     $bundle = !empty($item['preview']['bundle']) && isset($options['bundles'][$item['preview']['bundle']]) ? $item['preview']['bundle'] : key($options['bundles']);
@@ -261,7 +266,7 @@ function _custom_formatters_preview_variables($form, $form_state) {
     }
   }
 
-  // Entities
+  // Entities.
   $options['entities'] = array();
   if (isset($entity_type) && isset($bundle) && !empty($options['fields'])) {
     $field = !empty($item['preview']['field']) ? $item['preview']['field'] : key($options['fields']);
@@ -288,24 +293,27 @@ function _custom_formatters_preview_variables($form, $form_state) {
 /**
  * Implements hook_query_TAG_alter().
  */
-function custom_formatters_query_random_alter($query) {
+function custom_formatters_query_random_alter(QueryAlterableInterface $query) {
   $query->orderRandom();
 }
 
 /**
  * AJAX callback for Custom formatters form.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  *
- * @return mixed
+ * @return array
+ *   A fapi array.
  */
 function custom_formatters_export_ui_form_js($form, $form_state) {
   // Clear messages.
   drupal_get_messages(NULL, TRUE);
 
   $engines = module_invoke_all('custom_formatters_engine_info');
-  $engine  = $form_state['values']['mode'];
+  $engine = $form_state['values']['mode'];
   if (isset($engines[$engine]['file']) && file_exists($engines[$engine]['file'])) {
     require_once $engines[$engine]['file'];
   }
@@ -316,12 +324,15 @@ function custom_formatters_export_ui_form_js($form, $form_state) {
 /**
  * AJAX callback form Custom formatters preview form.
  *
- * @param      $form
- * @param      $form_state
- * @param null $object
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
+ * @param null|object $object
+ *   The Custom formatter object if supplied, else NULL.
  *
- * @return mixed
- * @throws Exception
+ * @return array
+ *   A fapi array.
  */
 function custom_formatters_export_ui_form_js_preview($form, $form_state, $object = NULL) {
   // Clear messages.
@@ -329,22 +340,22 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state, $object
 
   // Build preview elements.
   $elements['obj_type'] = $form_state['values']['preview']['entity_type'];
-  $elements['object']   = $object;
+  $elements['object'] = $object;
   if (is_null($elements['object'])) {
-    $objects            = entity_load($elements['obj_type'], array($form_state['values']['preview']['entity']));
+    $objects = entity_load($elements['obj_type'], array($form_state['values']['preview']['entity']));
     $elements['object'] = $objects[$form_state['values']['preview']['entity']];
   }
 
   if (strstr($form_state['values']['preview']['field'], 'field_')) {
-    $elements['field']    = field_info_field($form_state['values']['preview']['field']);
+    $elements['field'] = field_info_field($form_state['values']['preview']['field']);
     $elements['instance'] = field_info_instance($elements['obj_type'], $elements['field']['field_name'], $form_state['values']['preview']['bundle']);
     $elements['langcode'] = field_language($elements['obj_type'], $elements['object'], $elements['field']['field_name']);
-    $elements['items']    = field_get_items($elements['obj_type'], $elements['object'], $elements['instance']['field_name'], $elements['langcode']);
+    $elements['items'] = field_get_items($elements['obj_type'], $elements['object'], $elements['instance']['field_name'], $elements['langcode']);
 
     // Prepare field view.
     $functions = array(
       "{$elements['field']['module']}_field_prepare_view",
-      "{$elements['field']['module']}_field_load"
+      "{$elements['field']['module']}_field_load",
     );
     foreach ($functions as $function) {
       if (function_exists($function)) {
@@ -365,28 +376,28 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state, $object
   $display['settings'] = isset($form_state['input']['settings']['preview']) ? $form_state['input']['settings']['preview'] : $display['settings'];
   // Disable contextual links in preview.
   $display['#cf_options'] = array('#contextual_links' => FALSE);
-  $formatter              = (object) $form_state['values'];
+  $formatter = (object) $form_state['values'];
 
   // Build the preview html.
-  $element   = custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter);
+  $element = custom_formatters_field_formatter_view($obj_type, $object, $field, $instance, $langcode, $items, $display, $formatter);
   $variables = array(
     'element' => array_merge($element, array(
       '#label_display' => 'hidden',
       '#title'         => NULL,
       '#items'         => $element,
       '#field_name'    => $field['field_name'],
-      '#field_type'    => $field['type']
+      '#field_type'    => $field['type'],
     )),
   );
   foreach (array_keys($element) as $delta) {
     $variables['item_attributes'][$delta] = NULL;
   }
 
-  $js                                              = drupal_add_js();
+  $js = drupal_add_js();
   $form['engine']['preview']['preview']['content'] = array(
     '#markup' => theme('field', $variables),
   );
-  $js                                              = array_diff_assoc(drupal_add_js(), $js);
+  $js = array_diff_assoc(drupal_add_js(), $js);
   $form['engine']['preview']['preview']['content']['#markup'] .= drupal_get_js('header', $js);
 
   // Preview debugging; Show the output HTML.
@@ -400,8 +411,10 @@ function custom_formatters_export_ui_form_js_preview($form, $form_state, $object
 /**
  * Submit callback for Custom Formatters settings form.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  */
 function custom_formatters_export_ui_form_submit(&$form, &$form_state) {
   field_cache_clear();
@@ -418,7 +431,7 @@ function custom_formatters_export_ui_form_submit(&$form, &$form_state) {
   }
 
   if ($form_state['values']['op'] == t('Save & Edit')) {
-    $destination         = "admin/structure/formatters/list/{$form_state['values']['name']}/edit";
+    $destination = "admin/structure/formatters/list/{$form_state['values']['name']}/edit";
     $_GET['destination'] = isset($_GET['destination']) ? $destination . "?destination={$_GET['destination']}" : $destination;
   }
 }
@@ -426,12 +439,17 @@ function custom_formatters_export_ui_form_submit(&$form, &$form_state) {
 /**
  * Provide a form for displaying an export.
  *
- * @param        $form
- * @param        $form_state
- * @param        $item
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
+ * @param object $item
+ *   The Custom formatter object.
  * @param string $title
+ *   The textarea field title.
  *
  * @return mixed
+ *   A form api array.
  */
 function custom_formatters_export_ui_export_form($form, &$form_state, $item, $title = '') {
   $form['mode'] = array(
@@ -439,7 +457,7 @@ function custom_formatters_export_ui_export_form($form, &$form_state, $item, $ti
     '#title'         => t('Mode'),
     '#options'       => array(
       'default' => t('CTools exportable (default)'),
-      'drupal'  => t('Drupal API')
+      'drupal'  => t('Drupal API'),
     ),
     '#default_value' => 'default',
     '#ajax'          => array(
@@ -462,7 +480,7 @@ function custom_formatters_export_ui_export_form($form, &$form_state, $item, $ti
 
     case 'drupal':
       $engines = module_invoke_all('custom_formatters_engine_info');
-      $engine  = $item->mode;
+      $engine = $item->mode;
       if (isset($engines[$engine]['file']) && file_exists($engines[$engine]['file'])) {
         require_once $engines[$engine]['file'];
       }
@@ -498,25 +516,27 @@ function custom_formatters_export_ui_export_form($form, &$form_state, $item, $ti
 /**
  * AJAX callback for Custom Formatters export form.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
  *
  * @return mixed
+ *   The export form object.
  */
-function custom_formatters_export_ui_export_form_js($form, $form_state) {
+function custom_formatters_export_ui_export_form_js($form) {
   return $form['export'];
 }
 
 /**
  * Theme for Preview form.
  *
- * @param $variable
+ * @param array $variable
+ *   The theme variables array.
  *
  * @return string
- * @throws Exception
+ *   The rendered output.
  */
 function theme_custom_formatters_export_ui_form_preview($variable) {
-  $form   = $variable['form'];
+  $form = $variable['form'];
   $output = '';
 
   $output .= theme('table', array(
@@ -529,7 +549,7 @@ function theme_custom_formatters_export_ui_form_preview($variable) {
       ),
       array(
         array('data' => render($form['options']), 'colspan' => 3),
-        render($form['button'])
+        render($form['button']),
       ),
     ),
   ));

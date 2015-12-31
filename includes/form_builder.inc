@@ -6,19 +6,10 @@
  */
 
 /**
- * Implements hook_custom_formatters_form_alter_alter() on behalf of
- * form_builder.module.
- *
- * @param $form
- * @param $form_state
- * @param $form_id
+ * Implements hook_custom_formatters_form_alter_alter().
  */
 function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
-  if (in_array($form_id, array(
-      'ctools_export_ui_edit_item_form',
-      'ctools_export_ui_edit_item_wizard_form'
-    )) && isset($form['#formatters']) && isset($form['engine']['settings'])
-  ) {
+  if (in_array($form_id, array('ctools_export_ui_edit_item_form', 'ctools_export_ui_edit_item_wizard_form')) && isset($form['#formatters']) && isset($form['engine']['settings'])) {
     if ($form_state['op'] == 'add' || ($form_state['op'] == 'edit' && !custom_formatters_formatter_is_active($form_state['item']))) {
       drupal_add_css(drupal_get_path('module', 'custom_formatters') . '/styles/custom_formatters.form_builder.css');
 
@@ -35,7 +26,7 @@ function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $
       module_load_include('inc', 'form_builder', 'includes/form_builder.cache');
 
       $form_type = 'custom_formatters';
-      $form_id   = drupal_substr($form['#build_id'], 0, 32);
+      $form_id = drupal_substr($form['#build_id'], 0, 32);
 
       // Set the current form type (used for display of the sidebar block).
       form_builder_active_form($form_type, $form_id);
@@ -44,7 +35,7 @@ function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $
       $form_structure = _custom_formatters_form_builder_load_form($form['#item'], $form_id);
 
       $form['engine']['settings']['preview'] = form_builder_preview($form, $form_state, $form_structure, $form_type, $form_id);
-      $form['#submit'][]                     = 'custom_formatters_form_builder_submit';
+      $form['#submit'][] = 'custom_formatters_form_builder_submit';
     }
   }
 }
@@ -52,8 +43,10 @@ function form_builder_custom_formatters_form_alter_alter(&$form, &$form_state, $
 /**
  * Submit callback for Custom Formatters form builder integration.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   The form api array.
+ * @param array $form_state
+ *   The form state array.
  */
 function custom_formatters_form_builder_submit($form, &$form_state) {
   module_load_include('inc', 'form_builder', 'includes/form_builder.admin');
@@ -63,7 +56,7 @@ function custom_formatters_form_builder_submit($form, &$form_state) {
   // @TODO - Reproduce this functionality or require form_builder_examples.module.
   include drupal_get_path('module', 'form_builder') . '/examples/form_builder_examples.module';
 
-  $form_id    = drupal_substr($form['form_build_id']['#value'], 0, 32);
+  $form_id = drupal_substr($form['form_build_id']['#value'], 0, 32);
   $form_cache = form_builder_cache_load('custom_formatters', $form_id);
   if (is_array($form_cache)) {
     $form_state['item']->fapi = form_builder_examples_export_recurse($form_cache);
@@ -76,10 +69,13 @@ function custom_formatters_form_builder_submit($form, &$form_state) {
 /**
  * Load Form Builder form.
  *
- * @param $formatter
- * @param $form_id
+ * @param object $formatter
+ *   The Custom formatter object.
+ * @param string $form_id
+ *   The form id.
  *
- * @return array|mixed|null
+ * @return array
+ *   The Form builder fapi array.
  */
 function _custom_formatters_form_builder_load_form($formatter, $form_id) {
   $form = array();
@@ -97,7 +93,7 @@ function _custom_formatters_form_builder_load_form($formatter, $form_id) {
 
     if (isset($form)) {
       foreach ($form as $key => &$element) {
-        $element['#key']          = $key;
+        $element['#key'] = $key;
         $element['#form_builder'] = array(
           'element_id'   => $key,
           'element_type' => $element['#type'],
@@ -126,10 +122,10 @@ function custom_formatters_form_builder_types() {
       'default_value',
       'required',
       'options',
-      'multiple', // Handled by options element.
-      'key_type', // Handled by options element.
-      'key_type_toggle', // Handled by options element.
-      'key_type_toggled', // Handled by options element.
+      'multiple',
+      'key_type',
+      'key_type_toggle',
+      'key_type_toggled',
       'key',
     ),
     'default'    => array(
@@ -149,9 +145,9 @@ function custom_formatters_form_builder_types() {
       'required',
       'options',
       'multiple',
-      'key_type', // Handled by options element.
-      'key_type_toggle', // Handled by options element.
-      'key_type_toggled', // Handled by options element.
+      'key_type',
+      'key_type_toggle',
+      'key_type_toggled',
       'key',
     ),
     'default'    => array(
@@ -169,9 +165,9 @@ function custom_formatters_form_builder_types() {
       'default_value',
       'required',
       'options',
-      'key_type', // Handled by options element.
-      'key_type_toggle', // Handled by options element.
-      'key_type_toggled', // Handled by options element.
+      'key_type',
+      'key_type_toggle',
+      'key_type_toggled',
       'key',
     ),
     'default'    => array(
@@ -220,6 +216,6 @@ function custom_formatters_form_builder_types() {
   drupal_alter('custom_formatters_form_builder_types', $fields);
 
   return array(
-    'custom_formatters' => $fields
+    'custom_formatters' => $fields,
   );
 }
