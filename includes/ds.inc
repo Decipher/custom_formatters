@@ -46,7 +46,7 @@ function custom_formatters_theme_registry_alter(&$theme_registry) {
 function ds_custom_formatters_fields_alter(&$fields) {
   foreach (array_keys(entity_get_info()) as $entity_type) {
     $ds_fields = module_invoke_all('ds_fields_info', $entity_type);
-    if (is_array($ds_fields) && !empty($ds_fields)) {
+    if (is_array($ds_fields) && !empty($ds_fields) && isset($ds_fields[$entity_type])) {
       foreach ($ds_fields[$entity_type] as $id => $field) {
         if (in_array($field['field_type'], array(
           DS_FIELD_TYPE_PREPROCESS,
