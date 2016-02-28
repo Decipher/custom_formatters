@@ -76,6 +76,7 @@ function custom_formatters_export_ui_form(&$form, &$form_state) {
   $form['info']['#collapsed'] = $form_state['op'] != 'add';
 
   $form['info']['label']['#title'] = t('Formatter name');
+  $form['info']['label']['#required'] = TRUE;
 
   $form['info']['description'] = array(
     '#title'         => t('Description'),

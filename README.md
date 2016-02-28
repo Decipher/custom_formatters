@@ -1,5 +1,5 @@
-# Custom Formatters
--------------------
+Custom Formatters
+=================
 
 The Custom Formatters module allows users to easily create custom Field
 Formatters without the need to write a custom module. Custom Formatters can then
@@ -7,8 +7,8 @@ be exported as CTools Exportables, Features or Drupal API Field Formatters.
 
 
 
-## Features
------------
+Features
+--------
 
 * Pluggable editor/renderer engines:
     * **Formatter presets** _(default)_  
@@ -69,15 +69,15 @@ be exported as CTools Exportables, Features or Drupal API Field Formatters.
 
 
 
-## Required Modules
--------------------
+Required Modules
+----------------
 
 * [Chaos tool suite](http://drupal.org/project/ctools)
 
 
 
-## Recommended Modules
-----------------------
+Recommended Modules
+-------------------
 
 * Coder Review (via [Coder](http://drupal.org/project/coder)) 
 * Devel Generate (via [Devel](http://drupal.org/project/devel))
@@ -89,15 +89,15 @@ be exported as CTools Exportables, Features or Drupal API Field Formatters.
 
 
 
-## Usage/Configuration
-----------------------
+Usage/Configuration
+-------------------
 
 Read the manual at: [drupal.org/node/2514412](https://www.drupal.org/node/2514412)
 
 
 
-## EditArea - Real-time syntax highlighting
--------------------------------------------
+EditArea - Real-time syntax highlighting
+----------------------------------------
 
 The EditArea javascript library adds real-time syntax highlighting, to install
 it follow these steps:
@@ -111,8 +111,8 @@ it follow these steps:
 
 
 
-## Makefile entries
--------------------
+Makefile entries
+----------------
 
 For easy downloading of Custom Formatters and it's required/recommended modules
 and/or libraries, you can use the following entries in your makefile:

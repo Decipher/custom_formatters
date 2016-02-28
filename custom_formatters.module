@@ -104,7 +104,7 @@ function custom_formatters_crud_load_all($flush_cache = FALSE) {
 
   if (!$formatters || $flush_cache) {
     ctools_include('export');
-    foreach (ctools_export_crud_load_all('formatters') as $formatter) {
+    foreach (ctools_export_crud_load_all('formatters', $flush_cache) as $formatter) {
       if (empty($formatter->disabled)) {
         $formatters[$formatter->name] = $formatter;
       }
