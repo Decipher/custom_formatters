@@ -9,10 +9,11 @@
  * Class custom_formatters_ui.
  */
 class custom_formatters_ui extends ctools_export_ui {
+
   /**
    * {@inheritdoc}
    */
-  function list_build_row($item, &$form_state, $operations) {
+  public function list_build_row($item, &$form_state, $operations) {
     // Set up sorting.
     $name = $item->{$this->plugin['export']['key']};
     $schema = ctools_export_get_schema($this->plugin['schema']);
@@ -98,7 +99,7 @@ class custom_formatters_ui extends ctools_export_ui {
   /**
    * {@inheritdoc}
    */
-  function list_table_header() {
+  public function list_table_header() {
     $header = array();
     if (!empty($this->plugin['export']['admin_title'])) {
       $header[] = array(
@@ -134,7 +135,7 @@ class custom_formatters_ui extends ctools_export_ui {
   /**
    * {@inheritdoc}
    */
-  function enable_page($js, $input, $item) {
+  public function enable_page($js, $input, $item) {
     field_cache_clear();
 
     return $this->set_item_state(FALSE, $js, $input, $item);
@@ -143,7 +144,7 @@ class custom_formatters_ui extends ctools_export_ui {
   /**
    * {@inheritdoc}
    */
-  function disable_page($js, $input, $item) {
+  public function disable_page($js, $input, $item) {
     field_cache_clear();
 
     return $this->set_item_state(TRUE, $js, $input, $item);
@@ -152,7 +153,7 @@ class custom_formatters_ui extends ctools_export_ui {
   /**
    * {@inheritdoc}
    */
-  function export_page($js, $input, $item) {
+  public function export_page($js, $input, $item) {
     drupal_set_title($this->get_page_title('export', $item));
 
     return drupal_get_form('custom_formatters_export_ui_export_form', $item, t('Export'));

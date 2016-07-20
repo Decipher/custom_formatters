@@ -108,4 +108,5 @@ class CustomFormattersTestCase extends DrupalWebTestCase {
     $this->drupalPost("admin/structure/types/manage/{$bundle_name}/display/{$view_mode}", array("fields[{$field_name}][type]" => "custom_formatters_{$formatter_name}"), t('Save'));
     $this->assertText(t('Your settings have been saved.'));
   }
+
 }

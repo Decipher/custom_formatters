@@ -67,7 +67,7 @@ function ds_custom_formatters_fields_alter(&$fields) {
  */
 function custom_formatters_ds_fields_info_alter(&$fields, $entity_type) {
   $formatters = custom_formatters_crud_load_all();
-  foreach ($formatters as $name => $formatter) {
+  foreach ($formatters as $formatter) {
     foreach (drupal_explode_tags($formatter->field_types) as $field_type) {
       if (strpos($field_type, 'ds_') === 0) {
         $field_type = substr($field_type, 3);

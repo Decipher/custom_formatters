@@ -13,7 +13,7 @@ function token_custom_formatters_form_ctools_export_ui_edit_item_form_alter_alte
     // Add token tree.
     $fieldable = array();
     $entity_types = entity_get_info();
-    foreach ($entity_types as $entity_type => $entity) {
+    foreach ($entity_types as $entity) {
       if ($entity['fieldable']) {
         $fieldable[] = $entity['token type'];
       }

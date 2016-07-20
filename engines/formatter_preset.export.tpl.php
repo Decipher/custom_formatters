@@ -3,6 +3,7 @@
  * @file
  * Formatter Preset engine export template.
  */
+
 ?>
 /**
  * Implements hook_field_formatter_info().

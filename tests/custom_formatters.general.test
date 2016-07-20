@@ -9,6 +9,7 @@
  * Class FileFieldPathsGeneralTestCase.
  */
 class CustomFormattersGeneralTestCase extends CustomFormattersTestCase {
+
   /**
    * {@inheritdoc}
    */

@@ -60,7 +60,7 @@ function custom_formatters_engine_php_settings_form(&$form) {
 
 /**
  * Settings form submit callback for Custom Formatters PHP engine.
-
+ *
  * @param array $form
  *   The form api array.
  * @param array $form_state

@@ -14,8 +14,8 @@ function entity_token_custom_formatters_token_tree_types_alter(&$token_types, $f
   module_load_include('inc', 'entity_token', 'entity_token.tokens');
   $entity_token_types = entity_token_types_chained();
   if (is_array($entity_token_types)) {
-    foreach ($entity_token_types as $token_type => $type) {
-      foreach (entity_get_all_property_info($type) as $name => $property) {
+    foreach ($entity_token_types as $type) {
+      foreach (entity_get_all_property_info($type) as $property) {
         $property += array(
           'type'        => 'text',
           'description' => $property['label'],
