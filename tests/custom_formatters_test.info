@@ -1,6 +1,0 @@
-name = Custom Formatters test
-description = Support module for Custom Formatters related testing.
-dependencies[] = custom_formatters
-package = Testing
-core = 7.x
-hidden = TRUE

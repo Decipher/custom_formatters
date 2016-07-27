@@ -5,111 +5,39 @@
  * Core functions for the Custom Formatters module.
  */
 
+use Drupal\Core\Link;
+
 /**
- * Include additional files.
+ * Implements hook_theme().
  */
-$dirname = dirname(__FILE__) . '/includes';
-$includes = file_scan_directory($dirname, '/.inc$/');
-foreach (module_list() as $module) {
-  $file = "{$dirname}/{$module}.inc";
-  if (isset($includes[$file])) {
-    require_once $file;
-  }
+function custom_formatters_theme() {
+  $themes['formatter_add_list'] = [
+    'variables' => ['content' => NULL],
+  ];
+
+  return $themes;
 }
 
 /**
- * Implements hook_permission().
- */
-function custom_formatters_permission() {
-  return array(
-    'administer custom formatters' => array(
-      'title' => t('Administer Custom Formatters'),
-    ),
-  );
-}
-
-/**
- * Implements hook_menu().
- */
-function custom_formatters_menu() {
-  $items['admin/structure/formatters/settings'] = array(
-    'title'            => 'Settings',
-    'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('custom_formatters_settings_form'),
-    'access arguments' => array('administer custom formatters'),
-    'file'             => 'custom_formatters.admin.inc',
-    'file path'        => drupal_get_path('module', 'custom_formatters') . '/includes',
-    'type'             => MENU_LOCAL_TASK,
-  );
-
-  return $items;
-}
-
-/**
- * Check if the supplied formatter is currently in use.
+ * Prepares variables for list of available formatter type templates.
  *
- * @param object $formatter
- *   The Custom formatter object to check.
+ * Default template: formatter-add-list.html.twig.
  *
- * @return bool
- *   The boolean value of Custom formatters active status.
+ * @param array $variables
+ *   An associative array containing:
+ *   - content: An array of formatter types.
  */
-function custom_formatters_formatter_is_active($formatter) {
-  $field_types = drupal_explode_tags($formatter->field_types);
-  $field_info = field_info_fields();
-
-  foreach (field_info_instances() as $bundles) {
-    foreach ($bundles as $fields) {
-      foreach ($fields as $field) {
-        if (in_array($field_info[$field['field_name']]['type'], $field_types)) {
-          foreach ($field['display'] as $display) {
-            if ($display['type'] == "custom_formatters_{$formatter->name}") {
-              return TRUE;
-            }
-          }
-        }
-      }
+function template_preprocess_formatter_add_list(&$variables) {
+  $variables['types'] = [];
+  if (!empty($variables['content'])) {
+    foreach ($variables['content'] as $type) {
+      $variables['types'][$type['id']] = [
+        'type'        => $type['id'],
+        'add_link'    => Link::createFromRoute($type['label'], 'custom_formatters.add', ['formatter_type' => $type['id']]),
+        'description' => [
+          '#markup' => $type['description'],
+        ],
+      ];
     }
   }
-
-  return FALSE;
-}
-
-/**
- * Load specified Custom formatter object.
- *
- * @param string $formatter
- *   The name of the Custom formatter to load.
- *
- * @return array|null
- *   The desired Custom formatter object, or NULL if no formatter found.
- */
-function custom_formatters_crud_load($formatter) {
-  $formatters = custom_formatters_crud_load_all();
-
-  return isset($formatters[$formatter]) ? $formatters[$formatter] : NULL;
-}
-
-/**
- * Load all Custom formatter objects.
- *
- * @param bool $flush_cache
- *   If TRUE, reload all Custom formatter objects.
- *
- * @return array
- *   A keyed array of Custom formatter objects.
- */
-function custom_formatters_crud_load_all($flush_cache = FALSE) {
-  $formatters = &drupal_static(__FUNCTION__, array());
-
-  if (!$formatters || $flush_cache) {
-    ctools_include('export');
-    foreach (ctools_export_crud_load_all('formatters', $flush_cache) as $formatter) {
-      if (empty($formatter->disabled)) {
-        $formatters[$formatter->name] = $formatter;
-      }
-    }
-  }
-
-  return $formatters;
 }

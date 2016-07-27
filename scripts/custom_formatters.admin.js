@@ -64,5 +64,5 @@
     customFormattersEAUpdate: function (editor_id) {
       $('#' + editor_id).val(editAreaLoader.getValue(editor_id));
     }
-  }
+  };
 })(jQuery);

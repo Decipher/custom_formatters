@@ -1,0 +1,8 @@
+name: Custom Formatters
+description: Allows users to easily define custom Field Formatters.
+type: module
+dependencies:
+  - field
+package: Fields
+configure: admin/structure/formatters
+core: 8.x

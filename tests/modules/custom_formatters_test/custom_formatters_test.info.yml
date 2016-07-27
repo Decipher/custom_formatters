@@ -1,0 +1,8 @@
+name: Custom Formatters test
+type: module
+description: Support module for Custom Formatters related testing.
+dependencies:
+  - custom_formatters
+package: Testing
+core: 8.x
+hidden: TRUE
