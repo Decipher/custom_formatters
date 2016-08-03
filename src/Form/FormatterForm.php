@@ -148,7 +148,6 @@ class FormatterForm extends EntityForm {
     // Clear cached formatters.
     // @TODO - Tag custom formatters?
     $this->formatterTypeManager->clearCachedDefinitions();
-    // @TODO - clear field cache where formatter in use.
 
     if ($is_new) {
       drupal_set_message($this->t('Added formatter %formatter.', ['%formatter' => $entity->label()]));

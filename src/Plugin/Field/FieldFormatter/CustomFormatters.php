@@ -5,6 +5,7 @@ namespace Drupal\custom_formatters\Plugin\Field\FieldFormatter;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
 
 /**
  * Plugin implementation of the 'text_default' formatter.
@@ -21,23 +22,33 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     /** @var \Drupal\custom_formatters\FormatterInterface $formatter */
-    $formatter = $this->getPluginDefinition()['formatter'];
+    $formatter = \Drupal::entityTypeManager()
+      ->getStorage('formatter')
+      ->load($this->getPluginDefinition()['formatter']);
 
     $element = $formatter->getFormatterType()
       ->viewElements($items, $langcode);
     if (!$element) {
+      // @TODO - Fail better.
       return FALSE;
     }
+
+    // Transform strings into a renderable element.
     if (is_string($element)) {
       $element = [
-        [
-          '#markup' => $element,
-        ],
+        '#markup' => $element,
       ];
     }
-//    foreach (element_children($element) as $delta) {
+
+    // Ensure we have a nested array.
+    if (is_array($element) && !Element::children($element)) {
+      $element = [$element];
+    }
+
+    foreach (Element::children($element) as $delta) {
 //      $element[$delta]['#cf_options'] = isset($display['#cf_options']) ? $display['#cf_options'] : [];
-//    }
+      $element[$delta]['#cache']['tags'] = $formatter->getCacheTags();
+    }
 
     // Allow other modules to modify the element.
 //    drupal_alter('custom_formatters_field_formatter_view_element', $element, $formatter);

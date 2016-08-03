@@ -2,6 +2,7 @@
 
 namespace Drupal\custom_formatters\Entity;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\custom_formatters\FormatterInterface;
@@ -98,6 +99,23 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
     if (!is_array($this->get('field_types'))) {
       $this->set('field_types', [$this->get('field_types')]);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function invalidateTagsOnSave($update) {
+    // An entity was created or updated: invalidate its list cache tags. (An
+    // updated entity may start to appear in a listing because it now meets that
+    // listing's filtering requirements. A newly created entity may start to
+    // appear in listings because it did not exist before).
+    /** @var array $tags */
+    $tags = $this->getEntityType()->getListCacheTags();
+    if ($update) {
+      // An existing entity was updated, also invalidate its unique cache tag.
+      $tags = Cache::mergeTags($tags, $this->getCacheTagsToInvalidate());
+    }
+    Cache::invalidateTags($tags);
   }
 
 }

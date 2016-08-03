@@ -57,15 +57,10 @@ class PHP extends FormatterTypeBase {
 //      dpm($variables);
 //    }
 
-    return [
-      '#type'   => 'markup',
-      '#markup' => $output,
-    ];
-
 //    // Recover original theme path.
 //    $theme_path = $old_theme_path;
 
-//    return empty($output) ? FALSE : $output;
+    return empty($output) ? FALSE : $output;
   }
 
 }
