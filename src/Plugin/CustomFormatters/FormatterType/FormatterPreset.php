@@ -117,28 +117,20 @@ class FormatterPreset extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
-    return $this->getFormatter($this->entity->get('data')['formatter'], $this->entity->get('field_types')[0])
-      ->viewElements($items, $langcode);
+  public function submitForm(array $form, FormStateInterface $form_state) {
+    parent::submitForm($form, $form_state);
+
+    // Ensure that the field types value is an array.
+    $this->entity->set('field_types', [$this->entity->get('field_types')]);
   }
 
   /**
    * {@inheritdoc}
    */
-//  public function postLoad() {
-//    // Unserialize data field.
-//    // @TODO - Allow data to be stored directly as defined by plugin.
-//    $this->entity->set('data', unserialize($this->entity->get('data')));
-//  }
-//
-//  /**
-//   * {@inheritdoc}
-//   */
-//  public function preSave() {
-//    // Serialize data field.
-//    // @TODO - Allow data to be stored directly as defined by plugin.
-//    $this->entity->set('data', serialize($this->entity->get('data')));
-//  }
+  public function viewElements(FieldItemListInterface $items, $langcode) {
+    return $this->getFormatter($this->entity->get('data')['formatter'], $this->entity->get('field_types')[0])
+      ->viewElements($items, $langcode);
+  }
 
   /**
    * @param string $formatter_name

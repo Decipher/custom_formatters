@@ -4,6 +4,7 @@ namespace Drupal\custom_formatters;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Interface FormatterInterface.
@@ -31,5 +32,15 @@ interface FormatterTypeInterface extends PluginInspectionInterface {
    *   consecutive numeric indexes starting from 0.
    */
   public function viewElements(FieldItemListInterface $items, $langcode);
+
+  /**
+   * Formatter type plugin settings form submit callback.
+   *
+   * @param array $form
+   *   The Form API array.
+   * @param FormStateInterface $form_state
+   *   The Form state interface.
+   */
+  public function submitForm(array $form, FormStateInterface $form_state);
 
 }

@@ -66,4 +66,10 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
   public function preSave() {
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array $form, FormStateInterface $form_state) {
+  }
+
 }

@@ -141,6 +141,8 @@ class FormatterForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
+    $this->entity->getFormatterType()->submitForm($form, $form_state);
+
     $entity = $this->entity;
     $is_new = !$entity->getOriginalId();
     $entity->save();
