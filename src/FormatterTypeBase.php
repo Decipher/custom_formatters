@@ -30,6 +30,13 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
   /**
    * {@inheritdoc}
    */
+  public function calculateDependencies() {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function settingsForm(array &$form, FormStateInterface $form_state) {
     $form['data'] = [
       '#title'         => t('Formatter'),

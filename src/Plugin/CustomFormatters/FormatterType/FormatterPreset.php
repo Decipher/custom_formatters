@@ -36,6 +36,21 @@ class FormatterPreset extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
+  public function calculateDependencies() {
+    $dependencies = parent::calculateDependencies();
+
+    $formatter_definitions = $this->formatterManager->getDefinitions();
+    if (isset($formatter_definitions[$this->entity->data['formatter']])) {
+      // @TODO - Add support for configuration dependencies.
+      $dependencies['module'][] = $formatter_definitions[$this->entity->data['formatter']]['provider'];
+    }
+
+    return $dependencies;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function settingsForm(array &$form, FormStateInterface $form_state) {
     $form['data'] = [
       '#type' => 'container',

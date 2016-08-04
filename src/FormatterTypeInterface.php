@@ -11,6 +11,14 @@ use Drupal\Core\Field\FieldItemListInterface;
 interface FormatterTypeInterface extends PluginInspectionInterface {
 
   /**
+   * Calculates dependencies and stores them in the dependency property.
+   *
+   * @return array
+   *   A keyed array of dependencies.
+   */
+  public function calculateDependencies();
+
+  /**
    * Builds a renderable array for a field value.
    *
    * @param \Drupal\Core\Field\FieldItemListInterface $items
