@@ -133,10 +133,15 @@ class FormatterPreset extends FormatterTypeBase {
   }
 
   /**
+   * Returns a dummy formatter instance.
+   *
    * @param string $formatter_name
+   *   The formatter identifier.
    * @param string $field_type
+   *   The field type.
    *
    * @return \Drupal\Core\Field\FormatterInterface
+   *   A dummy formatter instance.
    */
   protected function getFormatter($formatter_name, $field_type) {
     return $this->formatterManager->createInstance($formatter_name, [

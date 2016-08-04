@@ -90,3 +90,7 @@ TODOs / Roadmap
 * Add granular permissions to Formatter types.
 * Add Formatter list view.
 * Add custom support for Seven theme / Formatter add page.
+* Re-add save & edit?
+* Re-add preview.
+* Tests:
+  - Ensure that if a formatter is in used it's field type can't change.
