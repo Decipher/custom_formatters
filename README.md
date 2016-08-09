@@ -90,7 +90,10 @@ TODOs / Roadmap
 * Add granular permissions to Formatter types.
 * Add Formatter list view.
 * Add custom support for Seven theme / Formatter add page.
+* Add ability to change field types that aren't in use.
+* Set usages of formatters to default formatter on deletion.
 * Re-add save & edit?
 * Re-add preview.
 * Tests:
   - Ensure that if a formatter is in used it's field type can't change.
+  - Add test for configuration dependencies.

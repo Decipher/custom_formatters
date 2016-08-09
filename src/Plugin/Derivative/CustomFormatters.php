@@ -32,6 +32,8 @@ class CustomFormatters extends DeriverBase {
         $this->derivatives[$formatter->id()]['label'] = t($this->getLabel($formatter->label()));
         $this->derivatives[$formatter->id()]['field_types'] = $formatter->get('field_types');
         $this->derivatives[$formatter->id()]['formatter'] = $formatter->id();
+        $this->derivatives[$formatter->id()]['config_dependencies'] = $formatter->getDependencies();
+        $this->derivatives[$formatter->id()]['config_dependencies']['config'][] = $formatter->getConfigDependencyName();
       }
     }
 

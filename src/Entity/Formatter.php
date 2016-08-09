@@ -85,25 +85,14 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
   /**
    * {@inheritdoc}
    */
-  public function isActive() {
-//    $field_types = drupal_explode_tags($formatter->field_types);
-//    $field_info = field_info_fields();
-//
-//    foreach (field_info_instances() as $bundles) {
-//      foreach ($bundles as $fields) {
-//        foreach ($fields as $field) {
-//          if (in_array($field_info[$field['field_name']]['type'], $field_types)) {
-//            foreach ($field['display'] as $display) {
-//              if ($display['type'] == "custom_formatters_{$formatter->name}") {
-//                return TRUE;
-//              }
-//            }
-//          }
-//        }
-//      }
-//    }
+  public function getDependentEntities() {
+    /** @var \Drupal\Core\Config\ConfigManagerInterface $config_manager */
+    $config_manager = \Drupal::service('config.manager');
 
-    return FALSE;
+    // Get the dependent entities.
+    $dependent_entities = $config_manager->findConfigEntityDependentsAsEntities('config', [$this->getConfigDependencyName()]);
+
+    return $dependent_entities;
   }
 
   /**

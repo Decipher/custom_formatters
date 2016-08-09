@@ -18,11 +18,11 @@ interface FormatterInterface extends ConfigEntityInterface {
   public function getFormatterType();
 
   /**
-   * Check if the supplied formatter is currently in use.
+   * Get all the dependent entities for this formatter.
    *
-   * @return bool
-   *   The boolean value of Custom formatters active status.
+   * @return ConfigEntityInterface[]
+   *   The dependent entities.
    */
-  public function isActive();
+  public function getDependentEntities();
 
 }

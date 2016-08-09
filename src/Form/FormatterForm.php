@@ -57,6 +57,13 @@ class FormatterForm extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
+    $dependent_entities = $this->entity->getDependentEntities();
+    if ($dependent_entities) {
+      drupal_set_message($this->t("Changing the field type(s) are currently disabled as this formatter is required by the following configuration(s): !config", [
+        '!config' => $this->getDependentEntitiesList($dependent_entities),
+      ]), 'warning');
+    }
+
     $formatter_type = $this->entity->getFormatterType();
 
     $form = parent::form($form, $form_state);
@@ -109,7 +116,7 @@ class FormatterForm extends EntityForm {
         'callback' => '::formAjax',
         'wrapper'  => 'plugin-wrapper',
       ],
-      '#disabled'      => $this->entity->isActive(),
+      '#disabled'      => $dependent_entities,
     ];
 
     // Get Formatter type settings form.
@@ -158,6 +165,35 @@ class FormatterForm extends EntityForm {
       drupal_set_message($this->t('Updated formatter %formatter.', ['%formatter' => $entity->label()]));
     }
     $form_state->setRedirectUrl(new Url('entity.formatter.collection'));
+  }
+
+  /**
+   * Returns a list of dependent entities.
+   *
+   * @param array $entities
+   *   The dependent entities.
+   *
+   * @return mixed|null
+   *   The rendered list of dependent entities.
+   */
+  protected function getDependentEntitiesList(array $entities = []) {
+    $list = [];
+    foreach ($entities as $entity) {
+      $entity_type_id = $entity->getEntityTypeId();
+      if (!isset($list[$entity_type_id])) {
+        $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
+        // Store the ID and label to sort the entity types and entities later.
+        $label = $entity_type->getLabel();
+        $entity_types[$entity_type_id] = $label;
+        $list[$entity_type_id] = [
+          '#theme' => 'item_list',
+          '#title' => $label,
+          '#items' => [],
+        ];
+      }
+      $list[$entity_type_id]['#items'][$entity->id()] = $entity->label() ?: $entity->id();
+    }
+    return render($list);
   }
 
   /**
