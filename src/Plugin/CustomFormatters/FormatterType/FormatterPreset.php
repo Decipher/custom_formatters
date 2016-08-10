@@ -41,8 +41,13 @@ class FormatterPreset extends FormatterTypeBase {
 
     $formatter_definitions = $this->formatterManager->getDefinitions();
     if (isset($formatter_definitions[$this->entity->data['formatter']])) {
-      // @TODO - Add support for configuration dependencies.
+      // Add the provider of the referenced formatter as a dependency.
       $dependencies['module'][] = $formatter_definitions[$this->entity->data['formatter']]['provider'];
+
+      // Get dependencies of the referenced formatter.
+      $formatter_instance = $this->getFormatter($this->entity->data['formatter'], $this->entity->get('field_types')[0]);
+      $formatter_dependencies = $formatter_instance->calculateDependencies();
+      $dependencies = array_merge_recursive($dependencies, $formatter_dependencies);
     }
 
     return $dependencies;
