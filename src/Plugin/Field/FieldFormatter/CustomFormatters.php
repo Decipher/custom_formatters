@@ -30,7 +30,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       ->viewElements($items, $langcode);
     if (!$element) {
       // @TODO - Fail better.
-      return FALSE;
+      return [];
     }
 
     // Transform strings into a renderable element.
