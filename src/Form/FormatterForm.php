@@ -4,9 +4,9 @@ namespace Drupal\custom_formatters\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
+use Drupal\Core\Field\FormatterPluginManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\custom_formatters\FormatterTypeManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -22,6 +22,13 @@ class FormatterForm extends EntityForm {
   protected $entity;
 
   /**
+   * Field formatter plugin manager.
+   *
+   * @var FormatterPluginManager
+   */
+  protected $fieldFormatterManager;
+
+  /**
    * Field type plugin manager.
    *
    * @var FieldTypePluginManagerInterface
@@ -29,18 +36,11 @@ class FormatterForm extends EntityForm {
   protected $fieldTypeManager;
 
   /**
-   * Formatter type plugin manager.
-   *
-   * @var FormatterTypeManager
-   */
-  protected $formatterTypeManager;
-
-  /**
    * Constructs a FormatterForm object.
    */
-  public function __construct(FieldTypePluginManagerInterface $field_type_manager, FormatterTypeManager $formatter_type_manager) {
+  public function __construct(FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager) {
     $this->fieldTypeManager = $field_type_manager;
-    $this->formatterTypeManager = $formatter_type_manager;
+    $this->fieldFormatterManager = $field_formatter_manager;
   }
 
   /**
@@ -48,8 +48,8 @@ class FormatterForm extends EntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('plugin.manager.field.field_type'),
-      $container->get('plugin.manager.custom_formatters.formatter_type')
+      $container->get('plugin.manager.field.formatter'),
+      $container->get('plugin.manager.field.field_type')
     );
   }
 
@@ -156,7 +156,7 @@ class FormatterForm extends EntityForm {
 
     // Clear cached formatters.
     // @TODO - Tag custom formatters?
-    $this->formatterTypeManager->clearCachedDefinitions();
+    $this->fieldFormatterManager->clearCachedDefinitions();
 
     if ($is_new) {
       drupal_set_message($this->t('Added formatter %formatter.', ['%formatter' => $entity->label()]));
