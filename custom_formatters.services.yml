@@ -1,4 +1,8 @@
 services:
+  custom_formatters.event_subscriber:
+    class: Drupal\custom_formatters\EventSubscriber\CustomFormattersSubscriber
+    tags:
+      - {name: event_subscriber}
   plugin.manager.custom_formatters.formatter_type:
     class: Drupal\custom_formatters\FormatterTypeManager
     parent: default_plugin_manager

@@ -51,7 +51,8 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     }
 
     // Allow other modules to modify the element.
-//    drupal_alter('custom_formatters_field_formatter_view_element', $element, $formatter);
+    \Drupal::moduleHandler()
+      ->alter('custom_formatters_field_formatter_view_elements', $element, $formatter);
 
     return $element;
   }
