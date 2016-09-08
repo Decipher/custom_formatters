@@ -84,7 +84,7 @@ class FormatterForm extends EntityForm {
         'replace_pattern' => '[^a-z0-9_]+',
         'replace'         => '_',
       ],
-      '#default_value' => $this->entity->id(),
+      '#default_value' => $this->entity->isNew() ? NULL : $this->entity->id(),
       '#disabled'      => !$this->entity->isNew(),
       '#maxlength'     => 255,
     ];
