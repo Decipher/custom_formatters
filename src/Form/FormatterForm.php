@@ -7,6 +7,7 @@ use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Field\FormatterPluginManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\custom_formatters\FormatterExtrasManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -20,6 +21,13 @@ class FormatterForm extends EntityForm {
    * @var \Drupal\custom_formatters\FormatterInterface
    */
   protected $entity;
+
+  /**
+   * Formatter extras plugin manager.
+   *
+   * @var FormatterExtrasManager
+   */
+  protected $formatterExtrasManager;
 
   /**
    * Field formatter plugin manager.
@@ -38,7 +46,8 @@ class FormatterForm extends EntityForm {
   /**
    * Constructs a FormatterForm object.
    */
-  public function __construct(FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager) {
+  public function __construct(FormatterExtrasManager $formatter_extras_manager, FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager) {
+    $this->formatterExtrasManager = $formatter_extras_manager;
     $this->fieldTypeManager = $field_type_manager;
     $this->fieldFormatterManager = $field_formatter_manager;
   }
@@ -48,6 +57,7 @@ class FormatterForm extends EntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('plugin.manager.custom_formatters.formatter_extras'),
       $container->get('plugin.manager.field.formatter'),
       $container->get('plugin.manager.field.field_type')
     );
@@ -126,6 +136,46 @@ class FormatterForm extends EntityForm {
     $form['plugin']['#prefix'] = "<div id='plugin-wrapper'>";
     $form['plugin']['#suffix'] = "</div>";
 
+    // Third party integration settings form.
+    $extras = $this->getFormatterExtrasForm();
+    if ($extras && is_array($extras)) {
+      $form['vertical_tabs'] = [
+        '#type'    => 'vertical_tabs',
+        '#title'   => t('Extras'),
+        '#parents' => ['extras'],
+      ];
+
+      $form['extras'] = $extras;
+      $form['extras']['#tree'] = TRUE;
+    }
+
+    return $form;
+  }
+
+  /**
+   * Returns the settings form for any available third party integrations.
+   */
+  public function getFormatterExtrasForm() {
+    $form = [];
+
+    $definitions = $this->formatterExtrasManager->getDefinitions();
+    if (is_array($definitions) && !empty($definitions)) {
+      foreach ($definitions as $definition) {
+        $extras_form = $this->formatterExtrasManager->invoke($definition['id'], 'settingsForm', $this->entity);
+
+        if (is_array($extras_form) && !empty($extras_form)) {
+          // Extras form.
+          $form[$definition['id']] = $extras_form;
+
+          // Extras form details element.
+          $form[$definition['id']]['#type'] = 'details';
+          $form[$definition['id']]['#title'] = $definition['label'];
+          $form[$definition['id']]['#description'] = $definition['description'];
+          $form[$definition['id']]['#group'] = 'extras';
+        }
+      }
+    }
+
     return $form;
   }
 
@@ -152,6 +202,10 @@ class FormatterForm extends EntityForm {
 
     $entity = $this->entity;
     $is_new = !$entity->getOriginalId();
+
+    // Invoke all third party integrations save method.
+    $this->formatterExtrasManager->invokeAll('settingsSave', $entity, $form, $form_state);
+
     $entity->save();
 
     // Clear cached formatters.

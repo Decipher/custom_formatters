@@ -4,7 +4,9 @@ namespace Drupal\custom_formatters\Entity;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\custom_formatters\FormatterInterface;
 
 /**
@@ -41,8 +43,7 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
    * {@inheritdoc}
    */
   public function calculateDependencies() {
-    parent::calculateDependencies();
-
+    // Custom Formatter Type provider.
     /** @var \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_manager */
     $field_type_manager = \Drupal::service('plugin.manager.field.field_type');
     $field_type_definitions = $field_type_manager->getDefinitions();
@@ -61,6 +62,18 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
           foreach ($type_dependencies as $name) {
             $this->addDependency($type, $name);
           }
+        }
+      }
+    }
+
+    // Custom Formatter Extras.
+    /** @var \Drupal\custom_formatters\FormatterExtrasInterface $extras_manager */
+    $extras_manager = \Drupal::service('plugin.manager.custom_formatters.formatter_extras');
+    $extras = $extras_manager->getDefinitions();
+    if (isset($extras) && is_array($extras)) {
+      foreach ($extras as $extra) {
+        if (!$extra['optional']) {
+          $this->addDependency($extra['provider']);
         }
       }
     }

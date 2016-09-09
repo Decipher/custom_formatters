@@ -36,6 +36,11 @@ custom_formatters.formatter.*:
     data:
       type: custom_formatters.formatter_type.[%parent.type]
       label: 'Data'
+    third_party_settings:
+      type: sequence
+      label: 'Third party settings'
+      sequence:
+        type: custom_formatters.third_party.[%key]
 #      'mode'        => array(
 #        'type'     => 'varchar',
 #        'length'   => 32,

@@ -50,9 +50,9 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       $element[$delta]['#cache']['tags'] = $formatter->getCacheTags();
     }
 
-    // Allow other modules to modify the element.
-    \Drupal::moduleHandler()
-      ->alter('custom_formatters_field_formatter_view_elements', $element, $formatter);
+    // Allow third party integrations a chance to alter the element.
+    \Drupal::service('plugin.manager.custom_formatters.formatter_extras')
+      ->alter('formatterViewElements', $formatter, $element);
 
     return $element;
   }
