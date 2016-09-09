@@ -69,3 +69,10 @@ custom_formatters.formatter_type.html_token:
 custom_formatters.formatter_type.php:
   type: string
   label: 'Data'
+
+custom_formatters.third_party.contextual:
+  type: mapping
+  mapping:
+    mode:
+      type: string
+      label: 'Mode'

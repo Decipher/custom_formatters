@@ -4,6 +4,9 @@ status: true
 dependencies:
   module:
     - image
+third_party_settings:
+  contextual:
+    mode: '1'
 id: example_php_image
 label: 'Example: Image (PHP)'
 type: php
