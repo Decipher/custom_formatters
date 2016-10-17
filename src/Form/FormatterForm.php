@@ -67,16 +67,27 @@ class FormatterForm extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    $dependent_entities = $this->entity->getDependentEntities();
-    if ($dependent_entities) {
-      drupal_set_message($this->t("Changing the field type(s) are currently disabled as this formatter is required by the following configuration(s): !config", [
-        '!config' => $this->getDependentEntitiesList($dependent_entities),
-      ]), 'warning');
-    }
-
     $formatter_type = $this->entity->getFormatterType();
 
     $form = parent::form($form, $form_state);
+
+    // Show warning if formatter is currently in use.
+    $dependent_entities = $this->entity->getDependentEntities();
+    if ($dependent_entities) {
+      $form['warning'] = [
+        '#theme'           => 'status_messages',
+        '#message_list'    => [
+          'warning' => [
+            $this->t("Changing the field type(s) are currently disabled as this formatter is required by the following configuration(s): @config", [
+              '@config' => $this->getDependentEntitiesList($dependent_entities),
+            ]),
+          ],
+        ],
+        '#status_headings' => [
+          'warning' => t('Warning message'),
+        ],
+      ];
+    }
 
     $form['label'] = [
       '#type'          => 'textfield',
