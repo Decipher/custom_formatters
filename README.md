@@ -11,15 +11,18 @@ Features
 --------
 
 * Pluggable formatter types:
-    * **Formatter presets** _(default)_  
+    * **Formatter presets**  
       Create simple formatters from existing formatters with preset formatter
       settings.
     
-    * **HTML + Tokens** _(default)_  
+    * **HTML + Tokens**  
       A HTML based editor with Token support.
     
-    * **PHP** _(default)_  
+    * **PHP**  
       A PHP based editor with support for multiple fields and multiple values.
+    
+    * **Twig**  
+      A Twig based editor with support for multiple fields and multiple values.
     
 * Supports for all fieldable entities, including but not limited to:
     * Drupal core - Comment, Node, Taxonomy term and User entities.
