@@ -125,6 +125,10 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
   public function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
     $this->getFormatterType()->preSave();
+
+    if (!is_array($this->field_types)) {
+      $this->field_types = [$this->field_types];
+    }
   }
 
   /**
