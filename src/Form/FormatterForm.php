@@ -141,7 +141,7 @@ class FormatterForm extends EntityForm {
     if ($extras && is_array($extras)) {
       $form['vertical_tabs'] = [
         '#type'    => 'vertical_tabs',
-        '#title'   => t('Extras'),
+        '#title'   => $this->t('Extras'),
         '#parents' => ['extras'],
       ];
 
@@ -238,7 +238,6 @@ class FormatterForm extends EntityForm {
         $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
         // Store the ID and label to sort the entity types and entities later.
         $label = $entity_type->getLabel();
-        $entity_types[$entity_type_id] = $label;
         $list[$entity_type_id] = [
           '#theme' => 'item_list',
           '#title' => $label,

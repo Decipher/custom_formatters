@@ -37,6 +37,7 @@ abstract class FormatterExtrasBase extends PluginBase implements FormatterExtras
   /**
    * {@inheritdoc}
    */
-  public function settingsSave(array $form, FormStateInterface $form_state) {}
+  public function settingsSave(array $form, FormStateInterface $form_state) {
+  }
 
 }

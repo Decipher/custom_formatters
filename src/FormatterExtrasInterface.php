@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\custom_formatters;
+
 use Drupal\Core\Form\FormStateInterface;
 
 /**

@@ -4,9 +4,7 @@ namespace Drupal\custom_formatters\Entity;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\custom_formatters\FormatterInterface;
 
 /**

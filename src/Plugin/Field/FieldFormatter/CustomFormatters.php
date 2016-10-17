@@ -46,7 +46,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     }
 
     foreach (Element::children($element) as $delta) {
-//      $element[$delta]['#cf_options'] = isset($display['#cf_options']) ? $display['#cf_options'] : [];
+      $element[$delta]['#cf_options'] = isset($display['#cf_options']) ? $display['#cf_options'] : [];
       $element[$delta]['#cache']['tags'] = $formatter->getCacheTags();
     }
 
@@ -68,28 +68,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-//    $display = $instance['display'][$view_mode];
-//    $settings = $display['settings'];
-//    $formatter = custom_formatters_crud_load(drupal_substr($display['type'], 18));
-//
-//    $element = [];
-//
-//    if (isset($formatter->fapi) && !empty($formatter->fapi)) {
-//      ob_start();
-//      eval($formatter->fapi);
-//      ob_get_clean();
-//
-//      if (isset($form)) {
-//        $element = $form;
-//        foreach (array_keys($element) as $key) {
-//          if (is_array($element[$key])) {
-//            $element[$key]['#default_value'] = $settings[$key];
-//          }
-//        }
-//      }
-//    }
-//
-//    return $element;
+    // @TODO - Re-add form builder functionality once ported.
     return [];
   }
 
@@ -97,31 +76,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-//    $display = $instance['display'][$view_mode];
-//    $settings = $display['settings'];
-//    $formatter = custom_formatters_crud_load(drupal_substr($display['type'], 18));
-//
-//    $summary = '';
-//
-//    if (isset($formatter->fapi)) {
-//      ob_start();
-//      eval($formatter->fapi);
-//      ob_get_clean();
-//
-//      if (isset($form)) {
-//        foreach ($form as $key => $element) {
-//          if (isset($element['#type']) && !in_array($element['#type'], ['fieldset'])) {
-//            $value = empty($settings[$key]) ? '<em>' . t('Empty') . '</em>' : $settings[$key];
-//            $value = is_array($value) ? implode(', ', array_filter($value)) : $value;
-//            $summary .= "{$element['#title']}: {$value}<br />";
-//          }
-//        }
-//        $summary = !empty($summary) ? $summary : ' ';
-//      }
-//    }
-//
-//    return $summary;
-
+    // @TODO - Re-add form builder functionality once ported.
     return [];
   }
 

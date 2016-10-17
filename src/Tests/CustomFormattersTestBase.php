@@ -131,7 +131,6 @@ abstract class CustomFormattersTestBase extends WebTestBase {
     $formatter->save();
 
     // Clear cached formatters.
-    // @TODO - Tag custom formatters?
     \Drupal::service('plugin.manager.field.formatter')
       ->clearCachedDefinitions();
 
