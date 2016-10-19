@@ -113,6 +113,27 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
   }
 
   /**
+   * Test the Twig engine.
+   *
+   * @TODO - Add manual creation test.
+   */
+  public function testCustomFormatterTypeTwig() {
+    // Create a Custom formatter.
+    $text = $this->randomMachineName();
+    $this->formatter = $this->createCustomFormatter([
+      'type' => 'twig',
+      'data' => $text,
+    ]);
+
+    // Set the formatter active on the Body field.
+    $this->setCustomFormatter($this->formatter->id(), 'body', 'article');
+
+    // Ensure Formatter rendered correctly.
+    $this->drupalGet($this->node->toUrl());
+    $this->assertText($text, t('Custom formatter output found.'));
+  }
+
+  /**
    * Test the HTML + Token engine.
    *
    * @TODO - Add manual creation test.
