@@ -39,7 +39,7 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
    */
   public function settingsForm(array &$form, FormStateInterface $form_state) {
     $form['data'] = [
-      '#title'         => t('Formatter'),
+      '#title'         => $this->t('Formatter'),
       '#type'          => 'textarea',
       '#default_value' => $this->entity->get('data'),
       '#required'      => TRUE,

@@ -84,14 +84,14 @@ class FormatterPreset extends FormatterTypeBase {
       // @TODO - Prevent field type from being an option in the first place.
       $form['error'] = [
         '#type'   => 'markup',
-        '#markup' => t("The selected field type doesn't have any available formatters."),
+        '#markup' => $this->t("The selected field type doesn't have any available formatters."),
       ];
 
       return $form;
     }
 
     $form['data']['formatter'] = [
-      '#title'         => t('Formatter'),
+      '#title'         => $this->t('Formatter'),
       '#type'          => 'select',
       '#options'       => $options,
       '#default_value' => isset($this->entity->get('data')['formatter']) ? $this->entity->get('data')['formatter'] : '',

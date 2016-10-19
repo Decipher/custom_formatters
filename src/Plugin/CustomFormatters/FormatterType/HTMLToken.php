@@ -25,7 +25,7 @@ class HTMLToken extends FormatterTypeBase {
 
     $form['tokens'] = [
       '#type'   => 'markup',
-      '#markup' => t('@TODO - Message when Token module not present.'),
+      '#markup' => $this->t('@TODO - Message when Token module not present.'),
     ];
     if (\Drupal::moduleHandler()->moduleExists('token')) {
       $form['tokens']['#markup'] = '@TODO - Add token tree';

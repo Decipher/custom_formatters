@@ -32,14 +32,14 @@ class CustomFormattersSettingsForm extends ConfigFormBase {
 
     $form['label_prefix'] = array(
       '#type'          => 'checkbox',
-      '#title'         => t('Use Label prefix?'),
-      '#description'   => t('If checked, all Custom Formatters labels will be prefixed with a set value.'),
+      '#title'         => $this->t('Use Label prefix?'),
+      '#description'   => $this->t('If checked, all Custom Formatters labels will be prefixed with a set value.'),
       '#default_value' => $config->get('label_prefix'),
     );
 
     $form['label_prefix_value'] = array(
       '#type'          => 'textfield',
-      '#title'         => t('Label prefix'),
+      '#title'         => $this->t('Label prefix'),
       '#default_value' => $config->get('label_prefix_value'),
       '#states'        => array(
         'invisible' => array(

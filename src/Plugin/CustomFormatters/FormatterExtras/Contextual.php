@@ -32,10 +32,10 @@ class Contextual extends FormatterExtrasBase {
 
     $form['mode'] = [
       '#type'          => 'radios',
-      '#title'         => t('Mode'),
+      '#title'         => $this->t('Mode'),
       '#options'       => [
-        CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_DISABLED => t('Disabled'),
-        CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED  => t('Enabled'),
+        CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_DISABLED => $this->t('Disabled'),
+        CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED  => $this->t('Enabled'),
       ],
       '#default_value' => $this->entity->getThirdPartySetting('contextual', 'mode', CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED),
     ];
