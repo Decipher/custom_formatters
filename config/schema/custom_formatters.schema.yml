@@ -70,6 +70,10 @@ custom_formatters.formatter_type.php:
   type: string
   label: 'Data'
 
+custom_formatters.formatter_type.twig:
+  type: string
+  label: 'Data'
+
 custom_formatters.third_party.contextual:
   type: mapping
   mapping:
