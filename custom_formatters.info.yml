@@ -2,8 +2,7 @@ name: Custom Formatters
 description: Allows users to easily define custom Field Formatters.
 type: module
 dependencies:
-  - field
+  - drupal:field
 package: Fields
 configure: admin/structure/formatters
-core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^8 || ^9 || ^10
