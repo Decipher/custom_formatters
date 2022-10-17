@@ -2,18 +2,19 @@
 
 namespace Drupal\custom_formatters\Tests;
 
-use Drupal\Component\Utility\Unicode;
-use Drupal\field_ui\Tests\FieldUiTestTrait;
-use Drupal\simpletest\WebTestBase;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Tests\field_ui\Traits\FieldUiTestTrait;
+use Drupal\Tests\BrowserTestBase;
 
 /**
- * Class CustomFormattersTestBase.
+ * Contains class CustomFormattersTestBase.
  *
  * @package Drupal\custom_formatters\Tests
  */
-abstract class CustomFormattersTestBase extends WebTestBase {
+abstract class CustomFormattersTestBase extends BrowserTestBase {
 
   use FieldUiTestTrait;
+  use StringTranslationTrait;
 
   /**
    * Admin user.
@@ -100,9 +101,9 @@ abstract class CustomFormattersTestBase extends WebTestBase {
     $formatter = \Drupal::entityTypeManager()
       ->getStorage('formatter')
       ->load($name);
-    $message = !empty($message) ? $message : t('Custom Formatter %name found.', ['%name' => $name]);
+    $message = !empty($message) ? $message : $this->t('Custom Formatter %name found.', ['%name' => $name]);
 
-    return $this->assert(!is_null($formatter), $message, $group);
+    return $this->assertTrue(!is_null($formatter), $message, $group);
   }
 
   /**
@@ -114,7 +115,7 @@ abstract class CustomFormattersTestBase extends WebTestBase {
    * @return \Drupal\custom_formatters\FormatterInterface
    *   The Custom Formatter object.
    */
-  protected function createCustomFormatter($values = []) {
+  protected function createCustomFormatter(array $values = []) {
     // Prepare the default values.
     $name = $this->randomMachineName();
     $defaults = [
@@ -150,8 +151,8 @@ abstract class CustomFormattersTestBase extends WebTestBase {
    *   A Node view mode.
    */
   protected function setCustomFormatter($formatter_name, $field_name, $bundle_name, $view_mode = 'default') {
-    $this->drupalPostForm("admin/structure/types/manage/{$bundle_name}/display/{$view_mode}", ["fields[{$field_name}][type]" => "custom_formatters:{$formatter_name}"], t('Save'));
-    $this->assertText(t('Your settings have been saved.'));
+    $this->submitForm(["fields[{$field_name}][type]" => "custom_formatters:{$formatter_name}"], $this->t('Save',));
+    $this->assertSession($this->t('Your settings have been saved.'));
   }
 
 }

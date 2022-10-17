@@ -9,6 +9,11 @@ use Drupal\Component\Plugin\Derivative\DeriverBase;
  */
 class CustomFormatters extends DeriverBase {
 
+  /**
+   *
+   *
+   * @var object
+   */
   protected $settings = [];
 
   /**
@@ -29,7 +34,7 @@ class CustomFormatters extends DeriverBase {
     foreach ($formatters as $formatter) {
       if ($formatter->get('status')) {
         $this->derivatives[$formatter->id()] = $base_plugin_definition;
-        $this->derivatives[$formatter->id()]['label'] = t($this->getLabel($formatter->label()));
+        $this->derivatives[$formatter->id()]['label'] = $this->getLabel($formatter->label());
         $this->derivatives[$formatter->id()]['field_types'] = $formatter->get('field_types');
         $this->derivatives[$formatter->id()]['formatter'] = $formatter->id();
         $this->derivatives[$formatter->id()]['config_dependencies'] = $formatter->getDependencies();

@@ -42,7 +42,7 @@ class PHP extends FormatterTypeBase {
     ob_end_clean();
 
     // Preview debugging; Show the available variables data.
-    // @TODO - Re-add when preview functionality re-added.
+    // @todo Re-add when preview functionality re-added.
     //if (\Drupal::moduleHandler()->moduleExists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['vars']) {
     //  dpm($variables);
     //}

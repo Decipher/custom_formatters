@@ -74,7 +74,7 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
     if (isset($extras) && is_array($extras)) {
       foreach ($extras as $extra) {
         if (!$extra['optional']) {
-          $this->addDependency($extra['provider']);
+          $this->addDependency($extra['provider'], 'extra');
         }
       }
     }
@@ -89,7 +89,7 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
 
     // Ensure Formatter Type exists.
     if (!isset($plugin_manager->getDefinitions()[$this->get('type')])) {
-      // @TODO - Add better error handling here.
+      // @todo Add better error handling here.
       return FALSE;
     }
 
@@ -104,7 +104,7 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
     $config_manager = \Drupal::service('config.manager');
 
     // Get the dependent entities.
-    $dependent_entities = $config_manager->findConfigEntityDependentsAsEntities('config', [$this->getConfigDependencyName()]);
+    $dependent_entities = $config_manager->ConfigManagerInterface::findConfigEntityDependenciesAsEntities('config', [$this->getConfigDependencyName()]);
 
     return $dependent_entities;
   }

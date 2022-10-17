@@ -6,7 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginBase;
 
 /**
- * Class FormatterTypeBase.
+ * Contains class FormatterTypeBase.
  *
  * @package Drupal\custom_formatters
  */

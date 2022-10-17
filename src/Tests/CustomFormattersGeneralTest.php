@@ -10,63 +10,68 @@ namespace Drupal\custom_formatters\Tests;
 class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
   /**
+   * {@inheritDoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Test General UI related functionality.
    */
   public function testCustomFormattersUi() {
     // Ensure the Formatters administration is linked in the structure section.
     $this->drupalGet('admin/structure');
-    $this->assertLinkByHref('admin/structure/formatters');
-    $this->assertText('Administer Formatters.');
+    $this->assertSession()->linkByHrefExists('admin/structure/formatters');
+    $this->assertSession()->pageTextContains('Administer Formatters.');
 
     $this->drupalGet('admin/structure/formatters');
 
     // Ensure the Formatters overview page is present.
-    $expected_title = t(':title | :sitename', [
+    $expected_title = $this->t(':title | :sitename', [
       ':title'    => 'Formatters',
       ':sitename' => \Drupal::config('system.site')->get('name'),
     ]);
-    $this->assertTitle($expected_title);
+    $this->assertSession()->titleEquals($expected_title);
 
     // Ensure the Settings link is present and correct.
-    $this->assertLink(t('Settings'));
-    $this->assertLinkByHref('admin/structure/formatters/settings');
+    $this->assertSession()->linkExists($this->t('Settings'));
+    $this->assertSession()->linkByHrefExists('admin/structure/formatters/settings');
 
     // Ensure our pre-prepared test formatter is present.
-    $this->assertText('Test Formatter');
-    $this->assertLinkByHref('admin/structure/formatters/manage/test_formatter');
+    $this->assertSession()->pageTextContains('Test Formatter');
+    $this->assertSession()->linkByHrefExists('admin/structure/formatters/manage/test_formatter');
     $this->assertCustomFormatterExists('test_formatter');
 
     // Ensure our pre-prepared test formatter is present on the Manage display
     // page.
     $this->drupalGet('admin/structure/types/manage/article/display');
-    $this->assertRaw('custom_formatters:test_formatter');
-    $this->assertRaw('Custom: Test Formatter');
+    $this->assertSession()->responseContains('custom_formatters:test_formatter');
+    $this->assertSession()->responseContains('Custom: Test Formatter');
 
     // Change the Label prefix.
     $edit = ['label_prefix_value' => $this->randomMachineName()];
-    $this->drupalPostForm('admin/structure/formatters/settings', $edit, t('Save configuration'));
-    $this->assertText(t('Custom Formatters settings have been updated.'));
+    $this->submitForm($edit, $this->t('Save configuration'));
+    $this->assertSession()->pageTextContains($this->t('Custom Formatters settings have been updated.'));
 
     // Ensure our pre-prepared test formatter is present on the Manage display
     // page with the altered label prefix.
     $this->drupalGet('admin/structure/types/manage/article/display');
-    $this->assertRaw(t('@prefix: Test Formatter', ['@prefix' => $edit['label_prefix_value']]));
+    $this->assertSession()->responseContains($this->t('@prefix: Test Formatter', ['@prefix' => $edit['label_prefix_value']]));
 
     // Remove the Label prefix.
     $edit = ['label_prefix' => FALSE];
-    $this->drupalPostForm('admin/structure/formatters/settings', $edit, t('Save configuration'));
-    $this->assertText(t('Custom Formatters settings have been updated.'));
+    $this->submitForm($edit, $this->t('Save configuration'));
+    $this->assertSession()->pageTextContains($this->t('Custom Formatters settings have been updated.'));
 
     // Ensure our pre-prepared test formatter is present on the Manage display
     // page without a label prefix.
     $this->drupalGet('admin/structure/types/manage/article/display');
-    $this->assertRaw('Test Formatter');
+    $this->assertSession()->responseContains('Test Formatter');
   }
 
   /**
    * Test the Formatter preset Engine.
    *
-   * @TODO - Add manual creation test.
+   * @todo Add manual creation test.
    */
   public function testFormatterTypeFormatterPreset() {
     // Create a Custom formatter.
@@ -88,13 +93,13 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     // We substring to a length of 7 characters instead of 10 characters as the
     // formatter will include the starting HTML paragraph tag in the character
     // count.
-    $this->assert(!strstr($this->content, $this->node->get('body')[0]->value) && strstr($this->content, substr($this->node->get('body')[0]->value, 0, 7)), t('Custom formatter output found.'));
+    $this->assertTrue(!strstr($this->content, $this->node->get('body')[0]->value) && strstr($this->content, substr($this->node->get('body')[0]->value, 0, 7)), $this->t('Custom formatter output found.'));
   }
 
   /**
    * Test the PHP Engine.
    *
-   * @TODO - Add manual creation test.
+   * @todo Add manual creation test.
    */
   public function testCustomFormatterTypePhp() {
     // Create a Custom formatter.
@@ -109,13 +114,13 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
     // Ensure Formatter rendered correctly.
     $this->drupalGet($this->node->toUrl());
-    $this->assertText($text, t('Custom formatter output found.'));
+    $this->assertSession()->pageTextContains($text, $this->t('Custom formatter output found.'));
   }
 
   /**
    * Test the Twig engine.
    *
-   * @TODO - Add manual creation test.
+   * @todo Add manual creation test.
    */
   public function testCustomFormatterTypeTwig() {
     // Create a Custom formatter.
@@ -130,13 +135,13 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
     // Ensure Formatter rendered correctly.
     $this->drupalGet($this->node->toUrl());
-    $this->assertText($text, t('Custom formatter output found.'));
+    $this->assertSession()->pageTextContains($text, $this->t('Custom formatter output found.'));
   }
 
   /**
    * Test the HTML + Token engine.
    *
-   * @TODO - Add manual creation test.
+   * @todo Add manual creation test.
    */
   public function testCustomFormatterTypeHtmlToken() {
     // Create a Custom formatter.
@@ -151,7 +156,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
     // Ensure Formatter rendered correctly.
     $this->drupalGet($this->node->toUrl());
-    $this->assertText($text, t('Custom formatter output found.'));
+    $this->assertSession()->pageTextContains($text, $this->t('Custom formatter output found.'));
   }
 
 }

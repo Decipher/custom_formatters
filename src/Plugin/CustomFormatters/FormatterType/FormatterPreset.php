@@ -65,7 +65,7 @@ class FormatterPreset extends FormatterTypeBase {
     // Ensure we have a Field type to work with.
     $field_type = !is_null($form_state->getValue('field_types')) ? $form_state->getValue('field_types') : $this->entity->get('field_types')[0];
     if (is_null($field_type)) {
-      // @TODO - Add message about selecting a field type.
+      // @todo Add message about selecting a field type.
       return $form;
     }
 
@@ -81,7 +81,7 @@ class FormatterPreset extends FormatterTypeBase {
     }
 
     if (empty($options)) {
-      // @TODO - Prevent field type from being an option in the first place.
+      // @todo Prevent field type from being an option in the first place.
       $form['error'] = [
         '#type'   => 'markup',
         '#markup' => $this->t("The selected field type doesn't have any available formatters."),

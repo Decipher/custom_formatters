@@ -5,7 +5,7 @@ namespace Drupal\custom_formatters;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
 /**
- * Interface FormatterInterface.
+ * Contains interface FormatterInterface.
  */
 interface FormatterInterface extends ConfigEntityInterface {
 
@@ -20,7 +20,7 @@ interface FormatterInterface extends ConfigEntityInterface {
   /**
    * Get all the dependent entities for this formatter.
    *
-   * @return ConfigEntityInterface[]
+   * @return \Drupal\Core\Config\Entity\ConfigEntityInterface[]
    *   The dependent entities.
    */
   public function getDependentEntities();

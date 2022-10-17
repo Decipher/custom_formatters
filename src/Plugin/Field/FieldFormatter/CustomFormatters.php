@@ -29,7 +29,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     $element = $formatter->getFormatterType()
       ->viewElements($items, $langcode);
     if (!$element) {
-      // @TODO - Fail better.
+      // @todo Fail better.
       return [];
     }
 
@@ -61,14 +61,14 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    * {@inheritdoc}
    */
   public function prepareView(array $entities_items) {
-    // @TODO
+    // @todo Function prepareView.
   }
 
   /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    // @TODO - Re-add form builder functionality once ported.
+    // @todo Re-add form builder functionality once ported.
     return [];
   }
 
@@ -76,7 +76,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    // @TODO - Re-add form builder functionality once ported.
+    // @todo Re-add form builder functionality once ported.
     return [];
   }
 

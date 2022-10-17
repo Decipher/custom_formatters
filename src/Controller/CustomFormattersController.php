@@ -9,7 +9,7 @@ use Drupal\custom_formatters\FormatterTypeManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class CustomFormattersController.
+ * Contains class CustomFormattersController.
  *
  * @package Drupal\custom_formatters\Controller
  */
@@ -18,7 +18,7 @@ class CustomFormattersController extends ControllerBase implements ContainerInje
   /**
    * The Formatter type plugin manager.
    *
-   * @var FormatterTypeManager
+   * @var \Drupal\custom_formatters\FormatterTypeManager
    */
   protected $formatterTypeManager = NULL;
 
@@ -71,7 +71,7 @@ class CustomFormattersController extends ControllerBase implements ContainerInje
     $content = [];
 
     // Only use formatter types the user has access to.
-    // @TODO - Add granular permissions system.
+    // @todo Add granular permissions system.
     foreach ($this->formatterTypeManager->getDefinitions() as $formatter_type) {
       $content[$formatter_type['id']] = $formatter_type;
     }

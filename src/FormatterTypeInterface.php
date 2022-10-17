@@ -38,7 +38,7 @@ interface FormatterTypeInterface extends PluginInspectionInterface {
    *
    * @param array $form
    *   The Form API array.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The Form state interface.
    */
   public function submitForm(array $form, FormStateInterface $form_state);

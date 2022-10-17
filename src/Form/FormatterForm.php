@@ -25,21 +25,21 @@ class FormatterForm extends EntityForm {
   /**
    * Formatter extras plugin manager.
    *
-   * @var FormatterExtrasManager
+   * @var \Drupal\custom_formatters\FormatterExtrasManager
    */
   protected $formatterExtrasManager;
 
   /**
    * Field formatter plugin manager.
    *
-   * @var FormatterPluginManager
+   * @var \Drupal\Core\Field\FormatterPluginManager
    */
   protected $fieldFormatterManager;
 
   /**
    * Field type plugin manager.
    *
-   * @var FieldTypePluginManagerInterface
+   * @var \Drupal\Core\Field\FieldTypePluginManagerInterface
    */
   protected $fieldTypeManager;
 
@@ -84,7 +84,7 @@ class FormatterForm extends EntityForm {
           ],
         ],
         '#status_headings' => [
-          'warning' => t('Warning message'),
+          'warning' => $this->t('Warning message'),
         ],
       ];
     }
@@ -195,7 +195,7 @@ class FormatterForm extends EntityForm {
    *
    * @param array $form
    *   The form array.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
    *
    * @return mixed
@@ -220,7 +220,7 @@ class FormatterForm extends EntityForm {
     $entity->save();
 
     // Clear cached formatters.
-    // @TODO - Tag custom formatters?
+    // @todo Tag custom formatters.
     $this->fieldFormatterManager->clearCachedDefinitions();
 
     if ($is_new) {
@@ -263,7 +263,7 @@ class FormatterForm extends EntityForm {
   /**
    * Returns an array of available field types.
    *
-   * @TODO - Allow formatter type plugin to modify this list.
+   * @todo Allow formatter type plugin to modify this list.
    *
    * @return mixed
    *   Array of field types grouped by their providers.

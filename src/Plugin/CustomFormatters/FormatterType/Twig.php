@@ -5,7 +5,7 @@ namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\custom_formatters\FormatterTypeBase;
-use Twig_Error;
+use Twig\Error\Error;
 
 /**
  * Plugin implementation of the Twig type.
@@ -46,7 +46,7 @@ class Twig extends FormatterTypeBase {
         'langcode' => $langcode,
       ]);
     }
-    catch (Twig_Error $e) {
+    catch (Error $e) {
       $this->messenger()->addError($e->getMessage());
     }
 
