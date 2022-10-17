@@ -257,7 +257,7 @@ class FormatterForm extends EntityForm {
       }
       $list[$entity_type_id]['#items'][$entity->id()] = $entity->label() ?: $entity->id();
     }
-    return render($list);
+    return \Drupal::service('renderer')->render($list);
   }
 
   /**
