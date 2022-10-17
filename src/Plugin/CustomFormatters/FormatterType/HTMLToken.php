@@ -57,7 +57,7 @@ class HTMLToken extends FormatterTypeBase {
 
       $element[$delta] = [
         '#markup' => \Drupal::token()
-          ->replace($text, $token_data, ['clear' => TRUE]),
+          ->replace($text, $token_data, ['clear' => TRUE, 'langcode' => $langcode]),
       ];
     }
 
