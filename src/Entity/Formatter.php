@@ -104,7 +104,7 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
     $config_manager = \Drupal::service('config.manager');
 
     // Get the dependent entities.
-    $dependent_entities = $config_manager->ConfigManagerInterface::findConfigEntityDependenciesAsEntities('config', [$this->getConfigDependencyName()]);
+    $dependent_entities = $config_manager->findConfigEntityDependenciesAsEntities('config', [$this->getConfigDependencyName()]);
 
     return $dependent_entities;
   }

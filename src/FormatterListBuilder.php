@@ -67,7 +67,12 @@ class FormatterListBuilder extends ConfigEntityListBuilder {
     $row['label'] = $formatter->label();
     // @todo Ensure definition is present, probably best dealt with with
     // dependencies.
-    $row['type'] = $this->formatterTypes[$formatter->get('type')]['label'];
+    $type = $formatter->get('type');
+    if (isset($this->formatterTypes[$type])) {
+        $row['type'] = $this->formatterTypes[$type]['label'];
+    } else {
+        $row['type'] = 'Undefined type'; // Or any other default value
+    }
 
     return $row + parent::buildRow($formatter);
   }
