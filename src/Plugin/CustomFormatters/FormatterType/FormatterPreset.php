@@ -68,15 +68,23 @@ class FormatterPreset extends FormatterTypeBase {
       // @todo Add message about selecting a field type.
       return $form;
     }
-
-    // Build formatters list.
+   // Build formatters list.
     $options = [];
     $formatters = $this->formatterManager->getDefinitions();
     foreach ($formatters as $formatter_name => $formatter) {
       if (in_array($field_type, $formatter['field_types'])) {
-        /** @var \Drupal\Core\StringTranslation\TranslatableMarkup $label */
+        // Check if label is a TranslatableMarkup or a string
         $label = $formatter['label'];
-        $options[$formatter_name] = $label->render();
+        
+        // If it's a string, wrap it in TranslatableMarkup
+        if (is_string($label)) {
+          $label = $this->t($label);
+        }
+
+        // Ensure label is now a TranslatableMarkup object
+        if ($label instanceof \Drupal\Core\StringTranslation\TranslatableMarkup) {
+          $options[$formatter_name] = $label->render();
+        }
       }
     }
 
