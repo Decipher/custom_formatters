@@ -26,8 +26,16 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       ->getStorage('formatter')
       ->load($this->getPluginDefinition()['formatter']);
 
-    $element = $formatter->getFormatterType()
-      ->viewElements($items, $langcode);
+    if (!$formatter) {
+      return [];
+    }
+
+    $formatter_type = $formatter->getFormatterType();
+    if (!$formatter_type) {
+      return [];
+    }
+
+    $element = $formatter_type->viewElements($items, $langcode);
     if (!$element) {
       // @todo Fail better.
       return [];

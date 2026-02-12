@@ -53,20 +53,26 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
     /** @var \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_manager */
     $field_type_manager = \Drupal::service('plugin.manager.field.field_type');
     $field_type_definitions = $field_type_manager->getDefinitions();
-    /** @var string $field_type */
-    foreach ($this->field_types as $field_type) {
-      if (isset($field_type_definitions[$field_type])) {
-        $this->addDependency('module', $field_type_definitions[$field_type]['provider']);
+    $field_types = $this->get('field_types');
+    if (is_array($field_types)) {
+      /** @var string $field_type */
+      foreach ($field_types as $field_type) {
+        if (isset($field_type_definitions[$field_type])) {
+          $this->addDependency('module', $field_type_definitions[$field_type]['provider']);
+        }
       }
     }
 
     // Allow formatter type plugins a chance to add dependencies.
-    $dependencies = $this->getFormatterType()->calculateDependencies();
-    if (!empty($dependencies) && is_array($dependencies)) {
-      foreach ($dependencies as $type => $type_dependencies) {
-        if (!empty($type_dependencies) && is_array($type_dependencies)) {
-          foreach ($type_dependencies as $name) {
-            $this->addDependency($type, $name);
+    $formatter_type = $this->getFormatterType();
+    if ($formatter_type) {
+      $dependencies = $formatter_type->calculateDependencies();
+      if (!empty($dependencies) && is_array($dependencies)) {
+        foreach ($dependencies as $type => $type_dependencies) {
+          if (!empty($type_dependencies) && is_array($type_dependencies)) {
+            foreach ($type_dependencies as $name) {
+              $this->addDependency($type, $name);
+            }
           }
         }
       }
@@ -131,12 +137,16 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
    * {@inheritdoc}
    */
   public function preSave(EntityStorageInterface $storage) {
-    if (!is_array($this->field_types)) {
-      $this->field_types = [$this->field_types];
+    $field_types = $this->get('field_types');
+    if (!is_array($field_types)) {
+      $this->set('field_types', !empty($field_types) ? [$field_types] : []);
     }
 
     parent::preSave($storage);
-    $this->getFormatterType()->preSave();
+    $formatter_type = $this->getFormatterType();
+    if ($formatter_type) {
+      $formatter_type->preSave();
+    }
   }
 
   /**

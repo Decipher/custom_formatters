@@ -69,6 +69,11 @@ class FormatterForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     $formatter_type = $this->entity->getFormatterType();
 
+    if (!$formatter_type) {
+      $this->messenger()->addError($this->t('The formatter type for this formatter is missing or invalid.'));
+      return parent::form($form, $form_state);
+    }
+
     $form = parent::form($form, $form_state);
 
     // Show warning if formatter is currently in use.
@@ -209,7 +214,10 @@ class FormatterForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $this->entity->getFormatterType()->submitForm($form, $form_state);
+    $formatter_type = $this->entity->getFormatterType();
+    if ($formatter_type) {
+      $formatter_type->submitForm($form, $form_state);
+    }
 
     $entity = $this->entity;
     $is_new = !$entity->getOriginalId();
