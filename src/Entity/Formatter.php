@@ -29,7 +29,12 @@ use Drupal\custom_formatters\FormatterInterface;
  *     "label" = "label"
  *   },
  *   config_export = {
- *     "id"
+ *     "id",
+ *     "label",
+ *     "type",
+ *     "description",
+ *     "field_types",
+ *     "data",
  *   },
  *   links = {
  *     "delete-form" = "/admin/structure/formatters/manage/{custom_formatter}/delete",
