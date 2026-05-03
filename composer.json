@@ -1,13 +1,29 @@
 {
-  "name": "drupal/custom_formatters",
-  "description": "The Custom Formatters module allows users to easily create custom Field Formatters without the need to write a custom module",
-  "type": "drupal-module",
-  "homepage": "https://www.drupal.org/project/custom_formatters",
-  "keywords": ["Drupal", "media", "video", "transcode", "embed"],
-  "license": "GPL-2.0-or-later",
-  "minimum-stability": "dev",
-  "support": {
-    "issues": "https://www.drupal.org/project/issues/custom_formatters",
-    "source": "https://www.drupal.org/project/custom_formatters"
-  }
+    "name": "drupal/custom_formatters",
+    "description": "The Custom Formatters module allows users to easily create custom Field Formatters without the need to write a custom module",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Stuart Clark",
+            "homepage": "https://www.drupal.org/u/deciphered",
+            "role": "Creator & Maintainer"
+        }
+    ],
+    "homepage": "https://www.drupal.org/project/custom_formatters",
+    "keywords": ["Drupal", "field", "formatter", "custom"],
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/custom_formatters",
+        "source": "https://git.drupalcode.org/project/custom_formatters"
+    },
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "drupal/token": "^1"
+    },
+    "suggest": {
+        "drupal/token": "Provides token replacement support for the HTML Token formatter type."
+    }
 }
