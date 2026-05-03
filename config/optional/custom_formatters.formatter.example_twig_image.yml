@@ -1,0 +1,16 @@
+uuid: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+langcode: en
+status: true
+dependencies:
+  module:
+    - image
+third_party_settings:
+  contextual:
+    mode: '1'
+id: example_twig_image
+label: 'Example: Image (Twig)'
+type: twig
+description: 'A Twig example formatter; Display image fields using Twig templates.'
+field_types:
+  - image
+data: "{# Display image fields.\r\n   Available variables:\r\n   - items: FieldItemListInterface - The field values to be rendered.\r\n   - langcode: string - The language that should be used to render the field.\r\n#}\r\n{% for item in items %}\r\n  <img src=\"{{ file_url(item.entity.uri.value) }}\" alt=\"{{ item.alt|default('') }}\" />\r\n{% endfor %}"

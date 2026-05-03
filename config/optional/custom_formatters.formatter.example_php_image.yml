@@ -2,6 +2,9 @@ uuid: 141af1f3-a182-4b23-a63c-3b08071760e8
 langcode: en
 status: true
 dependencies:
+  config:
+    - image.style.large
+    - image.style.thumbnail
   module:
     - image
 third_party_settings:
@@ -13,20 +16,18 @@ type: php
 description: 'A PHP example formatter; Display a Thumbnail image linked to a Large image.'
 field_types:
   image: image
-data: "// Formatter settings.\r\n$settings = $variables['#display']['settings'];\r\n\r\n$element = array();\r\nforeach ($variables['#items'] as $delta => $item) {\r\n  $element[$delta] = array(\r\n    '#type' => 'link',\r\n    '#href' => file_create_url(image_style_path($settings['destination_image_style'], $item['uri'])),\r\n    '#title' => theme('image_style', array(\r\n      'style_name\\' => isset($settings['source_image_style']) ? $settings['source_image_style'] : 'thumbnail',\r\n      'path' => $item['uri'],\r\n    )),\r\n    '#options' => array(\r\n      'html' => TRUE,\r\n    ),\r\n  );\r\n}\r\nreturn $element;"
-
-#  $formatter->fapi = '$form = array();
-#$form[\'source_image_style\'] = array(
-#  \'#title\' => t(\'Source image styles\'),
-#  \'#multiple_toggle\' => \'1\',
-#  \'#required\' => \'0\',
-#  \'#type\' => \'custom_formatters_image_styles\',
-#  \'#weight\' => \'0\',
-#);
-#$form[\'destination_image_style\'] = array(
-#  \'#title\' => t(\'Destination image styles\'),
-#  \'#multiple_toggle\' => \'1\',
-#  \'#required\' => \'0\',
-#  \'#type\' => \'custom_formatters_image_styles\',
-#  \'#weight\' => \'1\',
-#);"
+data: "// Display a Thumbnail image linked to a Large image.\r\n// Available variables:\r\n// - $items: FieldItemListInterface - The field values to be rendered.\r\n// - $langcode: string - The language that should be used to render the field.\r\n$element = [];\r\nforeach ($items as $delta => $item) {\r\n  if ($item->entity) {\r\n    $file_uri = $item->entity->getFileUri();\r\n    $element[$delta] = [\r\n      '#type' => 'link',\r\n      '#url' => \\Drupal\\Core\\Url::fromUri(\r\n        \\Drupal\\image\\Entity\\ImageStyle::load('large')->buildUrl($file_uri)\r\n      ),\r\n      '#title' => [\r\n        '#theme' => 'image_style',\r\n        '#style_name' => 'thumbnail',\r\n        '#uri' => $file_uri,\r\n      ],\r\n    ];\r\n  }\r\n}\r\nreturn $element;"
+# The FAPI (settings form) below is from the D7 version and is not yet ported.
+# See FormatterTypeBase::settingsForm() and CustomFormatters::settingsForm() @todo comments.
+#
+# $formatter->fapi = '$form = array();
+# $form[\'source_image_style\'] = array(
+#   \'#title\' => t(\'Source image styles\'),
+#   \'#type\' => \'custom_formatters_image_styles\',
+#   \'#weight\' => \'0\',
+# );
+# $form[\'destination_image_style\'] = array(
+#   \'#title\' => t(\'Destination image styles\'),
+#   \'#type\' => \'custom_formatters_image_styles\',
+#   \'#weight\' => \'1\',
+# );'
