@@ -8,16 +8,15 @@
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 
- /**
+/**
  * Implements hook_help().
  */
 function custom_formatters_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
-    // Main module help for the custom_formatters module.
     case 'help.page.custom_formatters':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('The Custom Formatters module allows users to easily create custom Field Formatters without the need to write a custom module. Custom Formatters can then be exported as CTools Exportables, Features or Drupal API Field Formatters.') . '</p>';
+      $output .= '<p>' . t('The Custom Formatters module allows users to easily create custom Field Formatters through an admin UI without writing a custom module. It supports multiple formatter engines: Formatter Preset, HTML+Token, PHP, and Twig.') . '</p>';
       return $output;
   }
 }
