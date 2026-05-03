@@ -46,7 +46,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     }
 
     foreach (Element::children($element) as $delta) {
-      $element[$delta]['#cf_options'] = isset($display['#cf_options']) ? $display['#cf_options'] : [];
+      $element[$delta]['#cf_options'] = $display['#cf_options'] ?? [];
       $element[$delta]['#cache']['tags'] = $formatter->getCacheTags();
     }
 

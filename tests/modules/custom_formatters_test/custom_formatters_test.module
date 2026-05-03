@@ -9,9 +9,9 @@
  * Implements hook_ctools_plugin_api().
  */
 function custom_formatters_test_ctools_plugin_api() {
-  list($module, $api) = func_get_args();
+  [$module, $api] = func_get_args();
   if ($module == 'custom_formatters' && $api == 'custom_formatters') {
-    return array('version' => 2);
+    return ['version' => 2];
   }
 }
 
@@ -30,5 +30,5 @@ function custom_formatters_test_custom_formatters_defaults() {
   $formatter->code = 'return array(array(\'#markup\' => \'test\'));';
   $formatter->fapi = '';
 
-  return array('test_formatter' => $formatter);
+  return ['test_formatter' => $formatter];
 }

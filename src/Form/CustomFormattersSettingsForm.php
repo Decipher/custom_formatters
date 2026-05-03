@@ -30,23 +30,23 @@ class CustomFormattersSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('custom_formatters.settings');
 
-    $form['label_prefix'] = array(
+    $form['label_prefix'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Use Label prefix?'),
       '#description'   => $this->t('If checked, all Custom Formatters labels will be prefixed with a set value.'),
       '#default_value' => $config->get('label_prefix'),
-    );
+    ];
 
-    $form['label_prefix_value'] = array(
+    $form['label_prefix_value'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Label prefix'),
       '#default_value' => $config->get('label_prefix_value'),
-      '#states'        => array(
-        'invisible' => array(
-          'input[name="label_prefix"]' => array('checked' => FALSE),
-        ),
-      ),
-    );
+      '#states'        => [
+        'invisible' => [
+          'input[name="label_prefix"]' => ['checked' => FALSE],
+        ],
+      ],
+    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -75,7 +75,7 @@ class CustomFormattersSettingsForm extends ConfigFormBase {
       ->save();
 
     // Clear cached formatters.
-    // @TODO - Tag custom formatters?
+    // @todo Tag custom formatters?
     \Drupal::service('plugin.manager.field.formatter')
       ->clearCachedDefinitions();
   }

@@ -2,6 +2,7 @@
 
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
@@ -68,21 +69,21 @@ class FormatterPreset extends FormatterTypeBase {
       // @todo Add message about selecting a field type.
       return $form;
     }
-   // Build formatters list.
+    // Build formatters list.
     $options = [];
     $formatters = $this->formatterManager->getDefinitions();
     foreach ($formatters as $formatter_name => $formatter) {
       if (in_array($field_type, $formatter['field_types'])) {
-        // Check if label is a TranslatableMarkup or a string
+        // Check if label is a TranslatableMarkup or a string.
         $label = $formatter['label'];
-        
-        // If it's a string, wrap it in TranslatableMarkup
+
+        // If it's a string, wrap it in TranslatableMarkup.
         if (is_string($label)) {
           $label = $this->t($label);
         }
 
-        // Ensure label is now a TranslatableMarkup object
-        if ($label instanceof \Drupal\Core\StringTranslation\TranslatableMarkup) {
+        // Ensure label is now a TranslatableMarkup object.
+        if ($label instanceof TranslatableMarkup) {
           $options[$formatter_name] = $label->render();
         }
       }
@@ -102,7 +103,7 @@ class FormatterPreset extends FormatterTypeBase {
       '#title'         => $this->t('Formatter'),
       '#type'          => 'select',
       '#options'       => $options,
-      '#default_value' => isset($this->entity->get('data')['formatter']) ? $this->entity->get('data')['formatter'] : '',
+      '#default_value' => $this->entity->get('data')['formatter'] ?? '',
       '#ajax'          => [
         'callback' => [
           'Drupal\custom_formatters\Form\FormatterForm',
@@ -113,7 +114,7 @@ class FormatterPreset extends FormatterTypeBase {
     ];
 
     // Get currently selected formatter.
-    $formatter_name = isset($form_state->getValue('data')['formatter']) ? $form_state->getValue('data')['formatter'] : $form['data']['formatter']['#default_value'];
+    $formatter_name = $form_state->getValue('data')['formatter'] ?? $form['data']['formatter']['#default_value'];
     if (!isset($form['data']['formatter']['#options'][$formatter_name])) {
       $formatter_name = key($form['data']['formatter']['#options']);
     }
@@ -159,7 +160,7 @@ class FormatterPreset extends FormatterTypeBase {
   protected function getFormatter($formatter_name, $field_type) {
     return $this->formatterManager->createInstance($formatter_name, [
       'field_definition'     => BaseFieldDefinition::create($field_type),
-      'settings'             => isset($this->entity->get('data')['settings']) ? $this->entity->get('data')['settings'] : [],
+      'settings'             => $this->entity->get('data')['settings'] ?? [],
       'label'                => '',
       'view_mode'            => '',
       'third_party_settings' => [],
