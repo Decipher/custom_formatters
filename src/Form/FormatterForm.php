@@ -276,7 +276,7 @@ class FormatterForm extends EntityForm {
 
     ksort($field_types);
     foreach ($field_types as $field_type) {
-      $options[$field_type['provider']][$field_type['id']] = $field_type['label']->render();
+      $options[$field_type['provider']][$field_type['id']] = (string) $field_type['label'];
     }
     ksort($options);
 

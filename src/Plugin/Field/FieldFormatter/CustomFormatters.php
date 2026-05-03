@@ -61,7 +61,9 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    * {@inheritdoc}
    */
   public function prepareView(array $entities_items) {
-    // @todo Function prepareView.
+    if ($this->getFieldSetting('target_type')) {
+      parent::prepareView($entities_items);
+    }
   }
 
   /**
