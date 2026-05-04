@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\custom_formatters\Tests;
+namespace Drupal\Tests\custom_formatters\Functional;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Tests\field_ui\Traits\FieldUiTestTrait;
 use Drupal\Tests\BrowserTestBase;
 
 /**
- * Contains class CustomFormattersTestBase.
+ * Base class for Custom Formatters functional tests.
  *
  * @package Drupal\custom_formatters\Tests
  */
@@ -35,7 +35,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'block',
     'custom_formatters_test',
     'field_ui',
@@ -54,7 +54,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Create an admin user.
@@ -151,8 +151,9 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
    *   A Node view mode.
    */
   protected function setCustomFormatter($formatter_name, $field_name, $bundle_name, $view_mode = 'default') {
-    $this->submitForm(["fields[{$field_name}][type]" => "custom_formatters:{$formatter_name}"], $this->t('Save',));
-    $this->assertSession($this->t('Your settings have been saved.'));
+    $this->drupalGet("admin/structure/types/manage/{$bundle_name}/display");
+    $this->submitForm(["fields[{$field_name}][type]" => "custom_formatters:{$formatter_name}"], $this->t('Save'));
+    $this->assertSession()->pageTextContains($this->t('Your settings have been saved.'));
   }
 
 }

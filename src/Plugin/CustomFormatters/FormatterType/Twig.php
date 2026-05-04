@@ -37,7 +37,7 @@ class Twig extends FormatterTypeBase {
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $output = '';
 
-    /** @var \Twig_Environment $twig_service */
+    /** @var \Twig\Environment $twig_service */
     $twig_service = \Drupal::service('twig');
 
     try {
