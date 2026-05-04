@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
 use Drupal\Core\Field\FieldItemListInterface;
@@ -16,7 +18,7 @@ use Drupal\custom_formatters\FormatterTypeBase;
  *   multipleFields = "true"
  * )
  */
-class PHP extends FormatterTypeBase {
+class Php extends FormatterTypeBase {
 
   /**
    * {@inheritdoc}
@@ -44,9 +46,9 @@ class PHP extends FormatterTypeBase {
     // Preview debugging; Show the available variables data.
     // @todo Re-add when preview functionality re-added.
     // if (\Drupal::moduleHandler()->moduleExists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['vars']) {
-    //  dpm($variables);
+    // dpm($variables);
     // }
-    return empty($output) ? FALSE : $output;
+    return empty($output) ? [] : $output;
   }
 
 }

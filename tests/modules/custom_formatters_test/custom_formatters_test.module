@@ -5,6 +5,8 @@
  * Custom Formatters test module.
  */
 
+declare(strict_types=1);
+
 /**
  * Implements hook_ctools_plugin_api().
  */

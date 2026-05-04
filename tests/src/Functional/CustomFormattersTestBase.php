@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\custom_formatters\Functional;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -101,7 +103,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
     $formatter = \Drupal::entityTypeManager()
       ->getStorage('formatter')
       ->load($name);
-    $message = !empty($message) ? $message : $this->t('Custom Formatter %name found.', ['%name' => $name]);
+    $message = !empty($message) ? $message : (string) $this->t('Custom Formatter %name found.', ['%name' => $name]);
 
     return $this->assertTrue(!is_null($formatter), $message, $group);
   }

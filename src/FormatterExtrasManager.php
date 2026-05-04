@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\custom_formatters;
 
 use Drupal\Core\Cache\CacheBackendInterface;

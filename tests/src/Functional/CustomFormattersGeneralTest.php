@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\custom_formatters\Functional;
 
 use Drupal\custom_formatters\Entity\Formatter;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\file\Entity\File;
-use Drupal\image\Entity\ImageStyle;
 use Drupal\Tests\TestFileCreationTrait;
 
 /**
@@ -98,7 +99,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
     // Ensure Formatter rendered correctly.
     $this->drupalGet($this->node->toUrl());
-    $this->assertTrue(!strstr($this->getSession()->getPage()->getContent(), $this->node->get('body')[0]->value) && strstr($this->getSession()->getPage()->getContent(), substr($this->node->get('body')[0]->value, 0, 7)), $this->t('Custom formatter output found.'));
+    $this->assertTrue(!strstr($this->getSession()->getPage()->getContent(), $this->node->get('body')[0]->value) && strstr($this->getSession()->getPage()->getContent(), substr($this->node->get('body')[0]->value, 0, 7)), (string) $this->t('Custom formatter output found.'));
   }
 
   /**

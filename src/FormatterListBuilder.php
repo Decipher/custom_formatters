@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\custom_formatters;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
@@ -41,6 +43,8 @@ class FormatterListBuilder extends ConfigEntityListBuilder {
    *   The entity type definition.
    * @param \Drupal\Core\Entity\EntityStorageInterface $storage
    *   The entity storage class.
+   * @param \Drupal\custom_formatters\FormatterTypeManager $formatter_type_manager
+   *   The formatter type plugin manager.
    */
   public function __construct(EntityTypeInterface $entity_type, EntityStorageInterface $storage, FormatterTypeManager $formatter_type_manager) {
     parent::__construct($entity_type, $storage);

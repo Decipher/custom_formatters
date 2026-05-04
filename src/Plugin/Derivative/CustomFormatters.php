@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\custom_formatters\Plugin\Derivative;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
@@ -10,9 +12,9 @@ use Drupal\Component\Plugin\Derivative\DeriverBase;
 class CustomFormatters extends DeriverBase {
 
   /**
+   * Formatter settings.
    *
-   *
-   * @var object
+   * @var array
    */
   protected $settings = [];
 
