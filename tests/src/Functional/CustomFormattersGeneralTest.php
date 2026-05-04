@@ -168,7 +168,8 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
   /**
    * Test that formatter entity properties are loaded from storage.
    *
-   * Regression test for issue #3188668 - entity properties not loaded from storage.
+   * Regression test for issue #3188668
+   * - entity properties not loaded from storage.
    */
   public function testFormatterEntityLoadsPropertiesFromStorage() {
     $formatter = Formatter::load('test_formatter');

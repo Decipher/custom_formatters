@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Field\FormatterPluginManager;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
 use Drupal\custom_formatters\FormatterExtrasManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -46,12 +47,20 @@ class FormatterForm extends EntityForm {
   protected $fieldTypeManager;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * Constructs a FormatterForm object.
    */
-  public function __construct(FormatterExtrasManager $formatter_extras_manager, FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager) {
+  public function __construct(FormatterExtrasManager $formatter_extras_manager, FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager, RendererInterface $renderer) {
     $this->formatterExtrasManager = $formatter_extras_manager;
     $this->fieldTypeManager = $field_type_manager;
     $this->fieldFormatterManager = $field_formatter_manager;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -61,7 +70,8 @@ class FormatterForm extends EntityForm {
     return new static(
       $container->get('plugin.manager.custom_formatters.formatter_extras'),
       $container->get('plugin.manager.field.formatter'),
-      $container->get('plugin.manager.field.field_type')
+      $container->get('plugin.manager.field.field_type'),
+      $container->get('renderer')
     );
   }
 
@@ -267,7 +277,7 @@ class FormatterForm extends EntityForm {
       }
       $list[$entity_type_id]['#items'][$entity->id()] = $entity->label() ?: $entity->id();
     }
-    return \Drupal::service('renderer')->render($list);
+    return $this->renderer->render($list);
   }
 
   /**

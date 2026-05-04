@@ -14,7 +14,7 @@ use Drupal\custom_formatters\FormatterTypeBase;
  * @FormatterType(
  *   id = "php",
  *   label = "PHP",
- *   description = "A PHP based editor with support for multiple fields and multiple values.",
+ *   description = "A PHP-based editor supporting multiple fields and values.",
  *   multipleFields = "true"
  * )
  */
@@ -39,15 +39,19 @@ class Php extends FormatterTypeBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     ob_start();
-    $output = eval($this->entity->get('data'));
+    $output = eval($this->entity->get('data')); // phpcs:ignore Drupal.Functions.DiscouragedFunctions.Discouraged
     $output = !empty($output) ? $output : ob_get_contents();
     ob_end_clean();
 
     // Preview debugging; Show the available variables data.
     // @todo Re-add when preview functionality re-added.
+    // phpcs:disable Drupal.Files.LineLength.TooLong
+    // phpcs:disable Drupal.Commenting.InlineComment.NotCapital
     // if (\Drupal::moduleHandler()->moduleExists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['vars']) {
     // dpm($variables);
     // }
+    // phpcs:enable
+
     return empty($output) ? [] : $output;
   }
 

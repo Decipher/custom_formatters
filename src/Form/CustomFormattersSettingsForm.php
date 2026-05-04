@@ -4,13 +4,38 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters\Form;
 
+use Drupal\Core\Field\FormatterPluginManager;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configure update settings for this site.
  */
 class CustomFormattersSettingsForm extends ConfigFormBase {
+
+  /**
+   * The field formatter plugin manager.
+   *
+   * @var \Drupal\Core\Field\FormatterPluginManager
+   */
+  protected $fieldFormatterManager;
+
+  /**
+   * Constructs a CustomFormattersSettingsForm object.
+   */
+  public function __construct(FormatterPluginManager $field_formatter_manager) {
+    $this->fieldFormatterManager = $field_formatter_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('plugin.manager.field.formatter')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -78,8 +103,7 @@ class CustomFormattersSettingsForm extends ConfigFormBase {
 
     // Clear cached formatters.
     // @todo Tag custom formatters?
-    \Drupal::service('plugin.manager.field.formatter')
-      ->clearCachedDefinitions();
+    $this->fieldFormatterManager->clearCachedDefinitions();
   }
 
 }

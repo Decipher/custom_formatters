@@ -118,7 +118,7 @@ class FormatterExtrasManager extends DefaultPluginManager {
         switch ($type) {
           case 'module':
             foreach ($dependencies as $dependency) {
-              if (!\Drupal::moduleHandler()->moduleExists($dependency)) {
+              if (!$this->moduleHandler->moduleExists($dependency)) {
                 return FALSE;
               }
             }

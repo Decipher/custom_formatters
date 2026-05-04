@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\custom_formatters\FormatterExtrasManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'text_default' formatter.
@@ -20,11 +23,50 @@ use Drupal\Core\Render\Element;
 class CustomFormatters extends EntityReferenceFormatterBase {
 
   /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The formatter extras plugin manager.
+   *
+   * @var \Drupal\custom_formatters\FormatterExtrasManager
+   */
+  protected $formatterExtrasManager;
+
+  /**
+   * Constructs a CustomFormatters formatter object.
+   */
+  public function __construct($plugin_id, $plugin_definition, $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityTypeManagerInterface $entity_type_manager, FormatterExtrasManager $formatter_extras_manager) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
+    $this->entityTypeManager = $entity_type_manager;
+    $this->formatterExtrasManager = $formatter_extras_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['label'],
+      $configuration['view_mode'],
+      $configuration['third_party_settings'],
+      $container->get('entity_type.manager'),
+      $container->get('plugin.manager.custom_formatters.formatter_extras')
+    );
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    /** @var \Drupal\custom_formatters\FormatterInterface $formatter */
-    $formatter = \Drupal::entityTypeManager()
+    $formatter = $this->entityTypeManager
       ->getStorage('formatter')
       ->load($this->getPluginDefinition()['formatter']);
 
@@ -61,7 +103,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     }
 
     // Allow third party integrations a chance to alter the element.
-    \Drupal::service('plugin.manager.custom_formatters.formatter_extras')
+    $this->formatterExtrasManager
       ->alter('formatterViewElements', $formatter, $element);
 
     return $element;

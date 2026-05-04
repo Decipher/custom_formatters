@@ -102,7 +102,7 @@
 
     <!-- Settings for coverage reports. -->
     <coverage includeUncoveredFiles="true"
-              pathCoverage="true"
+              pathCoverage="false"
               ignoreDeprecatedCodeUnits="true"
               disableCodeCoverageIgnore="false">
         <report>

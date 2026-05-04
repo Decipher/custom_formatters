@@ -16,7 +16,7 @@ use Drupal\custom_formatters\FormatterTypeBase;
  * @FormatterType(
  *   id = "formatter_preset",
  *   label = "Formatter preset",
- *   description = "Create simple formatters from existing formatters with preset formatter settings.",
+ *   description = "Build formatters from existing ones with preset settings.",
  * )
  */
 class FormatterPreset extends FormatterTypeBase {
@@ -81,7 +81,7 @@ class FormatterPreset extends FormatterTypeBase {
 
         // If it's a string, wrap it in TranslatableMarkup.
         if (is_string($label)) {
-          $label = $this->t($label);
+          $label = $this->t($label); // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
         }
 
         // Ensure label is now a TranslatableMarkup object.
