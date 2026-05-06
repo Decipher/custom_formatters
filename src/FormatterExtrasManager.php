@@ -27,7 +27,7 @@ class FormatterExtrasManager extends DefaultPluginManager {
   /**
    * Passes alterable variables to specific methods.
    */
-  public function alter($method, $entity, &$data, &$context1 = NULL, &$context2 = NULL) {
+  public function alter(string $method, FormatterInterface $entity, mixed &$data, mixed &$context1 = NULL, mixed &$context2 = NULL): void {
     $method = $method . "Alter";
     $definitions = $this->getDefinitions();
 
@@ -44,7 +44,7 @@ class FormatterExtrasManager extends DefaultPluginManager {
   /**
    * Invoke method on specified extras plugin.
    */
-  public function invoke($plugin_id, $method, FormatterInterface $entity) {
+  public function invoke(string $plugin_id, string $method, FormatterInterface $entity): mixed {
     $args = func_get_args();
     array_shift($args);
     array_shift($args);
@@ -64,7 +64,7 @@ class FormatterExtrasManager extends DefaultPluginManager {
   /**
    * Invoke method on all available extras.
    */
-  public function invokeAll($method, FormatterInterface $entity) {
+  public function invokeAll(string $method, FormatterInterface $entity): array {
     $args = func_get_args();
     $definitions = $this->getDefinitions();
 
@@ -88,7 +88,7 @@ class FormatterExtrasManager extends DefaultPluginManager {
     $definitions = parent::getDefinitions();
 
     // Ensure Extras configuration dependencies are met.
-    if (isset($definitions) && is_array($definitions)) {
+    if (is_array($definitions)) {
       foreach ($definitions as $definition) {
         if (!$this->validateDependencies($definition)) {
           unset($definitions[$definition['id']]);

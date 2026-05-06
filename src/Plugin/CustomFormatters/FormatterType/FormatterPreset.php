@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
-use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\FormatterInterface;
+use Drupal\Core\Field\FormatterPluginManager;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\custom_formatters\FormatterTypeBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the Formatter Preset Formatter type.
@@ -31,9 +34,16 @@ class FormatterPreset extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, FormatterPluginManager $formatter_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->formatterManager = \Drupal::service('plugin.manager.field.formatter');
+    $this->formatterManager = $formatter_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('plugin.manager.field.formatter'));
   }
 
   /**
@@ -43,12 +53,13 @@ class FormatterPreset extends FormatterTypeBase {
     $dependencies = parent::calculateDependencies();
 
     $formatter_definitions = $this->formatterManager->getDefinitions();
-    if (isset($formatter_definitions[$this->entity->data['formatter']])) {
+    $data = $this->entity->get('data');
+    if (is_array($data) && isset($formatter_definitions[$data['formatter']])) {
       // Add the provider of the referenced formatter as a dependency.
-      $dependencies['module'][] = $formatter_definitions[$this->entity->data['formatter']]['provider'];
+      $dependencies['module'][] = $formatter_definitions[$data['formatter']]['provider'];
 
       // Get dependencies of the referenced formatter.
-      $formatter_instance = $this->getFormatter($this->entity->data['formatter'], $this->entity->get('field_types')[0]);
+      $formatter_instance = $this->getFormatter($data['formatter'], $this->entity->get('field_types')[0]);
       $formatter_dependencies = $formatter_instance->calculateDependencies();
       $dependencies = array_merge_recursive($dependencies, $formatter_dependencies);
     }
@@ -59,7 +70,7 @@ class FormatterPreset extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array &$form, FormStateInterface $form_state) {
+  public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form['data'] = [
       '#type' => 'container',
       '#tree' => TRUE,
@@ -133,7 +144,7 @@ class FormatterPreset extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array $form, FormStateInterface $form_state) {
+  public function submitForm(array $form, FormStateInterface $form_state): void {
     parent::submitForm($form, $form_state);
 
     // Ensure that the field types value is an array.
@@ -143,8 +154,10 @@ class FormatterPreset extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
-    return $this->getFormatter($this->entity->get('data')['formatter'], $this->entity->get('field_types')[0])
+  public function viewElements(FieldItemListInterface $items, $langcode): array {
+    $data = $this->entity->get('data');
+    $field_types = $this->entity->get('field_types');
+    return $this->getFormatter($data['formatter'], $field_types[0])
       ->viewElements($items, $langcode);
   }
 
@@ -159,14 +172,17 @@ class FormatterPreset extends FormatterTypeBase {
    * @return \Drupal\Core\Field\FormatterInterface
    *   A dummy formatter instance.
    */
-  protected function getFormatter($formatter_name, $field_type) {
-    return $this->formatterManager->createInstance($formatter_name, [
+  protected function getFormatter(string $formatter_name, string $field_type): FormatterInterface {
+    $result = $this->formatterManager->createInstance($formatter_name, [
       'field_definition'     => BaseFieldDefinition::create($field_type),
       'settings'             => $this->entity->get('data')['settings'] ?? [],
       'label'                => '',
       'view_mode'            => '',
       'third_party_settings' => [],
     ]);
+    \assert($result instanceof FormatterInterface);
+
+    return $result;
   }
 
 }

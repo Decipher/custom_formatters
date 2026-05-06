@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Utility\Token;
 use Drupal\custom_formatters\FormatterTypeBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the HTML + Token Formatter type.
@@ -22,14 +26,46 @@ use Drupal\custom_formatters\FormatterTypeBase;
 class HTMLToken extends FormatterTypeBase {
 
   /**
+   * The module handler service.
+   */
+  protected ModuleHandlerInterface $moduleHandler;
+
+  /**
+   * The entity type manager service.
+   */
+  protected EntityTypeManagerInterface $entityTypeManager;
+
+  /**
+   * The token service.
+   */
+  protected Token $tokenService;
+
+  /**
    * {@inheritdoc}
    */
-  public function settingsForm(array &$form, FormStateInterface $form_state) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, Token $token_service) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->moduleHandler = $module_handler;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->tokenService = $token_service;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'), $container->get('entity_type.manager'), $container->get('token'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form = parent::settingsForm($form, $form_state);
 
-    if (\Drupal::moduleHandler()->moduleExists('token')) {
+    if ($this->moduleHandler->moduleExists('token')) {
       $token_types = [];
-      foreach (\Drupal::entityTypeManager()->getDefinitions() as $entity_type) {
+      foreach ($this->entityTypeManager->getDefinitions() as $entity_type) {
         if ($entity_type->entityClassImplements(ContentEntityInterface::class)) {
           $token_types[] = $entity_type->id();
         }
@@ -78,11 +114,11 @@ class HTMLToken extends FormatterTypeBase {
         'item'  => $item,
         'delta' => $delta,
       ];
-      \Drupal::moduleHandler()
+      $this->moduleHandler
         ->alter('custom_formatters_token_data', $delta_token_data, $context);
 
       $element[$delta] = [
-        '#markup' => \Drupal::token()
+        '#markup' => $this->tokenService
           ->replace($text, $delta_token_data, ['clear' => TRUE, 'langcode' => $langcode]),
       ];
     }

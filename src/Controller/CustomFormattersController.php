@@ -46,7 +46,7 @@ class CustomFormattersController extends ControllerBase implements ContainerInje
    * @return array
    *   A node submission form.
    */
-  public function add($formatter_type) {
+  public function add(string $formatter_type) {
     $formatter = $this->entityTypeManager()->getStorage('formatter')->create([
       'type' => $formatter_type,
     ]);

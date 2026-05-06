@@ -14,7 +14,7 @@ interface FormatterInterface extends ConfigEntityInterface {
   /**
    * Return the formatter type plugin.
    *
-   * @return FormatterTypeInterface|bool
+   * @return \Drupal\custom_formatters\FormatterTypeInterface|false
    *   The formatter type plugin or FALSE if no plugin found.
    */
   public function getFormatterType();

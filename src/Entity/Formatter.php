@@ -8,6 +8,7 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\custom_formatters\FormatterInterface;
+use Drupal\custom_formatters\FormatterTypeInterface;
 
 /**
  * Defines the formatter entity.
@@ -67,7 +68,7 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
 
     // Allow formatter type plugins a chance to add dependencies.
     $formatter_type = $this->getFormatterType();
-    if ($formatter_type) {
+    if ($formatter_type !== FALSE) {
       $dependencies = $formatter_type->calculateDependencies();
       if (!empty($dependencies) && is_array($dependencies)) {
         foreach ($dependencies as $type => $type_dependencies) {
@@ -81,16 +82,18 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
     }
 
     // Custom Formatter Extras.
-    /** @var \Drupal\custom_formatters\FormatterExtrasInterface $extras_manager */
+    /** @var \Drupal\custom_formatters\FormatterExtrasManager $extras_manager */
     $extras_manager = \Drupal::service('plugin.manager.custom_formatters.formatter_extras');
     $extras = $extras_manager->getDefinitions();
-    if (isset($extras) && is_array($extras)) {
+    if (is_array($extras)) {
       foreach ($extras as $extra) {
         if (!$extra['optional']) {
           $this->addDependency($extra['provider'], 'extra');
         }
       }
     }
+
+    return $this;
   }
 
   /**
@@ -106,7 +109,10 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
       return FALSE;
     }
 
-    return $plugin_manager->createInstance($this->get('type'), ['entity' => $this]);
+    $result = $plugin_manager->createInstance($this->get('type'), ['entity' => $this]);
+    assert($result instanceof FormatterTypeInterface);
+
+    return $result;
   }
 
   /**
@@ -128,8 +134,9 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
   public static function postLoad(EntityStorageInterface $storage, array &$entities) {
     /** @var \Drupal\custom_formatters\FormatterInterface $entity */
     foreach ($entities as $entity) {
-      if ($entity->getFormatterType()) {
-        $entity->getFormatterType()->postLoad();
+      $formatter_type = $entity->getFormatterType();
+      if ($formatter_type !== FALSE) {
+        $formatter_type->postLoad();
       }
     }
     parent::postLoad($storage, $entities);
@@ -146,7 +153,7 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
 
     parent::preSave($storage);
     $formatter_type = $this->getFormatterType();
-    if ($formatter_type) {
+    if ($formatter_type !== FALSE) {
       $formatter_type->preSave();
     }
   }

@@ -90,7 +90,7 @@ class FormatterForm extends EntityForm {
 
     // Show warning if formatter is currently in use.
     $dependent_entities = $this->entity->getDependentEntities();
-    if ($dependent_entities) {
+    if (!empty($dependent_entities)) {
       $form['warning'] = [
         '#theme'           => 'status_messages',
         '#message_list'    => [
@@ -149,7 +149,7 @@ class FormatterForm extends EntityForm {
       '#options'       => $this->getFieldTypes(),
       '#default_value' => $this->entity->get('field_types'),
       '#required'      => TRUE,
-      '#multiple'      => $formatter_type->getPluginDefinition()['multipleFields'],
+      '#multiple'      => (bool) (((array) $formatter_type->getPluginDefinition())['multipleFields'] ?? FALSE),
       '#ajax'          => [
         'callback' => '::formAjax',
         'wrapper'  => 'plugin-wrapper',
@@ -227,7 +227,7 @@ class FormatterForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $formatter_type = $this->entity->getFormatterType();
-    if ($formatter_type) {
+    if ($formatter_type !== FALSE) {
       $formatter_type->submitForm($form, $form_state);
     }
 
@@ -237,7 +237,7 @@ class FormatterForm extends EntityForm {
     // Invoke all third party integrations save method.
     $this->formatterExtrasManager->invokeAll('settingsSave', $entity, $form, $form_state);
 
-    $entity->save();
+    $status = $entity->save();
 
     // Clear cached formatters.
     // @todo Tag custom formatters.
@@ -250,6 +250,8 @@ class FormatterForm extends EntityForm {
       $this->messenger()->addStatus($this->t('Updated formatter %formatter.', ['%formatter' => $entity->label()]));
     }
     $form_state->setRedirectUrl(new Url('entity.formatter.collection'));
+
+    return $status;
   }
 
   /**

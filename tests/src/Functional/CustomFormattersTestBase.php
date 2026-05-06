@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\custom_formatters\Functional;
 
+use Drupal\custom_formatters\FormatterInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Tests\field_ui\Traits\FieldUiTestTrait;
 use Drupal\Tests\BrowserTestBase;
@@ -21,14 +22,14 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
   /**
    * Admin user.
    *
-   * @var \Drupal\Core\Session\AccountInterface
+   * @var \Drupal\user\Entity\User|false
    */
   protected $adminUser = NULL;
 
   /**
    * The custom formatter.
    *
-   * @var string
+   * @var \Drupal\custom_formatters\FormatterInterface|string
    */
   protected $formatter = '';
 
@@ -83,7 +84,9 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
     $this->node = $this->drupalCreateNode(['type' => 'article']);
 
     // Login as admin user.
-    $this->drupalLogin($this->adminUser);
+    if ($this->adminUser !== FALSE) {
+      $this->drupalLogin($this->adminUser);
+    }
   }
 
   /**
@@ -99,13 +102,15 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
    * @return bool
    *   TRUE on pass, FALSE on fail.
    */
-  public function assertCustomFormatterExists($name, $message = '', $group = 'Other') {
+  public function assertCustomFormatterExists($name, string $message = '', string $group = 'Other'): bool {
     $formatter = \Drupal::entityTypeManager()
       ->getStorage('formatter')
       ->load($name);
     $message = !empty($message) ? $message : (string) $this->t('Custom Formatter %name found.', ['%name' => $name]);
 
-    return $this->assertTrue(!is_null($formatter), $message, $group);
+    $this->assertTrue(!is_null($formatter), $message);
+
+    return TRUE;
   }
 
   /**
@@ -117,7 +122,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
    * @return \Drupal\custom_formatters\FormatterInterface
    *   The Custom Formatter object.
    */
-  protected function createCustomFormatter(array $values = []) {
+  protected function createCustomFormatter(array $values = []): FormatterInterface {
     // Prepare the default values.
     $name = $this->randomMachineName();
     $defaults = [
@@ -137,6 +142,8 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
     \Drupal::service('plugin.manager.field.formatter')
       ->clearCachedDefinitions();
 
+    \assert($formatter instanceof FormatterInterface);
+
     return $formatter;
   }
 
@@ -152,10 +159,10 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
    * @param string $view_mode
    *   A Node view mode.
    */
-  protected function setCustomFormatter($formatter_name, $field_name, $bundle_name, $view_mode = 'default') {
+  protected function setCustomFormatter(string $formatter_name, string $field_name, string $bundle_name, string $view_mode = 'default'): void {
     $this->drupalGet("admin/structure/types/manage/{$bundle_name}/display");
-    $this->submitForm(["fields[{$field_name}][type]" => "custom_formatters:{$formatter_name}"], $this->t('Save'));
-    $this->assertSession()->pageTextContains($this->t('Your settings have been saved.'));
+    $this->submitForm(["fields[{$field_name}][type]" => "custom_formatters:{$formatter_name}"], (string) $this->t('Save'));
+    $this->assertSession()->pageTextContains((string) $this->t('Your settings have been saved.'));
   }
 
 }

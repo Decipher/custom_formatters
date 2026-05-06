@@ -40,7 +40,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     $this->assertSession()->pageTextContains('Formatters');
 
     // Ensure the Settings link is present and correct.
-    $this->assertSession()->linkExists($this->t('Settings'));
+    $this->assertSession()->linkExists((string) $this->t('Settings'));
     $this->assertSession()->linkByHrefExists('admin/structure/formatters/settings');
 
     // Ensure our pre-prepared test formatter is present.
@@ -57,19 +57,19 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     // Change the Label prefix.
     $this->drupalGet('admin/structure/formatters/settings');
     $edit = ['label_prefix_value' => $this->randomMachineName()];
-    $this->submitForm($edit, $this->t('Save configuration'));
-    $this->assertSession()->pageTextContains($this->t('Custom Formatters settings have been updated.'));
+    $this->submitForm($edit, (string) $this->t('Save configuration'));
+    $this->assertSession()->pageTextContains((string) $this->t('Custom Formatters settings have been updated.'));
 
     // Ensure our pre-prepared test formatter is present on the Manage display
     // page with the altered label prefix.
     $this->drupalGet('admin/structure/types/manage/article/display');
-    $this->assertSession()->responseContains($this->t('@prefix: Test Formatter', ['@prefix' => $edit['label_prefix_value']]));
+    $this->assertSession()->responseContains((string) $this->t('@prefix: Test Formatter', ['@prefix' => $edit['label_prefix_value']]));
 
     // Remove the Label prefix.
     $this->drupalGet('admin/structure/formatters/settings');
     $edit = ['label_prefix' => FALSE];
-    $this->submitForm($edit, $this->t('Save configuration'));
-    $this->assertSession()->pageTextContains($this->t('Custom Formatters settings have been updated.'));
+    $this->submitForm($edit, (string) $this->t('Save configuration'));
+    $this->assertSession()->pageTextContains((string) $this->t('Custom Formatters settings have been updated.'));
 
     // Ensure our pre-prepared test formatter is present on the Manage display
     // page without a label prefix.
@@ -95,11 +95,11 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     ]);
 
     // Set the formatter active on the Body field.
-    $this->setCustomFormatter($this->formatter->id(), 'body', 'article');
+    $this->setCustomFormatter((string) $this->formatter->id(), 'body', 'article');
 
     // Ensure Formatter rendered correctly.
     $this->drupalGet($this->node->toUrl());
-    $this->assertTrue(!strstr($this->getSession()->getPage()->getContent(), $this->node->get('body')[0]->value) && strstr($this->getSession()->getPage()->getContent(), substr($this->node->get('body')[0]->value, 0, 7)), (string) $this->t('Custom formatter output found.'));
+    $this->assertTrue(!strstr($this->getSession()->getPage()->getContent(), $this->node->get('body')[0]->value) && strstr($this->getSession()->getPage()->getContent(), substr((string) $this->node->get('body')[0]->value, 0, 7)), (string) $this->t('Custom formatter output found.'));
   }
 
   /**
@@ -116,11 +116,11 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     ]);
 
     // Set the formatter active on the Body field.
-    $this->setCustomFormatter($this->formatter->id(), 'body', 'article');
+    $this->setCustomFormatter((string) $this->formatter->id(), 'body', 'article');
 
     // Ensure Formatter rendered correctly.
     $this->drupalGet($this->node->toUrl());
-    $this->assertSession()->pageTextContains($text, $this->t('Custom formatter output found.'));
+    $this->assertSession()->pageTextContains($text);
   }
 
   /**
@@ -137,11 +137,11 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     ]);
 
     // Set the formatter active on the Body field.
-    $this->setCustomFormatter($this->formatter->id(), 'body', 'article');
+    $this->setCustomFormatter((string) $this->formatter->id(), 'body', 'article');
 
     // Ensure Formatter rendered correctly.
     $this->drupalGet($this->node->toUrl());
-    $this->assertSession()->pageTextContains($text, $this->t('Custom formatter output found.'));
+    $this->assertSession()->pageTextContains($text);
   }
 
   /**
@@ -158,11 +158,11 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     ]);
 
     // Set the formatter active on the Body field.
-    $this->setCustomFormatter($this->formatter->id(), 'body', 'article');
+    $this->setCustomFormatter((string) $this->formatter->id(), 'body', 'article');
 
     // Ensure Formatter rendered correctly.
     $this->drupalGet($this->node->toUrl());
-    $this->assertSession()->pageTextContains($text, $this->t('Custom formatter output found.'));
+    $this->assertSession()->pageTextContains($text);
   }
 
   /**
@@ -256,7 +256,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     $images = $this->getTestFiles('image');
     $image = reset($images);
     $file = File::create([
-      'uri' => $image->uri,
+      'uri' => $image->uri ?? '',
       'uid' => 1,
       'status' => 1,
     ]);
@@ -311,7 +311,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     $images = $this->getTestFiles('image');
     $image = reset($images);
     $file = File::create([
-      'uri' => $image->uri,
+      'uri' => $image->uri ?? '',
       'uid' => 1,
       'status' => 1,
     ]);
@@ -389,7 +389,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     $images = $this->getTestFiles('image');
     $image = reset($images);
     $file = File::create([
-      'uri' => $image->uri,
+      'uri' => $image->uri ?? '',
       'uid' => 1,
       'status' => 1,
     ]);
@@ -441,7 +441,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     $images = $this->getTestFiles('image');
     $image = reset($images);
     $file = File::create([
-      'uri' => $image->uri,
+      'uri' => $image->uri ?? '',
       'uid' => 1,
       'status' => 1,
     ]);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\custom_formatters\Plugin\Derivative;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Retrieves field formatter plugin definitions for all custom formatters.
@@ -19,24 +20,30 @@ class CustomFormatters extends DeriverBase {
   protected $settings = [];
 
   /**
+   * The entity type manager service.
+   */
+  protected EntityTypeManagerInterface $entityTypeManager;
+
+  /**
    * CustomFormatters constructor.
    */
   public function __construct() {
-    $this->settings = \Drupal::config('custom_formatters.settings');
+    $this->settings = \Drupal::config('custom_formatters.settings')->getRawData();
+    $this->entityTypeManager = \Drupal::entityTypeManager();
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
-    $formatters = \Drupal::entityTypeManager()
+    $formatters = $this->entityTypeManager
       ->getStorage('formatter')
       ->loadMultiple();
     /** @var \Drupal\custom_formatters\FormatterInterface $formatter */
     foreach ($formatters as $formatter) {
       if ($formatter->get('status')) {
         $this->derivatives[$formatter->id()] = $base_plugin_definition;
-        $this->derivatives[$formatter->id()]['label'] = $this->getLabel($formatter->label());
+        $this->derivatives[$formatter->id()]['label'] = $this->getLabel((string) ($formatter->label() ?? ''));
         $field_types = $formatter->get('field_types');
         if (!is_array($field_types)) {
           $field_types = !empty($field_types) ? [$field_types] : [];
@@ -60,10 +67,10 @@ class CustomFormatters extends DeriverBase {
    * @return string
    *   The Formatter label with optional prefix.
    */
-  protected function getLabel($label) {
+  protected function getLabel(string $label): string {
     // Label prefix.
-    if ($this->settings->get('label_prefix')) {
-      $label = "{$this->settings->get('label_prefix_value')}: {$label}";
+    if (!empty($this->settings['label_prefix'])) {
+      $label = "{$this->settings['label_prefix_value']}: {$label}";
     }
 
     return $label;

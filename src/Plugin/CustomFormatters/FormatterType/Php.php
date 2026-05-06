@@ -23,7 +23,7 @@ class Php extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array &$form, FormStateInterface $form_state) {
+  public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form = parent::settingsForm($form, $form_state);
 
     $form['data']['#description'] = $this->t('Enter the PHP code that will be evaluated. You should NOT include %php tags.<br /><br /><strong>Available parameters:</strong><dl><dt><em><a href=":field_item_list_inerface" target="_blank">FieldItemListInterface</a></em> $items</dt><dd>The field values to be rendered.</dd><dt><em>string</em> $langcode</dt><dd>The language that should be used to render the field.</dd></dt></dl>', [
@@ -52,7 +52,7 @@ class Php extends FormatterTypeBase {
     // }
     // phpcs:enable
 
-    return empty($output) ? [] : $output;
+    return empty($output) ? [] : (is_array($output) ? $output : ['#markup' => $output]);
   }
 
 }

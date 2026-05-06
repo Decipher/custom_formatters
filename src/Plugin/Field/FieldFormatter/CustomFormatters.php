@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters\Plugin\Field\FieldFormatter;
 
+use Drupal\custom_formatters\FormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
@@ -66,16 +67,19 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
+    $plugin_definition = (array) $this->getPluginDefinition();
+    $formatter_id = $plugin_definition['formatter'] ?? NULL;
+
     $formatter = $this->entityTypeManager
       ->getStorage('formatter')
-      ->load($this->getPluginDefinition()['formatter']);
+      ->load($formatter_id);
 
-    if (!$formatter) {
+    if (!$formatter instanceof FormatterInterface) {
       return [];
     }
 
     $formatter_type = $formatter->getFormatterType();
-    if (!$formatter_type) {
+    if ($formatter_type === FALSE) {
       return [];
     }
 

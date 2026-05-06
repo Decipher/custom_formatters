@@ -7,6 +7,8 @@ namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\custom_formatters\FormatterTypeBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Twig\Environment;
 use Twig\Error\Error;
 
 /**
@@ -21,9 +23,29 @@ use Twig\Error\Error;
 class Twig extends FormatterTypeBase {
 
   /**
+   * The Twig environment service.
+   */
+  protected Environment $twigService;
+
+  /**
    * {@inheritdoc}
    */
-  public function settingsForm(array &$form, FormStateInterface $form_state) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, Environment $twig_service) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->twigService = $twig_service;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('twig'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form = parent::settingsForm($form, $form_state);
 
     $form['data']['#description'] = $this->t('Enter the Twig code that will be evaluated.<br /><br /><strong>Available parameters:</strong><dl><dt><em><a href=":field_item_list_inerface" target="_blank">FieldItemListInterface</a></em> {{ items }}</dt><dd>The field values to be rendered.</dd><dt><em>string</em> {{ langcode }}</dt><dd>The language that should be used to render the field.</dd></dt></dl>', [
@@ -36,14 +58,11 @@ class Twig extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
+  public function viewElements(FieldItemListInterface $items, $langcode): array {
     $output = '';
 
-    /** @var \Twig\Environment $twig_service */
-    $twig_service = \Drupal::service('twig');
-
     try {
-      $output = $twig_service->createTemplate($this->entity->data)->render([
+      $output = $this->twigService->createTemplate((string) $this->entity->get('data'))->render([
         'items'    => $items,
         'langcode' => $langcode,
       ]);
@@ -52,7 +71,7 @@ class Twig extends FormatterTypeBase {
       $this->messenger()->addError($e->getMessage());
     }
 
-    return $output;
+    return empty($output) ? [] : ['#markup' => $output];
   }
 
 }

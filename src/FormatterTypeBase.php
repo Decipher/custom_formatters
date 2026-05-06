@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Drupal\custom_formatters;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Contains class FormatterTypeBase.
  *
  * @package Drupal\custom_formatters
  */
-abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInterface {
+abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInterface, ContainerFactoryPluginInterface {
 
   /**
    * The Formatter entity.
@@ -32,6 +34,13 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
   /**
    * {@inheritdoc}
    */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($configuration, $plugin_id, $plugin_definition);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function calculateDependencies() {
     return [];
   }
@@ -39,7 +48,7 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array &$form, FormStateInterface $form_state) {
+  public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form['data'] = [
       '#title'         => $this->t('Formatter'),
       '#type'          => 'textarea',
@@ -54,7 +63,7 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
   /**
    * Acts on loaded entities.
    */
-  public function postLoad() {
+  public function postLoad(): void {
   }
 
   /**
@@ -65,13 +74,13 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
    * only fired on their current translation. It is up to the developer to
    * iterate over all translations if needed.
    */
-  public function preSave() {
+  public function preSave(): void {
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array $form, FormStateInterface $form_state) {
+  public function submitForm(array $form, FormStateInterface $form_state): void {
   }
 
 }
