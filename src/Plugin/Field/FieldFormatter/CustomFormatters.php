@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Field formatter plugin that delegates to custom formatter config entities.
+ */
+
 namespace Drupal\custom_formatters\Plugin\Field\FieldFormatter;
 
 use Drupal\custom_formatters\FormatterInterface;
@@ -14,7 +19,7 @@ use Drupal\custom_formatters\FormatterExtrasManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Plugin implementation of the 'text_default' formatter.
+ * Plugin implementation of the 'custom_formatters' field formatter.
  *
  * @FieldFormatter(
  *   id = "custom_formatters",

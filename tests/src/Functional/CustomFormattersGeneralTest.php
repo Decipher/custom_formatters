@@ -99,7 +99,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
     // Ensure Formatter rendered correctly.
     $this->drupalGet($this->node->toUrl());
-    $this->assertTrue(!strstr($this->getSession()->getPage()->getContent(), $this->node->get('body')[0]->value) && strstr($this->getSession()->getPage()->getContent(), substr((string) $this->node->get('body')[0]->value, 0, 7)), (string) $this->t('Custom formatter output found.'));
+    $this->assertTrue(!strstr($this->getSession()->getPage()->getContent(), $this->node->get('body')[0]->get('value')->getValue()) && strstr($this->getSession()->getPage()->getContent(), substr((string) $this->node->get('body')[0]->get('value')->getValue(), 0, 7)), (string) $this->t('Custom formatter output found.'));
   }
 
   /**

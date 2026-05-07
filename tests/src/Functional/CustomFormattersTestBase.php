@@ -36,7 +36,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
   /**
    * Modules to enable.
    *
-   * @var array
+   * @var array<string>
    */
   protected static $modules = [
     'block',

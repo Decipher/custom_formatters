@@ -2,8 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Formatter Preset engine plugin for building formatters from existing ones.
+ */
+
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
+use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterInterface;
@@ -60,8 +66,10 @@ class FormatterPreset extends FormatterTypeBase {
 
       // Get dependencies of the referenced formatter.
       $formatter_instance = $this->getFormatter($data['formatter'], $this->entity->get('field_types')[0]);
-      $formatter_dependencies = $formatter_instance->calculateDependencies();
-      $dependencies = array_merge_recursive($dependencies, $formatter_dependencies);
+      if ($formatter_instance instanceof DependentPluginInterface) {
+        $formatter_dependencies = $formatter_instance->calculateDependencies();
+        $dependencies = array_merge_recursive($dependencies, $formatter_dependencies);
+      }
     }
 
     return $dependencies;
@@ -118,10 +126,7 @@ class FormatterPreset extends FormatterTypeBase {
       '#options'       => $options,
       '#default_value' => $this->entity->get('data')['formatter'] ?? '',
       '#ajax'          => [
-        'callback' => [
-          'Drupal\custom_formatters\Form\FormatterForm',
-          'formAjax',
-        ],
+        'callback' => '::formAjax',
         'wrapper'  => 'plugin-wrapper',
       ],
     ];
