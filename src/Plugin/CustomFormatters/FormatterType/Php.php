@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * PHP engine plugin for evaluating custom PHP code as a formatter.
+ */
+
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
 use Drupal\Core\Field\FieldItemListInterface;
@@ -10,6 +15,11 @@ use Drupal\custom_formatters\FormatterTypeBase;
 
 /**
  * Plugin implementation of the PHP Formatter type.
+ *
+ * WARNING: This engine uses eval() to execute user-provided PHP code. Access
+ * is restricted to users with the "administer custom formatters" permission.
+ * Exercise caution when granting this permission, as it allows arbitrary
+ * PHP execution on the site.
  *
  * @FormatterType(
  *   id = "php",

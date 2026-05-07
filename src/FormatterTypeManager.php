@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Plugin manager for formatter type plugins.
+ */
+
 namespace Drupal\custom_formatters;
 
 use Drupal\Core\Cache\CacheBackendInterface;
@@ -9,9 +14,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 
 /**
- * Contains class FormatterTypeManager.
- *
- * @package Drupal\custom_formatters
+ * Manages formatter type plugin definitions.
  */
 class FormatterTypeManager extends DefaultPluginManager {
 

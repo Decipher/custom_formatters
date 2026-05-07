@@ -2,12 +2,17 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Interface for the Formatter config entity.
+ */
+
 namespace Drupal\custom_formatters;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
 /**
- * Contains interface FormatterInterface.
+ * Provides an interface for the Formatter config entity.
  */
 interface FormatterInterface extends ConfigEntityInterface {
 

@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Defines the FormatterType annotation object for formatter type plugins.
+ */
+
 namespace Drupal\custom_formatters\Annotation;
 
 use Drupal\Component\Annotation\Plugin;

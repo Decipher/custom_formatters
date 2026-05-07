@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * HTML + Token engine plugin for rendering token-replaced HTML as formatters.
+ */
+
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
 use Drupal\Core\Entity\ContentEntityInterface;
@@ -105,6 +110,8 @@ class HTMLToken extends FormatterTypeBase {
     foreach ($items as $delta => $item) {
       $delta_token_data = $token_data;
 
+      // EntityReferenceItem fields (image, file, entity_reference) need the
+      // referenced entity in token data so tokens like [file:url] resolve.
       if ($item instanceof EntityReferenceItem && $item->entity) {
         $delta_token_data[$item->entity->getEntityTypeId()] = $item->entity;
       }

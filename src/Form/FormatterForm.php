@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Form controller for the custom formatter entity.
+ */
+
 namespace Drupal\custom_formatters\Form;
 
 use Drupal\Core\Entity\EntityForm;
@@ -14,7 +19,7 @@ use Drupal\custom_formatters\FormatterExtrasManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Form controller for the shortcut set entity edit forms.
+ * Form controller for the custom formatter entity edit forms.
  */
 class FormatterForm extends EntityForm {
 
@@ -55,6 +60,15 @@ class FormatterForm extends EntityForm {
 
   /**
    * Constructs a FormatterForm object.
+   *
+   * @param \Drupal\custom_formatters\FormatterExtrasManager $formatter_extras_manager
+   *   The formatter extras plugin manager.
+   * @param \Drupal\Core\Field\FormatterPluginManager $field_formatter_manager
+   *   The field formatter plugin manager.
+   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_manager
+   *   The field type plugin manager.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    */
   public function __construct(FormatterExtrasManager $formatter_extras_manager, FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager, RendererInterface $renderer) {
     $this->formatterExtrasManager = $formatter_extras_manager;
@@ -182,6 +196,9 @@ class FormatterForm extends EntityForm {
 
   /**
    * Returns the settings form for any available third party integrations.
+   *
+   * @return array
+   *   A renderable form array of extras settings.
    */
   public function getFormatterExtrasForm() {
     $form = [];
@@ -215,7 +232,7 @@ class FormatterForm extends EntityForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
    *
-   * @return mixed
+   * @return array
    *   The ajax form element.
    */
   public function formAjax(array $form, FormStateInterface $form_state) {
@@ -260,7 +277,7 @@ class FormatterForm extends EntityForm {
    * @param array $entities
    *   The dependent entities.
    *
-   * @return mixed|null
+   * @return \Drupal\Component\Render\MarkupInterface|string
    *   The rendered list of dependent entities.
    */
   protected function getDependentEntitiesList(array $entities = []) {
@@ -287,7 +304,7 @@ class FormatterForm extends EntityForm {
    *
    * @todo Allow formatter type plugin to modify this list.
    *
-   * @return mixed
+   * @return array
    *   Array of field types grouped by their providers.
    */
   protected function getFieldTypes() {

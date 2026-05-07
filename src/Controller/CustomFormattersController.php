@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Controller for custom formatter administration pages.
+ */
+
 namespace Drupal\custom_formatters\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
@@ -11,9 +16,7 @@ use Drupal\custom_formatters\FormatterTypeManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Contains class CustomFormattersController.
- *
- * @package Drupal\custom_formatters\Controller
+ * Controller for custom formatter administration pages.
  */
 class CustomFormattersController extends ControllerBase implements ContainerInjectionInterface {
 
@@ -26,6 +29,9 @@ class CustomFormattersController extends ControllerBase implements ContainerInje
 
   /**
    * Constructs a CustomFormattersController object.
+   *
+   * @param \Drupal\custom_formatters\FormatterTypeManager $formatter_type_manager
+   *   The formatter type plugin manager.
    */
   public function __construct(FormatterTypeManager $formatter_type_manager) {
     $this->formatterTypeManager = $formatter_type_manager;
@@ -44,7 +50,7 @@ class CustomFormattersController extends ControllerBase implements ContainerInje
    * Provides the formatter creation form.
    *
    * @return array
-   *   A node submission form.
+   *   A formatter creation form.
    */
   public function add(string $formatter_type) {
     $formatter = $this->entityTypeManager()->getStorage('formatter')->create([
@@ -85,6 +91,9 @@ class CustomFormattersController extends ControllerBase implements ContainerInje
 
   /**
    * Page title callback for a formatter edit form.
+   *
+   * @param \Drupal\custom_formatters\FormatterInterface $formatter
+   *   The formatter entity.
    *
    * @return string
    *   The formatter edit page title.

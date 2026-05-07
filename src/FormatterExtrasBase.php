@@ -2,15 +2,18 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Base class for formatter extras plugins.
+ */
+
 namespace Drupal\custom_formatters;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginBase;
 
 /**
- * Contains class FormatterExtrasBase.
- *
- * @package Drupal\custom_formatters
+ * Provides a base class for formatter extras plugins.
  */
 abstract class FormatterExtrasBase extends PluginBase implements FormatterExtrasInterface {
 

@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Twig engine plugin for rendering custom Twig templates as formatters.
+ */
+
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
 use Drupal\Core\Field\FieldItemListInterface;

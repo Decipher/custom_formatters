@@ -19,6 +19,23 @@ function custom_formatters_help(string $route_name, RouteMatchInterface $route_m
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('The Custom Formatters module allows users to easily create custom Field Formatters through an admin UI without writing a custom module. It supports multiple formatter engines: Formatter Preset, HTML+Token, PHP, and Twig.') . '</p>';
+
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Formatter Preset') . '</dt>';
+      $output .= '<dd>' . t('Build formatters from existing field formatters with preset settings.') . '</dd>';
+      $output .= '<dt>' . t('HTML + Tokens') . '</dt>';
+      $output .= '<dd>' . t('A HTML-based editor with Token support. When the Token module is installed, a token tree browser is available for inserting tokens. Entity reference fields automatically provide tokens for the referenced entity.') . '</dd>';
+      $output .= '<dt>' . t('PHP') . '</dt>';
+      $output .= '<dd>' . t('A PHP-based editor with support for multiple fields and values. Note: this engine uses eval() and access is restricted to users with the "administer custom formatters" permission.') . '</dd>';
+      $output .= '<dt>' . t('Twig') . '</dt>';
+      $output .= '<dd>' . t('A Twig-based editor with support for multiple fields and values.') . '</dd>';
+      $output .= '</dl>';
+
+      $output .= '<p>' . t('For more information, see the <a href=":handbook">Custom Formatters handbook page</a>.', [
+        ':handbook' => 'https://www.drupal.org/node/2514412',
+      ]) . '</p>';
+
       return $output;
 
     default:

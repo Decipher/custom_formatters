@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Access control handler for the Formatter config entity.
+ */
+
 namespace Drupal\custom_formatters;
 
 use Drupal\Core\Access\AccessResult;

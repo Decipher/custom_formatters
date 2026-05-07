@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Interface for formatter type plugins.
+ */
+
 namespace Drupal\custom_formatters;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
@@ -9,7 +14,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Interface FormatterInterface.
+ * Provides an interface for formatter type plugins.
  */
 interface FormatterTypeInterface extends PluginInspectionInterface {
 

@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Settings form for the Custom Formatters module.
+ */
+
 namespace Drupal\custom_formatters\Form;
 
 use Drupal\Core\Field\FormatterPluginManager;
@@ -10,7 +15,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Configure update settings for this site.
+ * Configure Custom Formatters settings.
  */
 class CustomFormattersSettingsForm extends ConfigFormBase {
 
@@ -23,6 +28,9 @@ class CustomFormattersSettingsForm extends ConfigFormBase {
 
   /**
    * Constructs a CustomFormattersSettingsForm object.
+   *
+   * @param \Drupal\Core\Field\FormatterPluginManager $field_formatter_manager
+   *   The field formatter plugin manager.
    */
   public function __construct(FormatterPluginManager $field_formatter_manager) {
     $this->fieldFormatterManager = $field_formatter_manager;

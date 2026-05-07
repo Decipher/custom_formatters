@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Contextual links integration plugin for custom formatters.
+ */
+
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterExtras;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -57,6 +62,8 @@ class Contextual extends FormatterExtrasBase {
    */
   public function formatterViewElementsAlter(array &$element) {
     if ($this->entity->getThirdPartySetting('contextual', 'mode', CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED) == CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED) {
+      // Wrap the first element in a container so contextual links can be added
+      // as a sibling without overwriting the formatter's render output.
       $element[0] = ['markup' => $element[0]];
       $element[0]['contextual_links'] = [
         '#type' => 'contextual_links_placeholder',

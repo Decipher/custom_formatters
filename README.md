@@ -2,50 +2,48 @@ Custom Formatters
 =================
 
 The Custom Formatters module allows users to easily create custom Field
-Formatters without the need to write a custom module. Custom Formatters can then
-be exported as Drupal configuration entities.
+Formatters through an admin UI without writing a custom module. Custom Formatters
+are exported as Drupal configuration entities.
 
 
 
 Features
 --------
 
-* Pluggable formatter types:
-    * **Formatter presets**  
-      Create simple formatters from existing formatters with preset formatter
-      settings.
-    
-    * **HTML + Tokens**  
-      A HTML based editor with Token support.
-    
-    * **PHP**  
+* Pluggable formatter engines:
+    * **Formatter Preset**
+      Build formatters from existing field formatters with preset settings.
+
+    * **HTML + Tokens**
+      A HTML based editor with Token support, including a Token tree browser
+      when the Token module is installed.
+
+    * **PHP**
       A PHP based editor with support for multiple fields and multiple values.
-    
-    * **Twig**  
+
+    * **Twig**
       A Twig based editor with support for multiple fields and multiple values.
-    
-* Supports for all fieldable entities, including but not limited to:
-    * Drupal core - Comment, Node, Taxonomy term and User entities.
-    * Field collection module - Field-collection item entity.
-    * Media module - Media entity.
-    
-* Exportable as:
-    * Drupal configuration entities.
-        
+
+* Supports all fieldable entities, including but not limited to:
+    * Drupal core — Comment, Node, Taxonomy term, User, and Media entities.
+
+* Exportable as Drupal configuration entities.
+
 * Integrates with:
     * **Contextual links** _(Drupal core)_
       Adds a hover link for quick editing of Custom Formatters.
 
-    * **Token**  
-      Adds the Token tree browser to the HTML + Tokens engine.
+    * **Token**
+      Adds the Token tree browser to the HTML + Tokens engine with automatic
+      entity reference token support.
 
 
 
 Recommended Modules
 -------------------
 
-* [Field tokens](http://drupal.org/project/field_tokens)
-* [Token](http://drupal.org/project/token)
+* [Token](https://www.drupal.org/project/token)
+* [Field tokens](https://www.drupal.org/project/field_tokens)
 
 
 
@@ -56,32 +54,26 @@ Read the manual at: [drupal.org/node/2514412](https://www.drupal.org/node/251441
 
 
 
-Makefile entries
-----------------
+Requirements
+------------
 
-For easy downloading of Custom Formatters and it's required/recommended modules
-and/or libraries, you can use the following entries in your makefile:
-
-
-      projects:
-        custom_formatters
-        field_tokens
-        token
-
-
-**Note:** It is highly recommended to specify the version of your projects, the
-above format is only for the sake of simplicity.
+* Drupal 10 or 11
+* PHP 8.2+
 
 
 
-Testing / DCIR
---------------
+Testing
+-------
 
-This project is configured for testing via the Drupal common CI Runner (DCIR).
+This project includes a Makefile and [Ahoy](https://ahoy-cli.readthedocs.io/)
+based development environment.
 
-To run DCIR, simply run the following command from the project directory.
+    make build       # Build the development environment
+    make provision   # Install Drupal
+    make test        # Run all PHPUnit tests
+    make lint        # Run PHPCS, PHPStan, Rector, and Twig CS Fixer
 
-`docker run -v $(pwd):/dcir -it deciphered/dcir:latest`
+See `AGENTS.md` in the module root for the full list of available commands.
 
 
 
@@ -89,16 +81,13 @@ TODOs / Roadmap
 ---------------
 
 * Add Contextual links configuration as formatter setting.
-* Add Dependency definition to Formatter form.
 * Add granular permissions to Formatter types.
 * Add Formatter list view?
   - Would require adding support for Formatter config entities in Views.
-* Add custom support for Seven theme / Formatter add page.
+* Add custom support for admin theme / Formatter add page.
 * Add ability to change field types that aren't in use.
 * Set usages of formatters to default formatter on deletion.
 * Re-add save & edit?
 * Re-add preview.
+  - Replace EditArea with a modern code editor (CodeMirror, Monaco Editor).
 * Re-add export?
-* Tests:
-  - Ensure that if a formatter is in used it's field type can't change.
-  - Add test for configuration dependencies.

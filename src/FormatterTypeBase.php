@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Base class for formatter type plugins.
+ */
+
 namespace Drupal\custom_formatters;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -10,9 +15,7 @@ use Drupal\Core\Plugin\PluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Contains class FormatterTypeBase.
- *
- * @package Drupal\custom_formatters
+ * Provides a base class for formatter type plugins.
  */
 abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInterface, ContainerFactoryPluginInterface {
 
