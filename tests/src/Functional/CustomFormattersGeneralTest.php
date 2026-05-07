@@ -145,6 +145,24 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
   }
 
   /**
+   * Test the Twig engine exposes the parent entity.
+   *
+   * @covers \Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType\Twig::viewElements
+   */
+  public function testTwigFormatterEntityContext() {
+    $twig_template = '{{ entity.label }}';
+    $this->formatter = $this->createCustomFormatter([
+      'type' => 'twig',
+      'data' => $twig_template,
+    ]);
+
+    $this->setCustomFormatter((string) $this->formatter->id(), 'body', 'article');
+
+    $this->drupalGet($this->node->toUrl());
+    $this->assertSession()->pageTextContains((string) $this->node->label());
+  }
+
+  /**
    * Test the HTML + Token engine.
    *
    * @todo Add manual creation test.
