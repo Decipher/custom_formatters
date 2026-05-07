@@ -1,4 +1,13 @@
 services:
+  custom_formatters.dependency_builder:
+    class: Drupal\custom_formatters\FormatterDependencyBuilder
+    arguments:
+      - '@plugin.manager.field.field_type'
+      - '@plugin.manager.custom_formatters.formatter_type'
+      - '@plugin.manager.custom_formatters.formatter_extras'
+      - '@config.manager'
+      - '@entity_type.manager'
+      - '@config.factory'
   plugin.manager.custom_formatters.formatter_extras:
     class: Drupal\custom_formatters\FormatterExtrasManager
     parent: default_plugin_manager

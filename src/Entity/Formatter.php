@@ -2,13 +2,18 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Defines the Formatter config entity and its implementations.
+ */
+
 namespace Drupal\custom_formatters\Entity;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\custom_formatters\FormatterDependencyBuilder;
 use Drupal\custom_formatters\FormatterInterface;
-use Drupal\custom_formatters\FormatterTypeInterface;
 
 /**
  * Defines the formatter entity.
@@ -52,44 +57,10 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
    * {@inheritdoc}
    */
   public function calculateDependencies() {
-    // Custom Formatter Type provider.
-    /** @var \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_manager */
-    $field_type_manager = \Drupal::service('plugin.manager.field.field_type');
-    $field_type_definitions = $field_type_manager->getDefinitions();
-    $field_types = $this->get('field_types');
-    if (is_array($field_types)) {
-      /** @var string $field_type */
-      foreach ($field_types as $field_type) {
-        if (isset($field_type_definitions[$field_type])) {
-          $this->addDependency('module', $field_type_definitions[$field_type]['provider']);
-        }
-      }
-    }
-
-    // Allow formatter type plugins a chance to add dependencies.
-    $formatter_type = $this->getFormatterType();
-    if ($formatter_type !== FALSE) {
-      $dependencies = $formatter_type->calculateDependencies();
-      if (!empty($dependencies) && is_array($dependencies)) {
-        foreach ($dependencies as $type => $type_dependencies) {
-          if (!empty($type_dependencies) && is_array($type_dependencies)) {
-            foreach ($type_dependencies as $name) {
-              $this->addDependency($type, $name);
-            }
-          }
-        }
-      }
-    }
-
-    // Custom Formatter Extras.
-    /** @var \Drupal\custom_formatters\FormatterExtrasManager $extras_manager */
-    $extras_manager = \Drupal::service('plugin.manager.custom_formatters.formatter_extras');
-    $extras = $extras_manager->getDefinitions();
-    if (is_array($extras)) {
-      foreach ($extras as $extra) {
-        if (!$extra['optional']) {
-          $this->addDependency($extra['provider'], 'extra');
-        }
+    $dependencies = $this->dependencyBuilder()->calculateDependencies($this);
+    foreach ($dependencies as $type => $names) {
+      foreach ($names as $name) {
+        $this->addDependency($type, $name);
       }
     }
 
@@ -100,32 +71,25 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
    * {@inheritdoc}
    */
   public function getFormatterType() {
-    /** @var \Drupal\custom_formatters\FormatterTypeManager $plugin_manager */
-    $plugin_manager = \Drupal::service('plugin.manager.custom_formatters.formatter_type');
-
-    // Ensure Formatter Type exists.
-    if (!isset($plugin_manager->getDefinitions()[$this->get('type')])) {
-      // @todo Add better error handling here.
-      return FALSE;
-    }
-
-    $result = $plugin_manager->createInstance($this->get('type'), ['entity' => $this]);
-    assert($result instanceof FormatterTypeInterface);
-
-    return $result;
+    return $this->dependencyBuilder()->getFormatterType($this);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDependentEntities() {
-    /** @var \Drupal\Core\Config\ConfigManagerInterface $config_manager */
-    $config_manager = \Drupal::service('config.manager');
+    return $this->dependencyBuilder()->getDependentEntities($this);
+  }
 
-    // Get the dependent entities.
-    $dependent_entities = $config_manager->findConfigEntityDependenciesAsEntities('config', [$this->getConfigDependencyName()]);
-
-    return $dependent_entities;
+  /**
+   * Gets the formatter dependency builder service.
+   *
+   * @return \Drupal\custom_formatters\FormatterDependencyBuilder
+   *   The dependency builder service.
+   */
+  private function dependencyBuilder(): FormatterDependencyBuilder {
+    // @phpstan-ignore staticMethod.thisObjectConfigEntity
+    return \Drupal::service('custom_formatters.dependency_builder');
   }
 
   /**

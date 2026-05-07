@@ -2,15 +2,22 @@
 
 declare(strict_types=1);
 
+/**
+ * @file
+ * Deriver for field formatter plugins from custom formatter config entities.
+ */
+
 namespace Drupal\custom_formatters\Plugin\Derivative;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Plugin\Discovery\ContainerDeriverInterface;
+use Drupal\custom_formatters\FormatterDependencyBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Retrieves field formatter plugin definitions for all custom formatters.
  */
-class CustomFormatters extends DeriverBase {
+class CustomFormatters extends DeriverBase implements ContainerDeriverInterface {
 
   /**
    * Formatter settings.
@@ -20,25 +27,33 @@ class CustomFormatters extends DeriverBase {
   protected $settings = [];
 
   /**
-   * The entity type manager service.
+   * The formatter dependency builder service.
    */
-  protected EntityTypeManagerInterface $entityTypeManager;
+  protected FormatterDependencyBuilder $dependencyBuilder;
 
   /**
    * CustomFormatters constructor.
+   *
+   * @param \Drupal\custom_formatters\FormatterDependencyBuilder $dependency_builder
+   *   The formatter dependency builder service.
    */
-  public function __construct() {
-    $this->settings = \Drupal::config('custom_formatters.settings')->getRawData();
-    $this->entityTypeManager = \Drupal::entityTypeManager();
+  public function __construct(FormatterDependencyBuilder $dependency_builder) {
+    $this->dependencyBuilder = $dependency_builder;
+    $this->settings = $this->dependencyBuilder->getSettings();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, $base_plugin_id): static {
+    return new static($container->get('custom_formatters.dependency_builder'));
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
-    $formatters = $this->entityTypeManager
-      ->getStorage('formatter')
-      ->loadMultiple();
+    $formatters = $this->dependencyBuilder->getEntityStorage()->loadMultiple();
     /** @var \Drupal\custom_formatters\FormatterInterface $formatter */
     foreach ($formatters as $formatter) {
       if ($formatter->get('status')) {
