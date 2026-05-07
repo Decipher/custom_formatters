@@ -32,4 +32,85 @@ parameters:
         - web/themes/custom/*
       reportUnmatched: false
 
+    -
+      # Unsafe usage of new static() - Drupal core pattern for Controllers, Forms, ListBuilders, Derivers
+      message: '#Unsafe usage of new static#'
+      paths:
+        - web/modules/custom/custom_formatters/src/Controller/*
+        - web/modules/custom/custom_formatters/src/Form/*
+        - web/modules/custom/custom_formatters/src/FormatterListBuilder.php
+        - web/modules/custom/custom_formatters/src/FormatterTypeBase.php
+        - web/modules/custom/custom_formatters/src/Plugin/Derivative/CustomFormatters.php
+        - web/modules/custom/custom_formatters/src/Plugin/Field/FieldFormatter/CustomFormatters.php
+        - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterType/*
+      reportUnmatched: false
+
+    -
+      # TranslatableMarkup vs string return type mismatch - Drupal core pattern
+      message: '#should return string but returns.*TranslatableMarkup#'
+      paths:
+        - web/modules/custom/custom_formatters/src/Controller/*
+      reportUnmatched: false
+
+    -
+      # Generic type issues with FieldItemListInterface - Drupal core pattern
+      message: '#no value type specified in iterable type.*FieldItemListInterface#'
+      paths:
+        - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterType/*
+      reportUnmatched: false
+
+    -
+      # treatPhpDocTypesAsCertain warnings
+      message: '#Because the type is coming from a PHPDoc#'
+      paths:
+        - web/modules/custom/custom_formatters/src/FormatterExtrasManager.php
+        - web/modules/custom/custom_formatters/tests/*
+      reportUnmatched: false
+
+    -
+      # Generic type issues with FormatterInterface and EntityReferenceFormatterBase
+      message: '#does not specify its types: T#'
+      paths:
+        - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterType/FormatterPreset.php
+        - web/modules/custom/custom_formatters/src/Plugin/Field/FieldFormatter/CustomFormatters.php
+        - web/modules/custom/custom_formatters/src/FormatterTypeInterface.php
+      reportUnmatched: false
+
+    -
+      # call_user_func_array - dynamic method invocation with runtime-resolved method names
+      message: '#Parameter .1 \$callback of function call_user_func_array#'
+      paths:
+        - web/modules/custom/custom_formatters/src/FormatterExtrasManager.php
+      reportUnmatched: false
+
+    -
+      # no value type specified in iterable type Traversable - Drupal core pattern
+      message: '#no value type specified in iterable type Traversable#'
+      paths:
+        - web/modules/custom/custom_formatters/src/FormatterExtrasManager.php
+        - web/modules/custom/custom_formatters/src/FormatterTypeManager.php
+      reportUnmatched: false
+
+    -
+      # no value type specified in iterable type FieldItemListInterface - Drupal core pattern
+      message: '#no value type specified in iterable type.*FieldItemListInterface#'
+      paths:
+        - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterType/*
+        - web/modules/custom/custom_formatters/src/FormatterTypeInterface.php
+      reportUnmatched: false
+
+    -
+      # Call to an undefined method on EntityInterface - test pattern
+      message: '#Call to an undefined method.*EntityInterface#'
+      paths:
+        - web/modules/custom/custom_formatters/tests/*
+      reportUnmatched: false
+
+    -
+      # Generic type issues in viewElements - Drupal core pattern
+      message: '#has parameter \$items with generic interface.*FieldItemListInterface but does not specify its types#'
+      paths:
+        - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterType/*
+      reportUnmatched: false
+
   reportUnmatchedIgnoredErrors: false

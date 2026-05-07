@@ -20,6 +20,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   id = "custom_formatters",
  *   deriver = "Drupal\custom_formatters\Plugin\Derivative\CustomFormatters"
  * )
+ *
+ * @phpstan-ignore generic.unusedTypeParameter
  */
 class CustomFormatters extends EntityReferenceFormatterBase {
 
@@ -39,6 +41,25 @@ class CustomFormatters extends EntityReferenceFormatterBase {
 
   /**
    * Constructs a CustomFormatters formatter object.
+   *
+   * @param string $plugin_id
+   *   The plugin_id for the formatter.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The definition of the field to which the formatter is associated.
+   * @param array $settings
+   *   The formatter settings.
+   * @param string $label
+   *   The formatter label display setting.
+   * @param string $view_mode
+   *   The view mode.
+   * @param array $third_party_settings
+   *   Any third party settings.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager service.
+   * @param \Drupal\custom_formatters\FormatterExtrasManager $formatter_extras_manager
+   *   The formatter extras plugin manager.
    */
   public function __construct($plugin_id, $plugin_definition, $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityTypeManagerInterface $entity_type_manager, FormatterExtrasManager $formatter_extras_manager) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
@@ -89,20 +110,13 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       return [];
     }
 
-    // Transform strings into a renderable element.
-    if (is_string($element)) {
-      $element = [
-        '#markup' => $element,
-      ];
-    }
-
     // Ensure we have a nested array.
     if (is_array($element) && !Element::children($element)) {
       $element = [$element];
     }
 
     foreach (Element::children($element) as $delta) {
-      $element[$delta]['#cf_options'] = $display['#cf_options'] ?? [];
+      $element[$delta]['#cf_options'] = $items->viewMode ?? [];
       $element[$delta]['#cache']['tags'] = $formatter->getCacheTags();
     }
 

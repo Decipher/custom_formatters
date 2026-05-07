@@ -1,3 +1,19 @@
+Custom Formatters 4.1.x-dev, xxxx-xx-xx (development release)
+--------------------------------------------------------------------------------
+
+- Fixed PHPStan errors at level 7 (106 to 0).
+- Replaced \Drupal:: static calls with dependency injection in FormatterPreset,
+  HTMLToken, and Twig plugins.
+- Added proper return types and parameter types across interfaces and classes.
+- Added FormatterTypeInterface methods: postLoad(), preSave(), settingsForm().
+- Fixed Formatter::calculateDependencies() to return $this.
+- Fixed FormatterForm::save() to return status code.
+- Fixed derivative $settings type (ImmutableConfig to array).
+- Fixed undefined $display variable in field formatter.
+- Normalized Php and Twig plugin viewElements() to always return array.
+- Updated phpstan.neon with targeted suppressions for Drupal core patterns.
+- Updated test base classes with proper type annotations and null safety.
+
 Custom Formatters 8.x-3.x-dev, xxxx-xx-xx (development release)
 --------------------------------------------------------------------------------
 

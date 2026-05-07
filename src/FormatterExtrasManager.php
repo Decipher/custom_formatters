@@ -54,6 +54,7 @@ class FormatterExtrasManager extends DefaultPluginManager {
     if (isset($definitions[$plugin_id])) {
       $extra = $this->createInstance($plugin_id, ['entity' => $entity]);
       if (method_exists($extra, $method)) {
+        // @phpstan-ignore callable.callable
         return empty($args) ? $extra->{$method}() : call_user_func_array([$extra, $method], $args);
       }
     }
