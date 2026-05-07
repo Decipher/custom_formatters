@@ -45,8 +45,8 @@ use Drupal\custom_formatters\FormatterInterface;
  *     "data",
  *   },
  *   links = {
- *     "delete-form" = "/admin/structure/formatters/manage/{custom_formatter}/delete",
- *     "edit-form" = "/admin/structure/formatters/manage/{custom_formatter}",
+ *     "delete-form" = "/admin/structure/formatters/manage/{formatter}/delete",
+ *     "edit-form" = "/admin/structure/formatters/manage/{formatter}",
  *     "collection" = "/admin/structure/formatters",
  *   }
  * )
