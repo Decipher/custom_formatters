@@ -44,7 +44,7 @@ commands:
       ahoy title "Running PHPCS"
       vendor/bin/phpcs
       ahoy title "Running PHPStan"
-      vendor/bin/phpstan
+      vendor/bin/phpstan --memory-limit=512M
       ahoy title "Running Rector"
       vendor/bin/rector --clear-cache --dry-run
       ahoy title "Running Twig CS Fixer"
@@ -70,7 +70,7 @@ commands:
     cmd: |
       pushd "build" >/dev/null || exit 1
       ahoy title "Running PHPUnit"
-      php -d pcov.directory=.. vendor/bin/phpunit "$@"
+      php -d pcov.directory=/ vendor/bin/phpunit "$@"
       [ ! -d node_modules ] || (ahoy title "Running Jest" && npm test)
       popd >/dev/null || exit 1
 
@@ -78,21 +78,21 @@ commands:
     usage: Run unit tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
-      php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit "$@"
+      php -d pcov.directory=/ vendor/bin/phpunit --testsuite unit "$@"
       popd >/dev/null || exit 1
 
   test-kernel:
     usage: Run kernel tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
-      php -d pcov.directory=.. vendor/bin/phpunit --testsuite kernel "$@"
+      php -d pcov.directory=/ vendor/bin/phpunit --testsuite kernel "$@"
       popd >/dev/null || exit 1
 
   test-functional:
     usage: Run functional tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
-      php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional "$@"
+      php -d pcov.directory=/ vendor/bin/phpunit --testsuite functional "$@"
       popd >/dev/null || exit 1
 
   test-functional-javascript:
@@ -100,7 +100,7 @@ commands:
     cmd: |
       ahoy selenium-start
       pushd "build" >/dev/null || exit 1
-      php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
+      php -d pcov.directory=/ vendor/bin/phpunit --testsuite functional-javascript "$@"
       popd >/dev/null || exit 1
 
   test-js:

@@ -60,7 +60,7 @@ lint:
 	$(call title,Running PHPCS)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/phpcs && popd >/dev/null || exit 1
 	$(call title,Running PHPStan)
-	pushd "build" >/dev/null || exit 1 && vendor/bin/phpstan && popd >/dev/null || exit 1
+	pushd "build" >/dev/null || exit 1 && vendor/bin/phpstan --memory-limit=512M && popd >/dev/null || exit 1
 	$(call title,Running Rector)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/rector --clear-cache --dry-run && popd >/dev/null || exit 1
 	$(call title,Running Twig CS Fixer)
@@ -80,28 +80,28 @@ lint-fix:
 
 test:
 	$(call title,Running PHPUnit)
-	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit && popd >/dev/null || exit 1
+	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=/ vendor/bin/phpunit && popd >/dev/null || exit 1
 	$(call title,Running Jest)
 	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm test) && popd >/dev/null || exit 1
 
 test-unit:
 	pushd "build" >/dev/null || exit 1 && \
-	php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit && \
+	php -d pcov.directory=/ vendor/bin/phpunit --testsuite unit && \
 	popd >/dev/null || exit 1
 
 test-kernel:
 	pushd "build" >/dev/null || exit 1 && \
-	php -d pcov.directory=.. vendor/bin/phpunit --testsuite kernel && \
+	php -d pcov.directory=/ vendor/bin/phpunit --testsuite kernel && \
 	popd >/dev/null || exit 1
 
 test-functional:
 	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional && \
+	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=/ vendor/bin/phpunit --testsuite functional && \
 	popd >/dev/null || exit 1
 
 test-functional-javascript: selenium-start
 	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
+	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=/ vendor/bin/phpunit --testsuite functional-javascript && \
 	popd >/dev/null || exit 1
 
 selenium-start:
