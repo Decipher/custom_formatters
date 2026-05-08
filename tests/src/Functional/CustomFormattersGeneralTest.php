@@ -150,7 +150,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
    * @covers \Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType\Twig::viewElements
    */
   public function testTwigFormatterEntityContext() {
-    $twig_template = '{{ entity.label }}';
+    $twig_template = 'CF-ENTITY-CTX:{{ entity.label }}';
     $this->formatter = $this->createCustomFormatter([
       'type' => 'twig',
       'data' => $twig_template,
@@ -159,7 +159,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     $this->setCustomFormatter((string) $this->formatter->id(), 'body', 'article');
 
     $this->drupalGet($this->node->toUrl());
-    $this->assertSession()->pageTextContains((string) $this->node->label());
+    $this->assertSession()->pageTextContains('CF-ENTITY-CTX:' . (string) $this->node->label());
   }
 
   /**
