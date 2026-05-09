@@ -208,6 +208,83 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     $this->assertSession()->statusCodeEquals(200);
     $this->assertSession()->fieldExists('label');
     $this->assertSession()->fieldExists('type');
+    $this->assertSession()->buttonExists('Save & Edit');
+    $this->assertSession()->buttonExists('Save');
+  }
+
+  /**
+   * Test that formatter add page shows Save & Edit button after type selection.
+   */
+  public function testFormatterAddPageHasSaveAndEditButton() {
+    $this->drupalGet('admin/structure/formatters/add/html_token');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->buttonExists('Save & Edit');
+    $this->assertSession()->buttonExists('Save');
+  }
+
+  /**
+   * Test Save & Edit redirects to edit form for existing formatter.
+   */
+  public function testSaveAndEditExistingFormatterRedirectsToEdit() {
+    $formatter = $this->createCustomFormatter([
+      'type' => 'html_token',
+      'label' => 'Save And Edit Test',
+    ]);
+
+    $this->drupalGet('admin/structure/formatters/manage/' . $formatter->id());
+    $this->assertSession()->statusCodeEquals(200);
+
+    $edit = [
+      'label' => 'Save And Edit Test Updated',
+    ];
+    $this->submitForm($edit, 'Save & Edit');
+
+    $this->assertSession()->addressEquals('admin/structure/formatters/manage/' . $formatter->id());
+    $this->assertSession()->fieldValueEquals('label', 'Save And Edit Test Updated');
+  }
+
+  /**
+   * Test Save & Edit creates new formatter and redirects to its edit form.
+   */
+  public function testSaveAndEditNewFormatterRedirectsToEdit() {
+    $this->drupalGet('admin/structure/formatters/add/html_token');
+    $this->assertSession()->statusCodeEquals(200);
+
+    $formatter_id = mb_strtolower($this->randomMachineName());
+    $edit = [
+      'label' => 'New Formatter From Save And Edit',
+      'id' => $formatter_id,
+      'field_types' => 'text',
+      'data' => '[node:title]',
+    ];
+    $this->submitForm($edit, 'Save & Edit');
+
+    $this->assertSession()->addressEquals('admin/structure/formatters/manage/' . $formatter_id);
+    $this->assertSession()->pageTextContains('Added formatter New Formatter From Save And Edit.');
+  }
+
+  /**
+   * Test default Save button redirects to collection page.
+   */
+  public function testDefaultSaveRedirectsToCollection() {
+    $formatter = $this->createCustomFormatter([
+      'type' => 'html_token',
+      'label' => 'Collection Redirect Test',
+    ]);
+
+    $this->drupalGet('admin/structure/formatters/manage/' . $formatter->id());
+    $this->assertSession()->statusCodeEquals(200);
+
+    $edit = [
+      'label' => 'Collection Redirect Test Updated',
+    ];
+    $this->submitForm($edit, 'Save');
+
+    $current_url = $this->getUrl();
+    $this->assertTrue(
+      strpos($current_url, 'admin/structure/formatters') !== FALSE,
+      'Redirected to collection page, current URL: ' . $current_url
+    );
   }
 
   /**

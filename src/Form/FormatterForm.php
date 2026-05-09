@@ -242,6 +242,28 @@ class FormatterForm extends EntityForm {
   /**
    * {@inheritdoc}
    */
+  protected function actions(array $form, FormStateInterface $form_state) {
+    $actions = parent::actions($form, $form_state);
+    $actions['save_and_edit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Save & Edit'),
+      '#submit' => ['::saveAndEdit'],
+      '#weight' => 10,
+    ];
+    return $actions;
+  }
+
+  /**
+   * Submit handler for "Save & Edit" button.
+   */
+  public function saveAndEdit(array $form, FormStateInterface $form_state) {
+    $this->save($form, $form_state);
+    $form_state->setRedirectUrl($this->entity->toUrl('edit-form'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function save(array $form, FormStateInterface $form_state) {
     $formatter_type = $this->entity->getFormatterType();
     if ($formatter_type !== FALSE) {
