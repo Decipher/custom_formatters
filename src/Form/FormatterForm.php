@@ -247,7 +247,7 @@ class FormatterForm extends EntityForm {
     $actions['save_and_edit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save & Edit'),
-      '#submit' => ['::saveAndEdit'],
+      '#submit' => ['::submitForm', '::saveAndEdit'],
       '#weight' => 10,
     ];
     return $actions;
@@ -258,6 +258,7 @@ class FormatterForm extends EntityForm {
    */
   public function saveAndEdit(array $form, FormStateInterface $form_state) {
     $this->save($form, $form_state);
+    $form_state->setIgnoreDestination(TRUE);
     $form_state->setRedirectUrl($this->entity->toUrl('edit-form'));
   }
 

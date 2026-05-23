@@ -229,6 +229,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     $formatter = $this->createCustomFormatter([
       'type' => 'html_token',
       'label' => 'Save And Edit Test',
+      'data' => '[node:title]',
     ]);
 
     $this->drupalGet('admin/structure/formatters/manage/' . $formatter->id());
@@ -241,6 +242,10 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
     $this->assertSession()->addressEquals('admin/structure/formatters/manage/' . $formatter->id());
     $this->assertSession()->fieldValueEquals('label', 'Save And Edit Test Updated');
+
+    $reloaded = \Drupal::entityTypeManager()->getStorage('formatter')->load($formatter->id());
+    $this->assertEquals('Save And Edit Test Updated', $reloaded->label(),
+      'Updated label must be persisted in storage after Save & Edit.');
   }
 
   /**
@@ -270,6 +275,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     $formatter = $this->createCustomFormatter([
       'type' => 'html_token',
       'label' => 'Collection Redirect Test',
+      'data' => '[node:title]',
     ]);
 
     $this->drupalGet('admin/structure/formatters/manage/' . $formatter->id());
@@ -280,11 +286,11 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
     ];
     $this->submitForm($edit, 'Save');
 
-    $current_url = $this->getUrl();
-    $this->assertTrue(
-      strpos($current_url, 'admin/structure/formatters') !== FALSE,
-      'Redirected to collection page, current URL: ' . $current_url
-    );
+    $edit_path = 'admin/structure/formatters/manage/' . $formatter->id();
+    $this->assertStringNotContainsString($edit_path, $this->getUrl(),
+      'Default Save should redirect away from the edit form.');
+    $this->assertStringContainsString('admin/structure/formatters', $this->getUrl(),
+      'Default Save should redirect within the formatters admin section.');
   }
 
   /**
