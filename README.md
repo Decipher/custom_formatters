@@ -87,7 +87,7 @@ TODOs / Roadmap
 * Add custom support for admin theme / Formatter add page.
 * Add ability to change field types that aren't in use.
 * Set usages of formatters to default formatter on deletion.
-* Re-add save & edit?
+* ~~Re-add save & edit?~~ (Added in 4.1.x)
 * Re-add preview.
   - Replace EditArea with a modern code editor (CodeMirror, Monaco Editor).
 * Re-add export?
