@@ -10,7 +10,10 @@ declare(strict_types=1);
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterExtras;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\custom_formatters\FormatterExtrasBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 define('CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_DISABLED', 0);
 define('CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED', 1);
@@ -29,7 +32,34 @@ define('CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED', 1);
  *   }
  * )
  */
-class Contextual extends FormatterExtrasBase {
+class Contextual extends FormatterExtrasBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, RequestStack $request_stack) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->requestStack = $request_stack;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('request_stack'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -61,7 +91,8 @@ class Contextual extends FormatterExtrasBase {
    * {@inheritdoc}
    */
   public function formatterViewElementsAlter(array &$element) {
-    if ($this->entity->getThirdPartySetting('contextual', 'mode', CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED) == CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED) {
+    $request_format = $this->requestStack->getCurrentRequest()?->getRequestFormat() ?? 'html';
+    if ($request_format === 'html' && $this->entity->getThirdPartySetting('contextual', 'mode', CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED) == CUSTOM_FORMATTERS_EXTRAS_CONTEXTUAL_ENABLED) {
       // Wrap the first element in a container so contextual links can be added
       // as a sibling without overwriting the formatter's render output.
       $element[0] = ['markup' => $element[0]];
