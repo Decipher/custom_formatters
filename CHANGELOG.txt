@@ -1,18 +1,40 @@
 Custom Formatters 4.1.x-dev, xxxx-xx-xx (development release)
 --------------------------------------------------------------------------------
 
-- Fixed PHPStan errors at level 7 (106 to 0).
-- Replaced \Drupal:: static calls with dependency injection in FormatterPreset,
-  HTMLToken, and Twig plugins.
-- Added proper return types and parameter types across interfaces and classes.
-- Added FormatterTypeInterface methods: postLoad(), preSave(), settingsForm().
-- Fixed Formatter::calculateDependencies() to return $this.
-- Fixed FormatterForm::save() to return status code.
-- Fixed derivative $settings type (ImmutableConfig to array).
-- Fixed undefined $display variable in field formatter.
-- Normalized Php and Twig plugin viewElements() to always return array.
-- Updated phpstan.neon with targeted suppressions for Drupal core patterns.
-- Updated test base classes with proper type annotations and null safety.
+Custom Formatters 4.1.0-beta2, 2026-05-24
+--------------------------------------------------------------------------------
+
+- #3404747: Fixed module not working on Drupal 10 with PHP 8.2 (critical).
+- #3188668: Fixed formatter entity failing to load properties from storage.
+- #3572914: Fixed broken config export — formatter properties missing on
+  import.
+- #3572918: Added hardening against corrupted formatter config.
+- #3478998: Fixed call to render() on string instead of render array.
+- #3387578: Fixed MissingMandatoryParametersException with Devel module.
+- #3025496: Fixed contextual link placeholders leaking into CSV/JSON exports.
+- #2885050: Added {{ entity }} variable to Twig formatter context.
+- #3335203: Added missing hook_help() implementation.
+- Added "Save & Edit" button to formatter edit form.
+- Added rewrite of PHP example for D8+ and new Twig example formatter.
+- #3429720 / #3527609: Drupal 11 compatibility.
+- #3335202: Raised minimum core_version_requirement to ^8.8.
+- Resolved all PHPStan level 7 errors across the module.
+- Replaced static \Drupal calls with dependency injection.
+- Added strict_types declarations to all source files.
+- Improved test coverage: 30 tests, 272 assertions (D10).
+- Updated CI to test PHP 8.2-8.4 across Drupal 10-11.
+
+Custom Formatters 4.1.0-beta1, 2025-04-30
+--------------------------------------------------------------------------------
+
+- Initial 4.1.x beta release.
+- Added HTML+Token engine with Token support.
+- Added Formatter Preset engine.
+- Added Formatter Extras plugin system (Contextual links integration).
+- Added Twig and PHP formatter engines.
+- Added configuration schema for formatter entities.
+- Added deriver-based field formatter plugin.
+- Compatible with Drupal 8, 9, 10, and 11.
 
 Custom Formatters 8.x-3.x-dev, xxxx-xx-xx (development release)
 --------------------------------------------------------------------------------
