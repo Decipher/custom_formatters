@@ -9,9 +9,11 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\custom_formatters\FormatterTypeBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the PHP Formatter type.
@@ -29,6 +31,26 @@ use Drupal\custom_formatters\FormatterTypeBase;
  * )
  */
 class Php extends FormatterTypeBase {
+
+  /**
+   * The module handler service.
+   */
+  protected ModuleHandlerInterface $moduleHandler;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->moduleHandler = $module_handler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'));
+  }
 
   /**
    * {@inheritdoc}
@@ -54,20 +76,37 @@ class Php extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
+  public function previewSettingsForm(): array {
+    $devel_exists = $this->moduleHandler->moduleExists('devel');
+    $form = [];
+
+    $form['debug_variables'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Output <strong>$items</strong> variable'),
+      '#default_value' => FALSE,
+      '#disabled'      => !$devel_exists,
+      '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
+    ];
+
+    $form['debug_html'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Output raw HTML'),
+      '#default_value' => FALSE,
+      '#disabled'      => !$devel_exists,
+      '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
+    ];
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     ob_start();
     $output = eval($this->entity->get('data')); // phpcs:ignore Drupal.Functions.DiscouragedFunctions.Discouraged
     $output = !empty($output) ? $output : ob_get_contents();
     ob_end_clean();
-
-    // Preview debugging; Show the available variables data.
-    // @todo Re-add when preview functionality re-added.
-    // phpcs:disable Drupal.Files.LineLength.TooLong
-    // phpcs:disable Drupal.Commenting.InlineComment.NotCapital
-    // if (\Drupal::moduleHandler()->moduleExists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['vars']) {
-    // dpm($variables);
-    // }
-    // phpcs:enable
 
     return empty($output) ? [] : (is_array($output) ? $output : ['#markup' => $output]);
   }

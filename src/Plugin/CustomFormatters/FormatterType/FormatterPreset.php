@@ -39,6 +39,13 @@ class FormatterPreset extends FormatterTypeBase {
   protected $formatterManager = NULL;
 
   /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected ModuleHandlerInterface $moduleHandler;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, FormatterPluginManager $formatter_manager) {
@@ -51,6 +58,23 @@ class FormatterPreset extends FormatterTypeBase {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'), $container->get('plugin.manager.field.formatter'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function previewSettingsForm(): array {
+    $devel_exists = $this->moduleHandler->moduleExists('devel');
+
+    return [
+      'debug_html' => [
+        '#type'          => 'checkbox',
+        '#title'         => $this->t('Output raw HTML'),
+        '#default_value' => FALSE,
+        '#disabled'      => !$devel_exists,
+        '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
+      ],
+    ];
   }
 
   /**

@@ -113,6 +113,23 @@ class HTMLToken extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
+  public function previewSettingsForm(): array {
+    $devel_exists = $this->moduleHandler->moduleExists('devel');
+
+    return [
+      'debug_html' => [
+        '#type'          => 'checkbox',
+        '#title'         => $this->t('Output raw HTML'),
+        '#default_value' => FALSE,
+        '#disabled'      => !$devel_exists,
+        '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
+      ],
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $element = [];
 

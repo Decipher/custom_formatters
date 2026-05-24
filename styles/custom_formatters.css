@@ -4,3 +4,34 @@
   white-space: pre-line;
   word-wrap: break-word;
 }
+
+.preview-selects-row {
+  display: flex;
+  gap: 1em;
+}
+
+.preview-selects-row .form-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-settings-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-top: 0.5em;
+}
+
+.formatter-preview-output {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 1em;
+  padding: 1em;
+}
+
+.formatter-preview-output img {
+  height: auto;
+  max-width: 100%;
+}
