@@ -397,7 +397,7 @@ class FormatterForm extends EntityForm {
     // the core pattern of conditional form element inclusion (e.g.,
     // NodeTypeForm hides language settings when Language module is disabled).
     if ($this->moduleHandler->moduleExists('devel')) {
-      $debug_form = $formatter_type ? $formatter_type->previewSettingsForm() : [];
+      $debug_form = $formatter_type && method_exists($formatter_type, 'previewSettingsForm') ? $formatter_type->previewSettingsForm() : [];
       if (!empty($debug_form)) {
         $fieldset['debug'] = [
           '#type'  => 'details',

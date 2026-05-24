@@ -73,15 +73,4 @@ interface FormatterTypeInterface extends PluginInspectionInterface {
    */
   public function preSave(): void;
 
-  /**
-   * Returns engine-specific preview settings form elements.
-   *
-   * Allows each engine type to contribute debug options to the preview
-   * section, such as variable dumps or raw HTML output.
-   *
-   * @return array
-   *   A form array of preview settings elements.
-   */
-  public function previewSettingsForm(): array;
-
 }
