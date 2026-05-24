@@ -693,22 +693,14 @@ class FormatterForm extends EntityForm {
     ];
 
     // Devel must be installed for debug checkboxes to appear. When enabled,
-    // its dumper service produces styled output matching dpm()/kpr(). For
-    // engines with multiple template variables (Twig, HTML+Token), the
-    // output dumps all available variables bundled together.
+    // its dumper service produces styled output matching dpm()/kpr(). Each
+    // engine provides its own debug data via previewDebugData() on
+    // FormatterTypeBase, defaulting to $items->getValue().
     if (!empty($settings['debug_variables'])) {
       $debug_data = $items->getValue();
 
-      if ($formatter_type->getPluginId() === 'twig') {
-        $debug_data = [
-          'items' => $items,
-          'langcode' => $items->getLangcode(),
-          'entity' => $entity,
-        ];
-      }
-
-      if ($formatter_type->getPluginId() === 'html_token') {
-        $debug_data = $entity;
+      if (method_exists($formatter_type, 'previewDebugData')) {
+        $debug_data = $formatter_type->previewDebugData($items, $entity);
       }
 
       $output['debug_variables'] = [

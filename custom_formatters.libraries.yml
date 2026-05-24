@@ -3,3 +3,5 @@ formatter_form:
   css:
     component:
       styles/custom_formatters.css: {}
+  dependencies:
+    - core/claro

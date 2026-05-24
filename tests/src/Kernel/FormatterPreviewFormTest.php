@@ -11,12 +11,17 @@ namespace Drupal\Tests\custom_formatters\Kernel;
 
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Form\FormState;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\custom_formatters\Form\FormatterForm;
 use Drupal\custom_formatters\FormatterInterface;
 use Drupal\custom_formatters\FormatterTypeInterface;
+use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\node\NodeInterface;
 use Drupal\node\NodeTypeInterface;
+use Drupal\Tests\user\Traits\UserCreationTrait;
 
 /**
  * Tests the preview section on the formatter entity form.
@@ -35,6 +40,8 @@ use Drupal\node\NodeTypeInterface;
  * @group custom_formatters
  */
 class FormatterPreviewFormTest extends KernelTestBase {
+
+  use UserCreationTrait;
 
   /**
    * {@inheritdoc}
@@ -56,6 +63,8 @@ class FormatterPreviewFormTest extends KernelTestBase {
     $this->installConfig(['custom_formatters', 'node']);
     $this->installEntitySchema('node');
     $this->installEntitySchema('user');
+    $this->installSchema('node', 'node_access');
+    node_access_rebuild();
 
     // Create an article content type so the preview selects have entity
     // types, bundles, and fields to work with.
@@ -81,6 +90,17 @@ class FormatterPreviewFormTest extends KernelTestBase {
     }
 
     $node_type->save();
+
+    // Ensure the body field config exists on the article bundle.
+    // node_node_type_insert() may skip creating it in kernel test env.
+    if (!FieldConfig::loadByName('node', 'article', 'body')) {
+      FieldConfig::create([
+        'field_name' => 'body',
+        'entity_type' => 'node',
+        'bundle' => 'article',
+        'label' => 'Body',
+      ])->save();
+    }
   }
 
   /**
@@ -321,6 +341,244 @@ class FormatterPreviewFormTest extends KernelTestBase {
   }
 
   /**
+   * Tests getPreviewDefaults returns expected default values.
+   */
+  public function testGetPreviewDefaults(): void {
+    $formatter = $this->createFormatter('test_defaults');
+    // Set field_types to include text_with_summary so body field matches.
+    $formatter->set('field_types', ['text', 'text_with_summary']);
+    $form_object = $this->getFormObject($formatter);
+
+    $ref = new \ReflectionClass($form_object);
+    $method = $ref->getMethod('getPreviewDefaults');
+    $method->setAccessible(TRUE);
+
+    $defaults = $method->invoke($form_object, new FormState());
+
+    $this->assertEquals('node', $defaults['entity_type']);
+    $this->assertEquals('article', $defaults['bundle']);
+    $this->assertEquals('body', $defaults['field']);
+  }
+
+  /**
+   * Tests getPreviewEntityTypes returns node.
+   */
+  public function testGetPreviewEntityTypes(): void {
+    $formatter = $this->createFormatter('test_entity_types');
+    $form_object = $this->getFormObject($formatter);
+
+    $ref = new \ReflectionClass($form_object);
+    $method = $ref->getMethod('getPreviewEntityTypes');
+    $method->setAccessible(TRUE);
+
+    $types = $method->invoke($form_object);
+    $this->assertArrayHasKey('node', $types);
+  }
+
+  /**
+   * Tests getPreviewBundles returns article for node.
+   */
+  public function testGetPreviewBundles(): void {
+    $formatter = $this->createFormatter('test_bundles');
+    $form_object = $this->getFormObject($formatter);
+
+    $ref = new \ReflectionClass($form_object);
+    $method = $ref->getMethod('getPreviewBundles');
+    $method->setAccessible(TRUE);
+
+    $bundles = $method->invoke($form_object, 'node');
+    $this->assertArrayHasKey('article', $bundles);
+  }
+
+  /**
+   * Tests getPreviewFields returns body for article with text types.
+   */
+  public function testGetPreviewFields(): void {
+    $formatter = $this->createFormatter('test_fields');
+    $form_object = $this->getFormObject($formatter);
+
+    $ref = new \ReflectionClass($form_object);
+    $method = $ref->getMethod('getPreviewFields');
+    $method->setAccessible(TRUE);
+
+    $fields = $method->invoke($form_object, 'node', 'article', ['text', 'text_with_summary']);
+    $this->assertArrayHasKey('body', $fields);
+  }
+
+  /**
+   * Tests buildPreviewOutput with toggle=true hits field theming path.
+   */
+  public function testBuildPreviewOutputWithToggle(): void {
+    $formatter = $this->createFormatter('test_toggle_debug');
+    $formatter->save();
+    $form_object = $this->getFormObject($formatter);
+
+    $output = $this->invokeBuildPreviewOutput($form_object, 'html_token', [], TRUE);
+
+    $this->assertArrayHasKey('preview', $output);
+    $this->assertArrayHasKey('content', $output['preview']);
+    $this->assertNotEmpty($output['preview']['content']['#markup']);
+  }
+
+  /**
+   * Tests Php::previewDebugData() returns $items->getValue().
+   */
+  public function testPhpPreviewDebugData(): void {
+    $formatter = $this->container->get('entity_type.manager')
+      ->getStorage('formatter')
+      ->create([
+        'id' => 'test_php_debug',
+        'label' => 'Test PHP Debug',
+        'type' => 'php',
+        'field_types' => ['text'],
+        'data' => 'return "test";',
+      ]);
+    $formatter->save();
+    $plugin = $formatter->getFormatterType();
+
+    $items = $this->createMock(FieldItemListInterface::class);
+    $items->method('getValue')->willReturn([['value' => 'php test']]);
+
+    $entity = $this->createMock(FieldableEntityInterface::class);
+
+    $data = $plugin->previewDebugData($items, $entity);
+    $this->assertEquals([['value' => 'php test']], $data);
+  }
+
+  /**
+   * Tests Twig::previewDebugData() returns bundled data.
+   */
+  public function testTwigPreviewDebugData(): void {
+    $formatter = $this->container->get('entity_type.manager')
+      ->getStorage('formatter')
+      ->create([
+        'id' => 'test_twig_debug',
+        'label' => 'Test Twig Debug',
+        'type' => 'twig',
+        'field_types' => ['text'],
+        'data' => '{{ items }}',
+      ]);
+    $formatter->save();
+    $plugin = $formatter->getFormatterType();
+
+    $items = $this->createMock(FieldItemListInterface::class);
+    $items->method('getValue')->willReturn([['value' => 'twig test']]);
+    $items->method('getLangcode')->willReturn('en');
+
+    $entity = $this->createMock(FieldableEntityInterface::class);
+
+    $data = $plugin->previewDebugData($items, $entity);
+    $this->assertArrayHasKey('items', $data);
+    $this->assertArrayHasKey('langcode', $data);
+    $this->assertArrayHasKey('entity', $data);
+    $this->assertEquals('en', $data['langcode']);
+    $this->assertSame($entity, $data['entity']);
+  }
+
+  /**
+   * Tests HTMLToken::previewDebugData() returns $entity.
+   */
+  public function testHtmlTokenPreviewDebugData(): void {
+    $formatter = $this->container->get('entity_type.manager')
+      ->getStorage('formatter')
+      ->create([
+        'id' => 'test_html_token_debug',
+        'label' => 'Test HTMLToken Debug',
+        'type' => 'html_token',
+        'field_types' => ['text'],
+        'data' => '[node:title]',
+      ]);
+    $formatter->save();
+    $plugin = $formatter->getFormatterType();
+
+    $items = $this->createMock(FieldItemListInterface::class);
+    $entity = $this->createMock(FieldableEntityInterface::class);
+
+    $data = $plugin->previewDebugData($items, $entity);
+    $this->assertSame($entity, $data);
+  }
+
+  /**
+   * Tests getPreviewEntities returns nodes with body field data.
+   */
+  public function testGetPreviewEntities(): void {
+    $user = $this->createUser(['bypass node access']);
+    assert($user instanceof AccountInterface);
+    $this->container->get('current_user')->setAccount($user);
+
+    $node = $this->container->get('entity_type.manager')
+      ->getStorage('node')
+      ->create([
+        'type' => 'article',
+        'title' => 'Test preview entity',
+        'body' => 'Some body text',
+      ]);
+    assert($node instanceof NodeInterface);
+    $node->save();
+
+    $formatter = $this->createFormatter('test_get_entities');
+    $form_object = $this->getFormObject($formatter);
+
+    $ref = new \ReflectionClass($form_object);
+    $method = $ref->getMethod('getPreviewEntities');
+    $method->setAccessible(TRUE);
+
+    $entities = $method->invoke($form_object, 'node', 'article', 'body');
+    $this->assertNotEmpty($entities);
+    $this->assertArrayHasKey($node->id(), $entities);
+  }
+
+  /**
+   * Tests previewSelectsAjax returns the selects container.
+   */
+  public function testPreviewSelectsAjax(): void {
+    $formatter = $this->createFormatter('test_ajax_selects');
+    $form_object = $this->getFormObject($formatter);
+    $form = $this->container->get('form_builder')->getForm($form_object);
+
+    $form_state = new FormState();
+    $result = $form_object->previewSelectsAjax($form, $form_state);
+
+    $this->assertArrayHasKey('entity_type', $result);
+    $this->assertArrayHasKey('bundle', $result);
+    $this->assertArrayHasKey('field', $result);
+    $this->assertArrayHasKey('entity', $result);
+  }
+
+  /**
+   * Tests previewAjaxCallback returns the output container.
+   */
+  public function testPreviewAjaxCallback(): void {
+    $formatter = $this->createFormatter('test_ajax_output');
+    $form_object = $this->getFormObject($formatter);
+    $form = $this->container->get('form_builder')->getForm($form_object);
+
+    $form_state = new FormState();
+    $result = $form_object->previewAjaxCallback($form, $form_state);
+
+    $this->assertEquals('container', $result['#type']);
+  }
+
+  /**
+   * Tests previewSubmit with incomplete selections sets warning message.
+   */
+  public function testPreviewSubmitIncompleteSelections(): void {
+    $formatter = $this->createFormatter('test_incomplete_submit');
+    $form_object = $this->getFormObject($formatter);
+    $this->container->get('form_builder')->getForm($form_object);
+
+    $form_state = new FormState();
+    $form_state->setValue(['preview', 'selects', 'entity_type'], 'node');
+    $form_state->setValue(['preview', 'selects', 'bundle'], '');
+
+    $form_object->previewSubmit([], $form_state);
+
+    $output = $form_state->get('preview_output');
+    $this->assertNotNull($output);
+    $this->assertEquals('status_messages', $output['#theme']);
+  }
+
+  /**
    * Creates a formatter entity with basic properties.
    *
    * @param string $id
@@ -383,11 +641,13 @@ class FormatterPreviewFormTest extends KernelTestBase {
    *   The formatter type plugin ID (e.g. 'php', 'html_token').
    * @param array $settings
    *   The preview debug settings.
+   * @param bool $toggle
+   *   Whether to render with full field theming.
    *
    * @return array
    *   The preview output render array.
    */
-  private function invokeBuildPreviewOutput(FormatterForm $form_object, string $plugin_id, array $settings): array {
+  private function invokeBuildPreviewOutput(FormatterForm $form_object, string $plugin_id, array $settings, bool $toggle = FALSE): array {
     $items = $this->createMock(FieldItemListInterface::class);
     $items->method('getValue')->willReturn([['value' => 'test']]);
     $items->method('getLangcode')->willReturn('en');
@@ -410,7 +670,7 @@ class FormatterPreviewFormTest extends KernelTestBase {
       'body',
       $entity,
       $settings,
-      FALSE,
+      $toggle,
       $formatter_type
     );
   }

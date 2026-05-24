@@ -9,7 +9,9 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters;
 
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
@@ -156,6 +158,13 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
    */
   public function previewSettingsForm(): array {
     return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function previewDebugData(FieldItemListInterface $items, FieldableEntityInterface $entity): mixed {
+    return $items->getValue();
   }
 
 }

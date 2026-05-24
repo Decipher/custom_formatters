@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -97,6 +98,17 @@ class Twig extends FormatterTypeBase {
         '#disabled'      => !$devel_exists,
         '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
       ],
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function previewDebugData(FieldItemListInterface $items, FieldableEntityInterface $entity): mixed {
+    return [
+      'items' => $items,
+      'langcode' => $items->getLangcode(),
+      'entity' => $entity,
     ];
   }
 

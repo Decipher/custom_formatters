@@ -11,6 +11,7 @@ namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
@@ -132,6 +133,13 @@ class HTMLToken extends FormatterTypeBase {
         '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
       ],
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function previewDebugData(FieldItemListInterface $items, FieldableEntityInterface $entity): mixed {
+    return $entity;
   }
 
   /**
