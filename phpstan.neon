@@ -42,6 +42,7 @@ parameters:
         - web/modules/custom/custom_formatters/src/FormatterTypeBase.php
         - web/modules/custom/custom_formatters/src/Plugin/Derivative/CustomFormatters.php
         - web/modules/custom/custom_formatters/src/Plugin/Field/FieldFormatter/CustomFormatters.php
+        - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterExtras/Contextual.php
         - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterType/*
       reportUnmatched: false
 
