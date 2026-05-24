@@ -80,6 +80,13 @@ class FormatterForm extends EntityForm {
   protected $renderer;
 
   /**
+   * The Devel dumper service, or NULL if Devel is not installed.
+   *
+   * @var object|null
+   */
+  protected $develDumper = NULL;
+
+  /**
    * Constructs a FormatterForm object.
    *
    * @param \Drupal\custom_formatters\FormatterExtrasManager $formatter_extras_manager
@@ -94,27 +101,35 @@ class FormatterForm extends EntityForm {
    *   The entity type bundle info service.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
+   * @param object|null $devel_dumper
+   *   The Devel dumper service, or NULL if Devel is not installed.
    */
-  public function __construct(FormatterExtrasManager $formatter_extras_manager, FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager, EntityFieldManagerInterface $entity_field_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, RendererInterface $renderer) {
+  public function __construct(FormatterExtrasManager $formatter_extras_manager, FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager, EntityFieldManagerInterface $entity_field_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, RendererInterface $renderer, $devel_dumper = NULL) {
     $this->formatterExtrasManager = $formatter_extras_manager;
     $this->fieldTypeManager = $field_type_manager;
     $this->fieldFormatterManager = $field_formatter_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->renderer = $renderer;
+    $this->develDumper = $devel_dumper;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
+    // The Devel dumper service is optional. When the Devel module is not
+    // installed, the service won't exist and NULL is returned instead.
+    // This avoids hard-coding a dependency on an optional module.
+    $devel_dumper = $container->get('devel.dumper', ContainerInterface::NULL_ON_INVALID_REFERENCE);
     return new static(
       $container->get('plugin.manager.custom_formatters.formatter_extras'),
       $container->get('plugin.manager.field.formatter'),
       $container->get('plugin.manager.field.field_type'),
       $container->get('entity_field.manager'),
       $container->get('entity_type.bundle.info'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $devel_dumper
     );
   }
 
@@ -209,11 +224,9 @@ class FormatterForm extends EntityForm {
     $form['plugin']['#prefix'] = "<div id='plugin-wrapper'>";
     $form['plugin']['#suffix'] = "</div>";
 
-    // Extras vertical tabs group — always rendered so preview tab can join.
-    $form['vertical_tabs'] = [
-      '#type'    => 'vertical_tabs',
-      '#title'   => $this->t('Extras'),
-      '#parents' => ['extras'],
+    // Additional settings vertical tabs group.
+    $form['additional_settings'] = [
+      '#type' => 'vertical_tabs',
     ];
 
     // Preview section.
@@ -244,7 +257,7 @@ class FormatterForm extends EntityForm {
     $fieldset = [
       '#type'   => 'details',
       '#title'  => $this->t('Preview'),
-      '#group'  => 'extras',
+      '#group'  => 'additional_settings',
       '#weight' => -10,
       '#tree'   => TRUE,
     ];
@@ -282,86 +295,87 @@ class FormatterForm extends EntityForm {
       $entity_id = key($entity_options) ?: NULL;
     }
 
+    $preview_disabled = empty($entity_options);
+
+    // Build the selects container with a flexbox-friendly class. The CSS
+    // targets .preview-selects to arrange selects and the preview button
+    // horizontally, matching the Claro admin theme's exposed filter layout.
     $fieldset['selects'] = [
       '#type'       => 'container',
-      '#attributes' => ['class' => ['preview-selects-row']],
+      '#attributes' => ['class' => ['preview-selects']],
       '#prefix'     => '<div id="preview-selects-wrapper">',
       '#suffix'     => '</div>',
     ];
 
+    // Entity type, bundle, field, and entity selects form a cascading
+    // hierarchy. Each select triggers an AJAX rebuild of the entire selects
+    // container, ensuring downstream options are recalculated on every change.
     $fieldset['selects']['entity_type'] = [
-      '#type'          => 'select',
-      '#title'         => $this->t('Entity type'),
-      '#options'       => $entity_type_options,
-      '#default_value' => $entity_type_id,
-      '#empty_option'  => $this->t('- Select -'),
-      '#ajax'          => [
+      '#type'               => 'select',
+      '#title'              => $this->t('Entity type'),
+      '#options'            => $entity_type_options,
+      '#default_value'      => $entity_type_id,
+      '#empty_option'       => $this->t('- Select -'),
+      '#ajax'               => [
         'callback' => '::previewSelectsAjax',
         'wrapper'  => 'preview-selects-wrapper',
       ],
     ];
 
     $fieldset['selects']['bundle'] = [
-      '#type'          => 'select',
-      '#title'         => $this->t('Bundle'),
-      '#options'       => $bundle_options,
-      '#default_value' => $bundle,
-      '#empty_option'  => $this->t('- Select -'),
-      '#validated'     => TRUE,
-      '#ajax'          => [
+      '#type'               => 'select',
+      '#title'              => $this->t('Bundle'),
+      '#options'            => $bundle_options,
+      '#default_value'      => $bundle,
+      '#empty_option'       => $this->t('- Select -'),
+      '#validated'          => TRUE,
+      '#disabled'           => empty($bundle_options),
+      '#ajax'               => [
         'callback' => '::previewSelectsAjax',
         'wrapper'  => 'preview-selects-wrapper',
       ],
     ];
 
     $fieldset['selects']['field'] = [
-      '#type'          => 'select',
-      '#title'         => $this->t('Field'),
-      '#options'       => $field_options,
-      '#default_value' => $field_name,
-      '#empty_option'  => $this->t('- Select -'),
-      '#validated'     => TRUE,
-      '#ajax'          => [
+      '#type'               => 'select',
+      '#title'              => $this->t('Field'),
+      '#options'            => $field_options,
+      '#default_value'      => $field_name,
+      '#empty_option'       => empty($field_options) && !empty($bundle_options)
+        ? $this->t('No fields')
+        : $this->t('- Select -'),
+      '#validated'          => TRUE,
+      '#disabled'           => empty($field_options),
+      '#ajax'               => [
         'callback' => '::previewSelectsAjax',
         'wrapper'  => 'preview-selects-wrapper',
       ],
     ];
 
     $fieldset['selects']['entity'] = [
-      '#type'          => 'select',
-      '#title'         => $this->t('Entity'),
-      '#options'       => $entity_options,
-      '#default_value' => $entity_id,
-      '#empty_option'  => $this->t('- Select -'),
-      '#validated'     => TRUE,
+      '#type'               => 'select',
+      '#title'              => $this->t('Entity'),
+      '#options'            => $entity_options,
+      '#default_value'      => $entity_id,
+      '#empty_option'       => $preview_disabled && !empty($field_options)
+        ? $this->t('No data')
+        : $this->t('- Select -'),
+      '#validated'          => TRUE,
+      '#disabled'           => $preview_disabled,
     ];
 
-    $formatter_type = $this->entity->getFormatterType();
-
-    $fieldset['settings'] = [
-      '#type'       => 'container',
-      '#attributes' => ['class' => ['preview-settings-row']],
-    ];
-
-    if ($formatter_type) {
-      foreach ($formatter_type->previewSettingsForm() as $key => $element) {
-        $fieldset['settings'][$key] = $element;
-      }
-    }
-
-    $fieldset['settings']['toggle'] = [
-      '#type'          => 'checkbox',
-      '#title'         => $this->t('Show full field theming'),
-      '#default_value' => $form_state->getValue(['preview', 'settings', 'toggle']) ?? FALSE,
-    ];
-
-    $fieldset['button'] = [
+    // Place the Preview button inside the selects container so that CSS
+    // flexbox rules include it in the horizontal layout alongside the
+    // selects. The #type is 'submit' (not 'button') to ensure
+    // BrowserTestBase can target it reliably in functional tests.
+    $fieldset['selects']['button'] = [
       '#type'                    => 'submit',
       '#value'                   => $this->t('Preview'),
       '#submit'                  => ['::previewSubmit'],
       '#limit_validation_errors' => [
         ['preview', 'selects'],
-        ['preview', 'settings'],
+        ['preview', 'debug'],
+        ['preview', 'toggle'],
         ['type'],
         ['field_types'],
         ['data'],
@@ -372,6 +386,35 @@ class FormatterForm extends EntityForm {
         'wrapper'  => 'preview-output-wrapper',
       ],
       '#button_type'             => 'primary',
+      '#disabled'                => $preview_disabled,
+      '#prefix'                  => '<div class="preview-actions">',
+      '#suffix'                  => '</div>',
+    ];
+
+    $formatter_type = $this->entity->getFormatterType();
+
+    // Only include the debug settings when Devel is installed, following
+    // the core pattern of conditional form element inclusion (e.g.,
+    // NodeTypeForm hides language settings when Language module is disabled).
+    if ($this->moduleHandler->moduleExists('devel')) {
+      $debug_form = $formatter_type ? $formatter_type->previewSettingsForm() : [];
+      if (!empty($debug_form)) {
+        $fieldset['debug'] = [
+          '#type'  => 'details',
+          '#title' => $this->t('Debugging'),
+          '#open'  => FALSE,
+        ];
+
+        foreach ($debug_form as $key => $element) {
+          $fieldset['debug'][$key] = $element;
+        }
+      }
+    }
+
+    $fieldset['toggle'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Show full field theming'),
+      '#default_value' => $form_state->getValue(['preview', 'toggle']) ?? FALSE,
     ];
 
     $fieldset['output'] = [
@@ -563,8 +606,9 @@ class FormatterForm extends EntityForm {
       return;
     }
 
-    $settings = $form_state->getValue(['preview', 'settings']) ?? [];
-    $output = $this->buildPreviewOutput($elements, $items, $entity_type_id, $bundle, $field_name, $entity, $settings, $formatter_type);
+    $settings = $form_state->getValue(['preview', 'debug']) ?? [];
+    $toggle = !empty($form_state->getValue(['preview', 'toggle']));
+    $output = $this->buildPreviewOutput($elements, $items, $entity_type_id, $bundle, $field_name, $entity, $settings, $toggle, $formatter_type);
 
     $form_state->set('preview_output', $output);
   }
@@ -586,15 +630,16 @@ class FormatterForm extends EntityForm {
    *   The entity.
    * @param array $settings
    *   The preview settings values.
+   * @param bool $toggle
+   *   Whether to show full field theming.
    * @param \Drupal\custom_formatters\FormatterTypeInterface $formatter_type
    *   The formatter type plugin.
    *
    * @return array
    *   The preview output render array.
    */
-  protected function buildPreviewOutput(array $elements, FieldItemListInterface $items, string $entity_type_id, string $bundle, string $field_name, FieldableEntityInterface $entity, array $settings, FormatterTypeInterface $formatter_type): array {
+  protected function buildPreviewOutput(array $elements, FieldItemListInterface $items, string $entity_type_id, string $bundle, string $field_name, FieldableEntityInterface $entity, array $settings, bool $toggle, FormatterTypeInterface $formatter_type): array {
     $output = [];
-    $toggle = !empty($settings['toggle']);
 
     if ($toggle && !empty($elements)) {
       $field_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
@@ -647,23 +692,37 @@ class FormatterForm extends EntityForm {
       ],
     ];
 
-    if ($formatter_type->getPluginId() === 'php' && !empty($settings['debug_variables'])) {
+    // Devel must be installed for debug checkboxes to appear. When enabled,
+    // its dumper service produces styled output matching dpm()/kpr(). For
+    // engines with multiple template variables (Twig, HTML+Token), the
+    // output dumps all available variables bundled together.
+    if (!empty($settings['debug_variables'])) {
+      $debug_data = $items->getValue();
+
+      if ($formatter_type->getPluginId() === 'twig') {
+        $debug_data = [
+          'items' => $items,
+          'langcode' => $items->getLangcode(),
+          'entity' => $entity,
+        ];
+      }
+
+      if ($formatter_type->getPluginId() === 'html_token') {
+        $debug_data = $entity;
+      }
+
       $output['debug_variables'] = [
-        '#type'    => 'details',
-        '#title'   => $this->t('$items variable'),
-        'content'  => [
-          '#plain_text' => print_r($items->getValue(), TRUE),
-        ],
+        '#type' => 'container',
+        '#attributes' => ['class' => ['formatter-preview-debug']],
+        'dump' => $this->develDumper->exportAsRenderable($debug_data),
       ];
     }
 
     if (!empty($settings['debug_html'])) {
       $output['debug_html'] = [
-        '#type'    => 'details',
-        '#title'   => $this->t('Raw HTML'),
-        'content'  => [
-          '#plain_text' => $rendered_html,
-        ],
+        '#type' => 'container',
+        '#attributes' => ['class' => ['formatter-preview-debug']],
+        'dump' => $this->develDumper->exportAsRenderable($rendered_html),
       ];
     }
 
@@ -787,14 +846,12 @@ class FormatterForm extends EntityForm {
         $extras_form = $this->formatterExtrasManager->invoke($definition['id'], 'settingsForm', $this->entity);
 
         if (is_array($extras_form) && !empty($extras_form)) {
-          // Extras form.
           $form[$definition['id']] = $extras_form;
 
-          // Extras form details element.
           $form[$definition['id']]['#type'] = 'details';
           $form[$definition['id']]['#title'] = $definition['label'];
           $form[$definition['id']]['#description'] = $definition['description'];
-          $form[$definition['id']]['#group'] = 'extras';
+          $form[$definition['id']]['#group'] = 'additional_settings';
         }
       }
     }

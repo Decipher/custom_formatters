@@ -117,6 +117,13 @@ class HTMLToken extends FormatterTypeBase {
     $devel_exists = $this->moduleHandler->moduleExists('devel');
 
     return [
+      'debug_variables' => [
+        '#type'          => 'checkbox',
+        '#title'         => $this->t('Output token context (entity)'),
+        '#default_value' => FALSE,
+        '#disabled'      => !$devel_exists,
+        '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
+      ],
       'debug_html' => [
         '#type'          => 'checkbox',
         '#title'         => $this->t('Output raw HTML'),

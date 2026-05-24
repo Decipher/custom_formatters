@@ -117,4 +117,11 @@ parameters:
         - web/modules/custom/custom_formatters/src/Form/FormatterForm.php
       reportUnmatched: false
 
+    -
+      # Optional Devel service - method calls on untyped service object
+      message: '#Call to an undefined method object::exportAsRenderable#'
+      paths:
+        - web/modules/custom/custom_formatters/src/Form/FormatterForm.php
+      reportUnmatched: false
+
   reportUnmatchedIgnoredErrors: false
