@@ -44,6 +44,7 @@ Recommended Modules
 
 * [Token](https://www.drupal.org/project/token)
 * [Field tokens](https://www.drupal.org/project/field_tokens)
+* [CodeMirror Editor](https://www.drupal.org/project/codemirror_editor) — Provides syntax-highlighted code editing for the PHP, HTML+Token, and Twig formatter engines.
 
 
 
@@ -89,5 +90,5 @@ TODOs / Roadmap
 * Set usages of formatters to default formatter on deletion.
 * ~~Re-add save & edit?~~ (Added in 4.1.x)
 * Re-add preview.
-  - Replace EditArea with a modern code editor (CodeMirror, Monaco Editor).
+* ~~Replace EditArea with a modern code editor.~~ (Added in 4.1.x, via [CodeMirror Editor](https://www.drupal.org/project/codemirror_editor))
 * Re-add export?

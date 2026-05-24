@@ -31,6 +31,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class HTMLToken extends FormatterTypeBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected function getCodeEditorMode(): ?string {
+    return 'text/html';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getCodeMirrorExtraSettings(): array {
+    return ['autoCloseTags' => TRUE];
+  }
+
+  /**
    * The module handler service.
    */
   protected ModuleHandlerInterface $moduleHandler;
@@ -49,7 +63,7 @@ class HTMLToken extends FormatterTypeBase {
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, Token $token_service) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $module_handler);
     $this->moduleHandler = $module_handler;
     $this->entityTypeManager = $entity_type_manager;
     $this->tokenService = $token_service;
