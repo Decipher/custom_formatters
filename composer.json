@@ -24,6 +24,7 @@
         "drupal/token": "^1"
     },
     "suggest": {
-        "drupal/token": "Provides token replacement support for the HTML Token formatter type."
+        "drupal/token": "Provides token replacement support for the HTML Token formatter type.",
+        "drupal/codemirror_editor": "Provides syntax-highlighted code editing via CodeMirror for the PHP, HTML+Token, and Twig formatter engines."
     }
 }

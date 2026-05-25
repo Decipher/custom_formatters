@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\custom_formatters\FormatterTypeBase;
@@ -28,6 +29,20 @@ use Twig\Error\Error;
 class Twig extends FormatterTypeBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected function getCodeEditorMode(): ?string {
+    return 'twig';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getCodeMirrorExtraSettings(): array {
+    return ['autoCloseTags' => TRUE];
+  }
+
+  /**
    * The Twig environment service.
    */
   protected Environment $twigService;
@@ -35,8 +50,8 @@ class Twig extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, Environment $twig_service) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, Environment $twig_service) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $module_handler);
     $this->twigService = $twig_service;
   }
 
@@ -44,7 +59,7 @@ class Twig extends FormatterTypeBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('twig'));
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'), $container->get('twig'));
   }
 
   /**

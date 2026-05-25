@@ -33,6 +33,13 @@ class Php extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
+  protected function getCodeEditorMode(): ?string {
+    return 'application/x-httpd-php';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form = parent::settingsForm($form, $form_state);
 
