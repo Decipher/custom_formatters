@@ -9,7 +9,9 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters;
 
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
@@ -149,6 +151,40 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
    * {@inheritdoc}
    */
   public function submitForm(array $form, FormStateInterface $form_state): void {
+  }
+
+  /**
+   * Returns engine-specific preview settings form elements.
+   *
+   * Allows each engine type to contribute debug options to the preview
+   * section, such as variable dumps or raw HTML output. Third-party
+   * plugins that do not override this method will not display debug
+   * settings in the preview section.
+   *
+   * @return array
+   *   A form array of preview settings elements.
+   */
+  public function previewSettingsForm(): array {
+    return [];
+  }
+
+  /**
+   * Returns engine-specific preview debug data.
+   *
+   * Each engine can override this to provide debug output tailored to its
+   * template context. Called via method_exists() guard in FormatterForm
+   * to preserve BC with third-party plugins that don't implement it.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   *   The field items being rendered.
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   The entity being previewed.
+   *
+   * @return mixed
+   *   Data suitable for Devel's dumper output.
+   */
+  public function previewDebugData(FieldItemListInterface $items, FieldableEntityInterface $entity): mixed {
+    return $items->getValue();
   }
 
 }

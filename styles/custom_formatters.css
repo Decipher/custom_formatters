@@ -4,3 +4,66 @@
   white-space: pre-line;
   word-wrap: break-word;
 }
+
+/**
+ * Preview selects horizontal layout.
+ *
+ * Arranges the entity type, bundle, field, entity selects, and the Preview
+ * button in a single flex row, visually matching the Claro admin theme's
+ * exposed filter layout used on /admin/content. Uses a custom class
+ * (.preview-selects) rather than piggybacking on Claro's
+ * .views-exposed-form CSS, which targets the <form> element and only fires
+ * for Views exposed forms.
+ *
+ * @see \Drupal\custom_formatters\Form\FormatterForm::buildPreviewFieldset()
+ */
+.preview-selects {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.preview-selects > .form-item {
+  margin-block: var(--space-s, 0.75rem) 0;
+  margin-inline: 0 var(--space-xs, 0.5rem);
+  max-width: 100%;
+}
+
+.preview-selects > .preview-actions {
+  flex: 0 0 auto;
+  margin-top: var(--space-s, 0.75rem);
+  min-width: 0;
+}
+
+.preview-selects > .preview-actions input {
+  margin: 0;
+}
+
+/**
+ * Preview output container.
+ *
+ * @see template_preprocess_formatter_preview()
+ */
+.formatter-preview-output {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 1em;
+  padding: 1em;
+}
+
+.formatter-preview-output img {
+  height: auto;
+  max-width: 100%;
+}
+
+/**
+ * Debug output spacing.
+ *
+ * Debug sections (variables, HTML) are wrapped in a container with this
+ * class to provide vertical spacing from the preview output above.
+ */
+.formatter-preview-debug {
+  margin-top: var(--space-l, 1.5rem);
+}

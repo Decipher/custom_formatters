@@ -54,20 +54,37 @@ class Php extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
+  public function previewSettingsForm(): array {
+    $devel_exists = $this->moduleHandler->moduleExists('devel');
+    $form = [];
+
+    $form['debug_variables'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Output <strong>$items</strong> variable'),
+      '#default_value' => FALSE,
+      '#disabled'      => !$devel_exists,
+      '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
+    ];
+
+    $form['debug_html'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Output raw HTML'),
+      '#default_value' => FALSE,
+      '#disabled'      => !$devel_exists,
+      '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
+    ];
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     ob_start();
     $output = eval($this->entity->get('data')); // phpcs:ignore Drupal.Functions.DiscouragedFunctions.Discouraged
     $output = !empty($output) ? $output : ob_get_contents();
     ob_end_clean();
-
-    // Preview debugging; Show the available variables data.
-    // @todo Re-add when preview functionality re-added.
-    // phpcs:disable Drupal.Files.LineLength.TooLong
-    // phpcs:disable Drupal.Commenting.InlineComment.NotCapital
-    // if (\Drupal::moduleHandler()->moduleExists('devel') && isset($formatter->preview) && $formatter->preview['options']['dpm']['vars']) {
-    // dpm($variables);
-    // }
-    // phpcs:enable
 
     return empty($output) ? [] : (is_array($output) ? $output : ['#markup' => $output]);
   }

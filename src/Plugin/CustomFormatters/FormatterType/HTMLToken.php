@@ -11,6 +11,7 @@ namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
@@ -108,6 +109,37 @@ class HTMLToken extends FormatterTypeBase {
     }
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function previewSettingsForm(): array {
+    $devel_exists = $this->moduleHandler->moduleExists('devel');
+
+    return [
+      'debug_variables' => [
+        '#type'          => 'checkbox',
+        '#title'         => $this->t('Output token context (entity)'),
+        '#default_value' => FALSE,
+        '#disabled'      => !$devel_exists,
+        '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
+      ],
+      'debug_html' => [
+        '#type'          => 'checkbox',
+        '#title'         => $this->t('Output raw HTML'),
+        '#default_value' => FALSE,
+        '#disabled'      => !$devel_exists,
+        '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
+      ],
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function previewDebugData(FieldItemListInterface $items, FieldableEntityInterface $entity): mixed {
+    return $entity;
   }
 
   /**

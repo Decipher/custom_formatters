@@ -58,6 +58,9 @@ parameters:
       message: '#no value type specified in iterable type.*FieldItemListInterface#'
       paths:
         - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterType/*
+        - web/modules/custom/custom_formatters/src/FormatterTypeInterface.php
+        - web/modules/custom/custom_formatters/src/FormatterTypeBase.php
+        - web/modules/custom/custom_formatters/src/Form/FormatterForm.php
       reportUnmatched: false
 
     -
@@ -98,6 +101,8 @@ parameters:
       paths:
         - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterType/*
         - web/modules/custom/custom_formatters/src/FormatterTypeInterface.php
+        - web/modules/custom/custom_formatters/src/Form/FormatterForm.php
+        - web/modules/custom/custom_formatters/src/FormatterTypeBase.php
       reportUnmatched: false
 
     -
@@ -112,6 +117,8 @@ parameters:
       message: '#has parameter \$items with generic interface.*FieldItemListInterface but does not specify its types#'
       paths:
         - web/modules/custom/custom_formatters/src/Plugin/CustomFormatters/FormatterType/*
+        - web/modules/custom/custom_formatters/src/Form/FormatterForm.php
+        - web/modules/custom/custom_formatters/src/FormatterTypeBase.php
       reportUnmatched: false
 
   reportUnmatchedIgnoredErrors: false

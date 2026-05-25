@@ -51,6 +51,11 @@ function custom_formatters_theme() {
     'variables' => ['content' => NULL],
   ];
 
+  $themes['formatter_preview'] = [
+    'variables' => ['content' => NULL],
+    'template'  => 'formatter-preview',
+  ];
+
   return $themes;
 }
 
