@@ -9,11 +9,9 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
-use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\custom_formatters\FormatterTypeBase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the PHP Formatter type.
@@ -31,26 +29,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class Php extends FormatterTypeBase {
-
-  /**
-   * The module handler service.
-   */
-  protected ModuleHandlerInterface $moduleHandler;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->moduleHandler = $module_handler;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'));
-  }
 
   /**
    * {@inheritdoc}
