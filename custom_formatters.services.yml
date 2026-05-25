@@ -1,4 +1,10 @@
 services:
+  custom_formatters.devel_generate_integration:
+    class: Drupal\custom_formatters\DevelGenerateIntegration
+    arguments:
+      - '@entity_type.manager'
+      - '@entity_type.bundle.info'
+      - '@module_handler'
   custom_formatters.dependency_builder:
     class: Drupal\custom_formatters\FormatterDependencyBuilder
     arguments:

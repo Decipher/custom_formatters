@@ -87,6 +87,13 @@ class FormatterForm extends EntityForm {
   protected $develDumper = NULL;
 
   /**
+   * The Devel Generate integration service, or NULL if not available.
+   *
+   * @var \Drupal\custom_formatters\DevelGenerateIntegration|null
+   */
+  protected $develGenerateIntegration = NULL;
+
+  /**
    * Constructs a FormatterForm object.
    *
    * @param \Drupal\custom_formatters\FormatterExtrasManager $formatter_extras_manager
@@ -103,8 +110,10 @@ class FormatterForm extends EntityForm {
    *   The renderer service.
    * @param \Drupal\devel\DevelDumperManagerInterface|null $devel_dumper
    *   The Devel dumper service, or NULL if Devel is not installed.
+   * @param \Drupal\custom_formatters\DevelGenerateIntegration|null $devel_generate_integration
+   *   The Devel Generate integration service, or NULL if not available.
    */
-  public function __construct(FormatterExtrasManager $formatter_extras_manager, FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager, EntityFieldManagerInterface $entity_field_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, RendererInterface $renderer, $devel_dumper = NULL) {
+  public function __construct(FormatterExtrasManager $formatter_extras_manager, FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager, EntityFieldManagerInterface $entity_field_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, RendererInterface $renderer, $devel_dumper = NULL, $devel_generate_integration = NULL) {
     $this->formatterExtrasManager = $formatter_extras_manager;
     $this->fieldTypeManager = $field_type_manager;
     $this->fieldFormatterManager = $field_formatter_manager;
@@ -112,6 +121,7 @@ class FormatterForm extends EntityForm {
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->renderer = $renderer;
     $this->develDumper = $devel_dumper;
+    $this->develGenerateIntegration = $devel_generate_integration;
   }
 
   /**
@@ -122,6 +132,7 @@ class FormatterForm extends EntityForm {
     // installed, the service won't exist and NULL is returned instead.
     // This avoids hard-coding a dependency on an optional module.
     $devel_dumper = $container->get('devel.dumper', ContainerInterface::NULL_ON_INVALID_REFERENCE);
+    $devel_generate_integration = $container->get('custom_formatters.devel_generate_integration');
     return new static(
       $container->get('plugin.manager.custom_formatters.formatter_extras'),
       $container->get('plugin.manager.field.formatter'),
@@ -129,7 +140,8 @@ class FormatterForm extends EntityForm {
       $container->get('entity_field.manager'),
       $container->get('entity_type.bundle.info'),
       $container->get('renderer'),
-      $devel_dumper
+      $devel_dumper,
+      $devel_generate_integration
     );
   }
 
@@ -291,11 +303,23 @@ class FormatterForm extends EntityForm {
     }
 
     $entity_options = ($entity_type_id && $bundle && $field_name) ? $this->getPreviewEntities($entity_type_id, $bundle, $field_name) : [];
-    if ($entity_id !== NULL && !isset($entity_options[$entity_id])) {
-      $entity_id = key($entity_options) ?: NULL;
+
+    $devel_generate = $this->develGenerateIntegration
+      && $this->develGenerateIntegration->isAvailable()
+      && !empty($entity_type_id)
+      && !empty($bundle)
+      && !empty($field_name)
+      && $this->develGenerateIntegration->isEntityTypeSupported($entity_type_id);
+
+    if ($devel_generate) {
+      $entity_options = ['devel_generate' => $this->t('Devel generate')] + $entity_options;
     }
 
     $preview_disabled = empty($entity_options);
+
+    if ($entity_id !== NULL && !isset($entity_options[$entity_id])) {
+      $entity_id = $devel_generate ? 'devel_generate' : (key($entity_options) ?: NULL);
+    }
 
     // Build the selects container with a flexbox-friendly class. The CSS
     // targets .preview-selects to arrange selects and the preview button
@@ -469,7 +493,10 @@ class FormatterForm extends EntityForm {
     $field_name = (string) key($fields);
 
     $entities = $field_name ? $this->getPreviewEntities($entity_type_id, $bundle, $field_name) : [];
-    $entity_id = key($entities);
+    $devel_generate = $this->develGenerateIntegration
+      && $this->develGenerateIntegration->isAvailable()
+      && $this->develGenerateIntegration->isEntityTypeSupported($entity_type_id);
+    $entity_id = $devel_generate && $field_name ? 'devel_generate' : key($entities);
 
     return [
       'entity_type' => $entity_type_id,
@@ -536,15 +563,39 @@ class FormatterForm extends EntityForm {
       return;
     }
 
-    $entity = $this->entityTypeManager->getStorage($entity_type_id)->load($entity_id);
-    if (!$entity instanceof FieldableEntityInterface || !$entity->access('view')) {
-      $form_state->set('preview_output', [
-        '#theme'        => 'status_messages',
-        '#message_list' => [
-          'error' => [$this->t('Unable to load the selected entity.')],
-        ],
-      ]);
-      return;
+    if ($entity_id === 'devel_generate') {
+      if (!$this->develGenerateIntegration || !$this->develGenerateIntegration->isAvailable()) {
+        $form_state->set('preview_output', [
+          '#theme'        => 'status_messages',
+          '#message_list' => [
+            'error' => [$this->t('Devel Generate is not available.')],
+          ],
+        ]);
+        return;
+      }
+
+      $entity = $this->develGenerateIntegration->generateEntity($entity_type_id, $bundle);
+      if (!$entity instanceof FieldableEntityInterface) {
+        $form_state->set('preview_output', [
+          '#theme'        => 'status_messages',
+          '#message_list' => [
+            'error' => [$this->t('Unable to generate sample entity via Devel Generate.')],
+          ],
+        ]);
+        return;
+      }
+    }
+    else {
+      $entity = $this->entityTypeManager->getStorage($entity_type_id)->load($entity_id);
+      if (!$entity instanceof FieldableEntityInterface || !$entity->access('view')) {
+        $form_state->set('preview_output', [
+          '#theme'        => 'status_messages',
+          '#message_list' => [
+            'error' => [$this->t('Unable to load the selected entity.')],
+          ],
+        ]);
+        return;
+      }
     }
 
     if (!$entity->hasField($field_name)) {
@@ -798,25 +849,27 @@ class FormatterForm extends EntityForm {
     $storage = $this->entityTypeManager->getStorage($entity_type_id);
 
     $query = $storage->getQuery()
-      ->accessCheck(TRUE)
-      ->range(0, 50);
+      ->accessCheck(TRUE);
 
     if ($bundle_key = $entity_type->getKey('bundle')) {
       $query->condition($bundle_key, $bundle);
     }
 
-    // Filter to entities with non-empty field data.
     $query->exists($field_name);
 
-    $ids = $query->execute();
+    $ids = array_keys($query->execute());
     if (empty($ids)) {
       return $options;
     }
 
+    shuffle($ids);
+    $ids = array_slice($ids, 0, 50);
+
     $entities = $storage->loadMultiple($ids);
     foreach ($entities as $id => $entity) {
       if ($entity->access('view')) {
-        $options[$id] = $entity->label() ?: (string) $id;
+        $label = $entity->label() ?: (string) $id;
+        $options[$id] = $label . " [eid:{$id}]";
       }
     }
 

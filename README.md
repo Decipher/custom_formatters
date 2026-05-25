@@ -30,6 +30,9 @@ Features
   * **Token**
     Adds the Token tree browser to the HTML + Tokens engine with automatic
     entity reference token support.
+  * **Devel Generate** _(optional)_
+    Generates sample entities with dummy field data for the live preview
+    system when no real entities exist with the target field type.
 
 Recommended Modules
 -------------------
@@ -39,6 +42,8 @@ Recommended Modules
 * [CodeMirror Editor](https://www.drupal.org/project/codemirror_editor) —
   Provides syntax-highlighted code editing for the PHP, HTML+Token, and Twig
   formatter engines.
+* [Devel](https://www.drupal.org/project/devel) — Provides the Devel Generate
+  sub-module for generating sample preview entities.
 
 Usage/Configuration
 -------------------
@@ -75,7 +80,7 @@ TODOs / Roadmap
 * Add ability to change field types that aren't in use.
 * Set usages of formatters to default formatter on deletion.
 * ~~Re-add save & edit?~~ (Added in 4.1.x)
-* Re-add preview.
+* ~~Re-add preview.~~ (Added in 4.1.x)
 * ~~Replace EditArea with a modern code editor.~~ (Added in 4.1.x, via
   [CodeMirror Editor](https://www.drupal.org/project/codemirror_editor))
 * Re-add export?
