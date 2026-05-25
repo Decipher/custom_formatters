@@ -82,7 +82,7 @@ class FormatterForm extends EntityForm {
   /**
    * The Devel dumper service, or NULL if Devel is not installed.
    *
-   * @var object|null
+   * @var \Drupal\devel\DevelDumperManagerInterface|null
    */
   protected $develDumper = NULL;
 
@@ -101,7 +101,7 @@ class FormatterForm extends EntityForm {
    *   The entity type bundle info service.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
-   * @param object|null $devel_dumper
+   * @param \Drupal\devel\DevelDumperManagerInterface|null $devel_dumper
    *   The Devel dumper service, or NULL if Devel is not installed.
    */
   public function __construct(FormatterExtrasManager $formatter_extras_manager, FormatterPluginManager $field_formatter_manager, FieldTypePluginManagerInterface $field_type_manager, EntityFieldManagerInterface $entity_field_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, RendererInterface $renderer, $devel_dumper = NULL) {
