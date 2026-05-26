@@ -187,8 +187,9 @@ class FormatterPreset extends FormatterTypeBase {
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $data = $this->entity->get('data');
     $field_types = $this->entity->get('field_types');
-    return $this->getFormatter($data['formatter'], $field_types[0])
-      ->viewElements($items, $langcode);
+    $formatter = $this->getFormatter($data['formatter'], $field_types[0]);
+    $formatter->prepareView([$items]);
+    return $formatter->viewElements($items, $langcode);
   }
 
   /**

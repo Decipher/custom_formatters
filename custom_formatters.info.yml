@@ -3,6 +3,8 @@ description: Allows users to easily define custom Field Formatters.
 type: module
 dependencies:
   - drupal:field
+test_dependencies:
+  - devel:devel
 package: Fields
 configure: entity.formatter.collection
 core_version_requirement: ^8.8 || ^9 || ^10 || ^11
