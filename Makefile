@@ -57,6 +57,8 @@ provision:
 	./.devtools/provision
 
 lint:
+	$(call title,Running Markdownlint)
+	npx markdownlint-cli README.md
 	$(call title,Running PHPCS)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/phpcs && popd >/dev/null || exit 1
 	$(call title,Running PHPStan)
