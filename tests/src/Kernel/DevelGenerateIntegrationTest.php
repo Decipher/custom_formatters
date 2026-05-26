@@ -184,16 +184,10 @@ class DevelGenerateIntegrationTest extends KernelTestBase {
    */
   public function testGenerateEntityExceptionReturnsNull(): void {
     $this->enableModules(['devel_generate']);
+    $service = $this->container->get('custom_formatters.devel_generate_integration');
 
-    $mock = $this->createMock(DevelGenerateIntegration::class);
-    $mock->method('isAvailable')->willReturn(TRUE);
-    $mock->method('isEntityTypeSupported')->willReturn(TRUE);
-    $mock->method('generateEntity')->willThrowException(new \Exception('Test exception'));
-
-    // The real service catches exceptions internally; verify the mock
-    // setup is correct for the FormatterForm tests.
-    $this->expectException(\Exception::class);
-    $mock->generateEntity('node', 'article');
+    $entity = $service->generateEntity('media', 'image');
+    $this->assertNull($entity);
   }
 
   /**

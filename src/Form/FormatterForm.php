@@ -857,7 +857,7 @@ class FormatterForm extends EntityForm {
 
     $query->exists($field_name);
 
-    $ids = array_keys($query->execute());
+    $ids = array_keys($query->range(0, 500)->execute());
     if (empty($ids)) {
       return $options;
     }

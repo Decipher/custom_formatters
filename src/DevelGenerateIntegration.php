@@ -126,7 +126,7 @@ class DevelGenerateIntegration {
             try {
               $field->generateSampleItems();
             }
-            catch (\Exception) {
+            catch (\Throwable) {
               // Some field types may not support sample generation.
             }
           }
@@ -135,7 +135,7 @@ class DevelGenerateIntegration {
 
       return $entity;
     }
-    catch (\Exception) {
+    catch (\Throwable) {
       return NULL;
     }
   }
