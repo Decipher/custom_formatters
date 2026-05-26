@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\custom_formatters\Kernel;
 
+use Drupal\custom_formatters\DevelGenerateIntegration;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormState;
@@ -576,6 +577,193 @@ class FormatterPreviewFormTest extends KernelTestBase {
     $output = $form_state->get('preview_output');
     $this->assertNotNull($output);
     $this->assertEquals('status_messages', $output['#theme']);
+  }
+
+  /**
+   * Tests "Devel generate" option is absent when devel_generate is disabled.
+   */
+  public function testDevelGenerateOptionAbsentWithoutModule(): void {
+    $formatter = $this->createFormatter('test_dg_absent');
+    $formatter->set('field_types', ['text', 'text_with_summary']);
+    $form = $this->buildForm($formatter);
+
+    $entity_select = $form['preview']['selects']['entity'];
+    $this->assertArrayNotHasKey('devel_generate', $entity_select['#options']);
+  }
+
+  /**
+   * Tests "Devel generate" option appears when devel_generate is enabled.
+   */
+  public function testDevelGenerateOptionAppearsWhenAvailable(): void {
+    $this->enableModules(['devel_generate']);
+
+    $formatter = $this->createFormatter('test_dg_present');
+    $formatter->set('field_types', ['text', 'text_with_summary']);
+    $form = $this->buildForm($formatter);
+
+    $entity_select = $form['preview']['selects']['entity'];
+    $this->assertArrayHasKey('devel_generate', $entity_select['#options']);
+    $this->assertEquals('Devel generate', $entity_select['#options']['devel_generate']);
+
+    $options = (array) $entity_select['#options'];
+    $non_empty_keys = array_filter(array_keys($options), fn($k) => $k !== '');
+    $this->assertEquals('devel_generate', reset($non_empty_keys));
+  }
+
+  /**
+   * Tests "Devel generate" is the default selection when available.
+   */
+  public function testDevelGenerateIsDefaultSelection(): void {
+    $this->enableModules(['devel_generate']);
+
+    $formatter = $this->createFormatter('test_dg_default');
+    $formatter->set('field_types', ['text', 'text_with_summary']);
+    $form = $this->buildForm($formatter);
+
+    $entity_select = $form['preview']['selects']['entity'];
+    $this->assertEquals('devel_generate', $entity_select['#default_value']);
+  }
+
+  /**
+   * Tests getPreviewDefaults returns 'devel_generate' when available.
+   */
+  public function testGetPreviewDefaultsWithDevelGenerate(): void {
+    $this->enableModules(['devel_generate']);
+
+    $formatter = $this->createFormatter('test_dg_defaults');
+    $formatter->set('field_types', ['text', 'text_with_summary']);
+    $form_object = $this->getFormObject($formatter);
+
+    $ref = new \ReflectionClass($form_object);
+    $method = $ref->getMethod('getPreviewDefaults');
+    $method->setAccessible(TRUE);
+
+    $defaults = $method->invoke($form_object, new FormState());
+    $this->assertEquals('node', $defaults['entity_type']);
+    $this->assertEquals('article', $defaults['bundle']);
+    $this->assertEquals('body', $defaults['field']);
+    $this->assertEquals('devel_generate', $defaults['entity']);
+  }
+
+  /**
+   * Tests previewSubmit with devel_generate entity produces output.
+   */
+  public function testPreviewSubmitWithDevelGenerate(): void {
+    $this->enableModules(['filter', 'devel_generate']);
+    $this->installConfig(['filter']);
+
+    $formatter = $this->createFormatter('test_dg_submit');
+    $formatter->set('field_types', ['text', 'text_with_summary']);
+    $formatter->save();
+    $form_object = $this->getFormObject($formatter);
+    $this->container->get('form_builder')->getForm($form_object);
+
+    $form_state = new FormState();
+    $form_state->setValue(['preview', 'selects', 'entity_type'], 'node');
+    $form_state->setValue(['preview', 'selects', 'bundle'], 'article');
+    $form_state->setValue(['preview', 'selects', 'field'], 'body');
+    $form_state->setValue(['preview', 'selects', 'entity'], 'devel_generate');
+
+    $form_object->previewSubmit([], $form_state);
+
+    $output = $form_state->get('preview_output');
+    $this->assertNotNull($output);
+    $this->assertArrayNotHasKey('#theme', $output);
+
+    $node_count = $this->container->get('entity_type.manager')
+      ->getStorage('node')
+      ->getQuery()
+      ->accessCheck(FALSE)
+      ->count()
+      ->execute();
+    $this->assertEquals(0, $node_count);
+  }
+
+  /**
+   * Tests previewSubmit shows error when Devel Generate is unavailable.
+   */
+  public function testPreviewSubmitDevelGenerateNotAvailable(): void {
+    $formatter = $this->createFormatter('test_dg_unavailable');
+    $formatter->set('field_types', ['text', 'text_with_summary']);
+    $formatter->save();
+    $form_object = $this->getFormObject($formatter);
+    $this->container->get('form_builder')->getForm($form_object);
+
+    $form_state = new FormState();
+    $form_state->setValue(['preview', 'selects', 'entity_type'], 'node');
+    $form_state->setValue(['preview', 'selects', 'bundle'], 'article');
+    $form_state->setValue(['preview', 'selects', 'field'], 'body');
+    $form_state->setValue(['preview', 'selects', 'entity'], 'devel_generate');
+
+    $form_object->previewSubmit([], $form_state);
+
+    $output = $form_state->get('preview_output');
+    $this->assertNotNull($output);
+    $this->assertEquals('status_messages', $output['#theme']);
+    $this->assertEquals('Devel Generate is not available.', (string) $output['#message_list']['error'][0]);
+  }
+
+  /**
+   * Tests previewSubmit shows error when entity generation fails.
+   */
+  public function testPreviewSubmitDevelGenerateGenerationFails(): void {
+    $this->enableModules(['devel_generate']);
+
+    $mock = $this->createMock(DevelGenerateIntegration::class);
+    $mock->method('isAvailable')->willReturn(TRUE);
+    $mock->method('isEntityTypeSupported')->willReturn(TRUE);
+    $mock->method('generateEntity')->willReturn(NULL);
+    $this->container->set('custom_formatters.devel_generate_integration', $mock);
+
+    $formatter = $this->createFormatter('test_dg_gen_fail');
+    $formatter->set('field_types', ['text', 'text_with_summary']);
+    $formatter->save();
+    $form_object = $this->getFormObject($formatter);
+    $this->container->get('form_builder')->getForm($form_object);
+
+    $form_state = new FormState();
+    $form_state->setValue(['preview', 'selects', 'entity_type'], 'node');
+    $form_state->setValue(['preview', 'selects', 'bundle'], 'article');
+    $form_state->setValue(['preview', 'selects', 'field'], 'body');
+    $form_state->setValue(['preview', 'selects', 'entity'], 'devel_generate');
+
+    $form_object->previewSubmit([], $form_state);
+
+    $output = $form_state->get('preview_output');
+    $this->assertNotNull($output);
+    $this->assertEquals('status_messages', $output['#theme']);
+    $this->assertStringContainsString('Unable to generate', (string) $output['#message_list']['error'][0]);
+  }
+
+  /**
+   * Tests getPreviewEntities label format includes entity ID.
+   */
+  public function testGetPreviewEntitiesLabelFormat(): void {
+    $user = $this->createUser(['bypass node access']);
+    assert($user instanceof AccountInterface);
+    $this->container->get('current_user')->setAccount($user);
+
+    $node = $this->container->get('entity_type.manager')
+      ->getStorage('node')
+      ->create([
+        'type' => 'article',
+        'title' => 'Test label format',
+        'body' => 'Some body text',
+      ]);
+    assert($node instanceof NodeInterface);
+    $node->save();
+
+    $formatter = $this->createFormatter('test_entity_labels');
+    $form_object = $this->getFormObject($formatter);
+
+    $ref = new \ReflectionClass($form_object);
+    $method = $ref->getMethod('getPreviewEntities');
+    $method->setAccessible(TRUE);
+
+    $entities = $method->invoke($form_object, 'node', 'article', 'body');
+    $this->assertNotEmpty($entities);
+    $this->assertArrayHasKey($node->id(), $entities);
+    $this->assertEquals("Test label format [eid:{$node->id()}]", $entities[$node->id()]);
   }
 
   /**
