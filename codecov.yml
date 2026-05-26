@@ -1,0 +1,9 @@
+codecov:
+  branch: 4.1.x
+
+coverage:
+  status:
+    patch: off
+
+fix:
+  - "web/modules/custom/custom_formatters/::"
