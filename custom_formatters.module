@@ -32,11 +32,9 @@ function custom_formatters_help(string $route_name, RouteMatchInterface $route_m
       $output .= '<dd>' . t('A Twig-based editor with support for multiple fields and values.') . '</dd>';
       $output .= '</dl>';
 
-      $output .= '<p>' . t('For more information, see the <a href=":handbook">Custom Formatters handbook page</a>.', [
+      return $output . ('<p>' . t('For more information, see the <a href=":handbook">Custom Formatters handbook page</a>.', [
         ':handbook' => 'https://www.drupal.org/node/2514412',
-      ]) . '</p>';
-
-      return $output;
+      ]) . '</p>');
 
     default:
       return NULL;
@@ -46,7 +44,7 @@ function custom_formatters_help(string $route_name, RouteMatchInterface $route_m
 /**
  * Implements hook_theme().
  */
-function custom_formatters_theme() {
+function custom_formatters_theme(): array {
   $themes['formatter_add_list'] = [
     'variables' => ['content' => NULL],
   ];
@@ -68,7 +66,7 @@ function custom_formatters_theme() {
  *   An associative array containing:
  *   - content: An array of formatter types.
  */
-function template_preprocess_formatter_add_list(&$variables) {
+function template_preprocess_formatter_add_list(array &$variables): void {
   $variables['types'] = [];
   if (!empty($variables['content'])) {
     foreach ($variables['content'] as $type) {

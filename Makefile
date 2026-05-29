@@ -1,4 +1,10 @@
 SHELL=/bin/bash
+
+# Load variables from .env if present and export them to recipe shells. The
+# leading '-' on -include suppresses errors when the file does not exist.
+-include .env
+export
+
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 
@@ -6,13 +12,14 @@ define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble, build, help, lint, lint-fix, login, provision, reset, selenium-start, selenium-stop, start, status, stop, test, test-functional, test-functional-javascript, test-js, test-kernel, test-unit
+.PHONY: assemble build debug debug-off debug-on help lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
 
 help:
 	@echo "COMMANDS"
 	@echo "========"
 	@echo "build           - Build or rebuild the project."
 	@echo "assemble        - Assemble a codebase using project code and all required dependencies."
+	@echo "debug           - Enable PHP XDebug step-debugging for the development server."
 	@echo "drush           - Run Drush command."
 	@echo "lint            - Check coding standards for violations."
 	@echo "lint-fix        - Fix violations in coding standards."
@@ -41,6 +48,23 @@ start:
 stop:
 	./.devtools/stop
 
+# Enable PHP XDebug step-debugging by restarting the PHP server with
+# `-d xdebug.mode=debug -d xdebug.start_with_request=yes`. The probe inspects
+# the running server's command line for `xdebug.mode=debug` so no flag file
+# is needed. Run `make start` to disable.
+debug:
+	@ps -o command= -p "$$(lsof -ti:$(WEBSERVER_PORT) 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "XDebug is already enabled. Run 'make start' to disable." || \
+		(XDEBUG=1 ./.devtools/start && sleep 1 && ps -o command= -p "$$(lsof -ti:$(WEBSERVER_PORT) 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "Enabled XDebug. Run 'make start' to disable." || (echo "Failed to enable XDebug." && exit 1))
+
+# Make has no native command aliases - the alias targets declare `debug` as
+# their sole prerequisite, so running e.g. `make xdebug` executes the `debug`
+# recipe via the prerequisite chain.
+debug-on xdebug xdebug-on: debug
+
+# Mirror the ahoy `start` aliases. `make debug-off` runs the `start` recipe
+# via the prerequisite chain, which restarts without XDebug.
+debug-off xdebug-off: start
+
 # Allow running Drush commands with `make drush <command>`
 ifeq (drush,$(firstword $(MAKECMDGOALS)))
   DRUSH_RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -57,8 +81,6 @@ provision:
 	./.devtools/provision
 
 lint:
-	$(call title,Running Markdownlint)
-	npx markdownlint-cli README.md
 	$(call title,Running PHPCS)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/phpcs && popd >/dev/null || exit 1
 	$(call title,Running PHPStan)
@@ -82,28 +104,28 @@ lint-fix:
 
 test:
 	$(call title,Running PHPUnit)
-	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=/ vendor/bin/phpunit && popd >/dev/null || exit 1
+	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit && popd >/dev/null || exit 1
 	$(call title,Running Jest)
 	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm test) && popd >/dev/null || exit 1
 
 test-unit:
 	pushd "build" >/dev/null || exit 1 && \
-	php -d pcov.directory=/ vendor/bin/phpunit --testsuite unit && \
+	php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit && \
 	popd >/dev/null || exit 1
 
 test-kernel:
 	pushd "build" >/dev/null || exit 1 && \
-	php -d pcov.directory=/ vendor/bin/phpunit --testsuite kernel && \
+	php -d pcov.directory=.. vendor/bin/phpunit --testsuite kernel && \
 	popd >/dev/null || exit 1
 
 test-functional:
 	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=/ vendor/bin/phpunit --testsuite functional && \
+	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional && \
 	popd >/dev/null || exit 1
 
 test-functional-javascript: selenium-start
 	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=/ vendor/bin/phpunit --testsuite functional-javascript && \
+	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
 	popd >/dev/null || exit 1
 
 selenium-start:
@@ -129,9 +151,9 @@ test-js:
 	popd >/dev/null || exit 1
 
 reset:
-	killall -9 php >/dev/null 2>&1 || true && \
-	chmod -Rf 777 build > /dev/null && \
-	rm -Rf build > /dev/null || true && \
-	rm -Rf .logs > /dev/null || true
+	killall -9 php >/dev/null 2>&1 || true
+	chmod -Rf 777 build .logs > /dev/null 2>&1 || true
+	rm -Rf build > /dev/null 2>&1 || true
+	rm -Rf .logs > /dev/null 2>&1 || true
 
 .DEFAULT_GOAL := build
