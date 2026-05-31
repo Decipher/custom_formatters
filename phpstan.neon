@@ -19,6 +19,7 @@ parameters:
     - vendor/*
     - node_modules/*
     - ../*/node_modules/*
+    - rector.php
 
   ignoreErrors:
     -
@@ -87,6 +88,14 @@ parameters:
       # Generic type issues in viewElements - Drupal core pattern
       messages:
         - '#has parameter \$items with generic interface.*FieldItemListInterface but does not specify its types#'
+      reportUnmatched: false
+
+    -
+      # DevelDumperManagerInterface — optional devel dependency
+      messages:
+        - '#has unknown class Drupal\\devel\\DevelDumperManagerInterface#'
+        - '#has invalid type Drupal\\devel\\DevelDumperManagerInterface#'
+        - '#Call to an undefined method.*DevelDumperManagerInterface#'
       reportUnmatched: false
 
   reportUnmatchedIgnoredErrors: false

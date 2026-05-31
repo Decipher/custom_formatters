@@ -24,10 +24,11 @@ include:
 # Uncomment the lines below if you want to override any of the variables. The following is just an example.
 ################
 variables:
-#   SKIP_ESLINT: '1'
+  SKIP_ESLINT: '1'
+  SKIP_STYLELINT: '1'
 #   OPT_IN_TEST_NEXT_MAJOR: '1'
 #   _CURL_TEMPLATES_REF: 'main'
-  _CSPELL_WORDS: 'killall'
+  COMPOSER_EXTRA: 'drupal/devel:*'
   _SHOW_ENVIRONMENT_VARIABLES: "1"
   _TARGET_PHP: "$CORE_PHP_MIN"
   DRUPAL_CORE: "$CORE_SUPPORTED"
