@@ -45,7 +45,7 @@ class FormatterExtrasManager extends DefaultPluginManager {
     $method = $method . "Alter";
     $definitions = $this->getDefinitions();
 
-    if (is_array($definitions) && !empty($definitions)) {
+    if ($definitions) {
       foreach ($definitions as $definition) {
         $extra = $this->createInstance($definition['id'], ['entity' => $entity]);
         if (method_exists($extra, $method)) {
@@ -102,7 +102,7 @@ class FormatterExtrasManager extends DefaultPluginManager {
     $definitions = $this->getDefinitions();
 
     $returns = [];
-    if (is_array($definitions) && !empty($definitions)) {
+    if ($definitions) {
       foreach ($definitions as $definition) {
         // Prepend the plugin ID to the args array so invoke() receives
         // ($plugin_id, $method, $entity, ...$additional_args).
@@ -123,11 +123,9 @@ class FormatterExtrasManager extends DefaultPluginManager {
     $definitions = parent::getDefinitions();
 
     // Ensure Extras configuration dependencies are met.
-    if (is_array($definitions)) {
-      foreach ($definitions as $definition) {
-        if (!$this->validateDependencies($definition)) {
-          unset($definitions[$definition['id']]);
-        }
+    foreach ($definitions as $definition) {
+      if (!$this->validateDependencies($definition)) {
+        unset($definitions[$definition['id']]);
       }
     }
 

@@ -69,8 +69,8 @@ class Twig extends FormatterTypeBase {
   public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form = parent::settingsForm($form, $form_state);
 
-    $form['data']['#description'] = $this->t('Enter the Twig code that will be evaluated.<br /><br /><strong>Available parameters:</strong><dl><dt><em><a href=":field_item_list_inerface" target="_blank">FieldItemListInterface</a></em> {{ items }}</dt><dd>The field values to be rendered.</dd><dt><em>string</em> {{ langcode }}</dt><dd>The language that should be used to render the field.</dd><dt><em><a href=":entity_interface" target="_blank">EntityInterface</a></em> {{ entity }}</dt><dd>The parent entity the field is attached to.</dd></dl>', [
-      ':field_item_list_inerface' => 'https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Field%21FieldItemListInterface.php/interface/FieldItemListInterface',
+    $form['data']['#description'] = $this->t('Enter the Twig code that will be evaluated.<br /><br /><strong>Available parameters:</strong><dl><dt><em><a href=":field_item_list_interface" target="_blank">FieldItemListInterface</a></em> {{ items }}</dt><dd>The field values to be rendered.</dd><dt><em>string</em> {{ langcode }}</dt><dd>The language that should be used to render the field.</dd><dt><em><a href=":entity_interface" target="_blank">EntityInterface</a></em> {{ entity }}</dt><dd>The parent entity the field is attached to.</dd></dl>', [
+      ':field_item_list_interface' => 'https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Field%21FieldItemListInterface.php/interface/FieldItemListInterface',
       ':entity_interface' => 'https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Entity%21EntityInterface.php/interface/EntityInterface',
     ]);
 

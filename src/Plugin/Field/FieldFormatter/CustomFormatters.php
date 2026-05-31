@@ -116,7 +116,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     }
 
     // Ensure we have a nested array.
-    if (is_array($element) && !Element::children($element)) {
+    if (!Element::children($element)) {
       $element = [$element];
     }
 

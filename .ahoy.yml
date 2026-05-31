@@ -3,6 +3,9 @@
 ---
 ahoyapi: v2
 
+env:
+  - .env
+
 commands:
 
   build:
@@ -19,11 +22,19 @@ commands:
 
   start:
     usage: Start development environment.
+    aliases: [debug-off, xdebug-off]
     cmd: ./.devtools/start
 
   stop:
     usage: Stop development environment.
     cmd: ./.devtools/stop
+
+  debug:
+    usage: Enable PHP XDebug step-debugging for the development server.
+    aliases: [debug-on, xdebug, xdebug-on]
+    cmd: |
+      ps -o command= -p "$(lsof -ti:${WEBSERVER_PORT:-8000} 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "XDebug is already enabled. Run 'ahoy start' to disable." || \
+      (XDEBUG=1 ./.devtools/start && sleep 1 && ps -o command= -p "$(lsof -ti:${WEBSERVER_PORT:-8000} 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "Enabled XDebug. Run 'ahoy start' to disable." || (echo "Failed to enable XDebug." && exit 1))
 
   provision:
     usage: Provision application within assembled codebase.
@@ -40,6 +51,8 @@ commands:
   lint:
     usage: Check coding standards for violations.
     cmd: |
+      ahoy title "Running CSpell"
+      npx cspell --no-progress -c .cspell.json .
       pushd "build" >/dev/null || exit 1
       ahoy title "Running PHPCS"
       vendor/bin/phpcs
@@ -49,7 +62,6 @@ commands:
       vendor/bin/rector --clear-cache --dry-run
       ahoy title "Running Twig CS Fixer"
       vendor/bin/twig-cs-fixer
-      [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint)
       popd >/dev/null || exit 1
 
   lint-fix:
@@ -62,7 +74,6 @@ commands:
       vendor/bin/phpcbf
       ahoy title "Running Twig CS Fixer"
       vendor/bin/twig-cs-fixer --no-cache --fix
-      [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint-fix)
       popd >/dev/null || exit 1
 
   test:
@@ -70,7 +81,7 @@ commands:
     cmd: |
       pushd "build" >/dev/null || exit 1
       ahoy title "Running PHPUnit"
-      php -d pcov.directory=/ vendor/bin/phpunit "$@"
+      php -d pcov.directory=.. vendor/bin/phpunit "$@"
       [ ! -d node_modules ] || (ahoy title "Running Jest" && npm test)
       popd >/dev/null || exit 1
 
@@ -78,21 +89,21 @@ commands:
     usage: Run unit tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
-      php -d pcov.directory=/ vendor/bin/phpunit --testsuite unit "$@"
+      php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit "$@"
       popd >/dev/null || exit 1
 
   test-kernel:
     usage: Run kernel tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
-      php -d pcov.directory=/ vendor/bin/phpunit --testsuite kernel "$@"
+      php -d pcov.directory=.. vendor/bin/phpunit --testsuite kernel "$@"
       popd >/dev/null || exit 1
 
   test-functional:
     usage: Run functional tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
-      php -d pcov.directory=/ vendor/bin/phpunit --testsuite functional "$@"
+      php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional "$@"
       popd >/dev/null || exit 1
 
   test-functional-javascript:
@@ -100,7 +111,7 @@ commands:
     cmd: |
       ahoy selenium-start
       pushd "build" >/dev/null || exit 1
-      php -d pcov.directory=/ vendor/bin/phpunit --testsuite functional-javascript "$@"
+      php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
       popd >/dev/null || exit 1
 
   test-js:

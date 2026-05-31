@@ -246,7 +246,7 @@ class FormatterForm extends EntityForm {
 
     // Third party integration settings form.
     $extras = $this->getFormatterExtrasForm();
-    if ($extras && is_array($extras)) {
+    if ($extras) {
       $form['extras'] = $extras;
       $form['extras']['#tree'] = TRUE;
     }
@@ -886,7 +886,7 @@ class FormatterForm extends EntityForm {
     $form = [];
 
     $definitions = $this->formatterExtrasManager->getDefinitions();
-    if (is_array($definitions) && !empty($definitions)) {
+    if ($definitions) {
       foreach ($definitions as $definition) {
         $extras_form = $this->formatterExtrasManager->invoke($definition['id'], 'settingsForm', $this->entity);
 

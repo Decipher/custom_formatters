@@ -23,6 +23,9 @@ jobs:
       - name: Lint Markdown files
         run: npx markdownlint-cli README.md
 
+      - name: Lint spelling with CSpell
+        run: npx cspell --no-progress -c .cspell.json .
+
       - name: Cache Composer dependencies
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:

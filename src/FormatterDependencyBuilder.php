@@ -70,7 +70,7 @@ class FormatterDependencyBuilder {
     $formatter_type = $this->getFormatterType($entity);
     if ($formatter_type !== FALSE) {
       $type_deps = $formatter_type->calculateDependencies();
-      if (!empty($type_deps) && is_array($type_deps)) {
+      if ($type_deps) {
         foreach ($type_deps as $type => $type_dependencies) {
           if (!empty($type_dependencies) && is_array($type_dependencies)) {
             foreach ($type_dependencies as $name) {
@@ -82,7 +82,7 @@ class FormatterDependencyBuilder {
     }
 
     $extras = $this->formatterExtrasManager->getDefinitions();
-    if (is_array($extras)) {
+    if ($extras) {
       foreach ($extras as $extra) {
         if (!$extra['optional']) {
           $dependencies[$extra['provider']][] = 'extra';

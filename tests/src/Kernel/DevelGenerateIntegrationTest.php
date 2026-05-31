@@ -13,7 +13,6 @@ use Drupal\custom_formatters\DevelGenerateIntegration;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\node\NodeTypeInterface;
 
 /**
  * Tests the DevelGenerateIntegration service.
@@ -51,13 +50,13 @@ class DevelGenerateIntegrationTest extends KernelTestBase {
     $this->installSchema('node', 'node_access');
     node_access_rebuild();
 
+    /** @var \Drupal\node\NodeTypeInterface $node_type */
     $node_type = $this->container->get('entity_type.manager')
       ->getStorage('node_type')
       ->create([
         'type' => 'article',
         'name' => 'Article',
       ]);
-    assert($node_type instanceof NodeTypeInterface);
 
     if (!FieldStorageConfig::loadByName('node', 'body')) {
       FieldStorageConfig::create([

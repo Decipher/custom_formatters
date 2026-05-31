@@ -20,8 +20,6 @@ use Drupal\custom_formatters\FormatterTypeInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\node\NodeInterface;
-use Drupal\node\NodeTypeInterface;
 use Drupal\Tests\user\Traits\UserCreationTrait;
 
 /**
@@ -69,13 +67,13 @@ class FormatterPreviewFormTest extends KernelTestBase {
 
     // Create an article content type so the preview selects have entity
     // types, bundles, and fields to work with.
+    /** @var \Drupal\node\NodeTypeInterface $node_type */
     $node_type = $this->container->get('entity_type.manager')
       ->getStorage('node_type')
       ->create([
         'type' => 'article',
         'name' => 'Article',
       ]);
-    assert($node_type instanceof NodeTypeInterface);
 
     // In Drupal 11, node_add_body_field() expects the body field storage to
     // already exist (provided by the Standard profile). Create it before
@@ -507,6 +505,7 @@ class FormatterPreviewFormTest extends KernelTestBase {
     assert($user instanceof AccountInterface);
     $this->container->get('current_user')->setAccount($user);
 
+    /** @var \Drupal\node\NodeInterface $node */
     $node = $this->container->get('entity_type.manager')
       ->getStorage('node')
       ->create([
@@ -514,7 +513,6 @@ class FormatterPreviewFormTest extends KernelTestBase {
         'title' => 'Test preview entity',
         'body' => 'Some body text',
       ]);
-    assert($node instanceof NodeInterface);
     $node->save();
 
     $formatter = $this->createFormatter('test_get_entities');
@@ -743,6 +741,7 @@ class FormatterPreviewFormTest extends KernelTestBase {
     assert($user instanceof AccountInterface);
     $this->container->get('current_user')->setAccount($user);
 
+    /** @var \Drupal\node\NodeInterface $node */
     $node = $this->container->get('entity_type.manager')
       ->getStorage('node')
       ->create([
@@ -750,7 +749,6 @@ class FormatterPreviewFormTest extends KernelTestBase {
         'title' => 'Test label format',
         'body' => 'Some body text',
       ]);
-    assert($node instanceof NodeInterface);
     $node->save();
 
     $formatter = $this->createFormatter('test_entity_labels');

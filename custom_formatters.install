@@ -10,7 +10,7 @@ declare(strict_types=1);
 /**
  * Implements hook_install().
  */
-function custom_formatters_install() {
+function custom_formatters_install(): void {
   \Drupal::service('plugin.manager.field.formatter')
     ->clearCachedDefinitions();
 }

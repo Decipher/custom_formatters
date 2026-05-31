@@ -130,11 +130,11 @@ class Formatter extends ConfigEntityBase implements FormatterInterface {
     // updated entity may start to appear in a listing because it now meets that
     // listing's filtering requirements. A newly created entity may start to
     // appear in listings because it did not exist before).
-    /** @var array $tags */
+    /** @var list<string> $tags */
     $tags = $this->getEntityType()->getListCacheTags();
     if ($update) {
       // An existing entity was updated, also invalidate its unique cache tag.
-      $tags = Cache::mergeTags($tags, $this->getCacheTagsToInvalidate());
+      $tags = Cache::mergeTags($tags, array_values($this->getCacheTagsToInvalidate()));
     }
     Cache::invalidateTags($tags);
   }
