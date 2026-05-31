@@ -21,6 +21,7 @@
         "php": ">=8.2"
     },
     "require-dev": {
+        "drupal/devel": "^1",
         "drupal/token": "^1"
     },
     "suggest": {
