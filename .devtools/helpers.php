@@ -547,6 +547,5 @@ if (!function_exists('DrupalExtensionScaffold\DevTools\quit') && !class_exists('
   function quit(int $code = 0): void {
     exit($code);
   }
-
 }
 // @codeCoverageIgnoreEnd
