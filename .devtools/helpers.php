@@ -549,4 +549,3 @@ if (!function_exists('DrupalExtensionScaffold\DevTools\quit') && !class_exists('
   }
 
 }
-// @codeCoverageIgnoreEnd
