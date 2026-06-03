@@ -33,12 +33,14 @@ interface FormatterTypeInterface extends PluginInspectionInterface {
    *   The field values to be rendered.
    * @param string $langcode
    *   The language that should be used to render the field.
+   * @param array $settings
+   *   (optional) Field instance settings from the entity view display.
    *
    * @return array
    *   A renderable array for $items, as an array of child elements keyed by
    *   consecutive numeric indexes starting from 0.
    */
-  public function viewElements(FieldItemListInterface $items, $langcode);
+  public function viewElements(FieldItemListInterface $items, $langcode, array $settings = []);
 
   /**
    * Formatter type plugin settings form submit callback.

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -63,8 +64,8 @@ class HTMLToken extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, Token $token_service) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $module_handler);
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, EntityFieldManagerInterface $entity_field_manager, EntityTypeManagerInterface $entity_type_manager, Token $token_service) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $module_handler, $entity_field_manager);
     $this->moduleHandler = $module_handler;
     $this->entityTypeManager = $entity_type_manager;
     $this->tokenService = $token_service;
@@ -74,7 +75,7 @@ class HTMLToken extends FormatterTypeBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'), $container->get('entity_type.manager'), $container->get('token'));
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'), $container->get('entity_field.manager'), $container->get('entity_type.manager'), $container->get('token'));
   }
 
   /**
@@ -120,7 +121,7 @@ class HTMLToken extends FormatterTypeBase {
     return [
       'debug_variables' => [
         '#type'          => 'checkbox',
-        '#title'         => $this->t('Output token context (entity)'),
+        '#title'         => $this->t('Output token context (entity, settings)'),
         '#default_value' => FALSE,
         '#disabled'      => !$devel_exists,
         '#description'   => !$devel_exists ? $this->t('Requires Devel module.') : '',
@@ -139,16 +140,44 @@ class HTMLToken extends FormatterTypeBase {
    * {@inheritdoc}
    */
   public function previewDebugData(FieldItemListInterface $items, FieldableEntityInterface $entity): mixed {
-    return $entity;
+    return [
+      'entity' => $entity,
+      'settings' => [],
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
+  public function viewElements(FieldItemListInterface $items, $langcode, array $settings = []) {
     $element = [];
 
     $text = $this->entity->get('data');
+
+    // Replace [formatter_setting:field_name] tokens from settings values.
+    if (!empty($settings)) {
+      $text = preg_replace_callback('/\[formatter_setting:([a-zA-Z0-9_]+)\]/', function ($matches) use ($settings) {
+        $field_name = $matches[1];
+        if (isset($settings[$field_name]) && !empty($settings[$field_name])) {
+          $values = $settings[$field_name];
+          if (is_array($values)) {
+            $strings = [];
+            foreach ($values as $value) {
+              if (is_array($value)) {
+                $strings[] = $value['value'] ?? $value['target_id'] ?? reset($value) ?: '';
+              }
+              else {
+                $strings[] = (string) $value;
+              }
+            }
+            return implode(', ', array_filter($strings));
+          }
+          return (string) $values;
+        }
+        return $matches[0];
+      }, $text);
+    }
+
     $token_data = [
       $items->getEntity()->getEntityTypeId() => $items->getEntity(),
     ];
@@ -156,8 +185,6 @@ class HTMLToken extends FormatterTypeBase {
     foreach ($items as $delta => $item) {
       $delta_token_data = $token_data;
 
-      // EntityReferenceItem fields (image, file, entity_reference) need the
-      // referenced entity in token data so tokens like [file:url] resolve.
       if ($item instanceof EntityReferenceItem && $item->entity) {
         $delta_token_data[$item->entity->getEntityTypeId()] = $item->entity;
       }
