@@ -45,3 +45,39 @@ entity.formatter.delete_form:
     _title: 'Delete'
   requirements:
     _entity_access: 'formatter.delete'
+
+entity.formatter_setting.add_form:
+  path: '/admin/structure/formatters/manage/{formatter}/settings/add'
+  defaults:
+    _entity_form: 'formatter_setting.default'
+    _title: 'Add formatter setting'
+  requirements:
+    _entity_access: 'formatter.update'
+  options:
+    parameters:
+      formatter:
+        type: entity:formatter
+
+entity.formatter_setting.edit_form:
+  path: '/admin/structure/formatters/manage/{formatter}/settings/{formatter_setting}/edit'
+  defaults:
+    _entity_form: 'formatter_setting.edit'
+    _title: 'Edit formatter setting'
+  requirements:
+    _entity_access: 'formatter_setting.update'
+  options:
+    parameters:
+      formatter:
+        type: entity:formatter
+
+entity.formatter_setting.delete_form:
+  path: '/admin/structure/formatters/manage/{formatter}/settings/{formatter_setting}/delete'
+  defaults:
+    _entity_form: 'formatter_setting.delete'
+    _title: 'Delete formatter setting'
+  requirements:
+    _entity_access: 'formatter_setting.delete'
+  options:
+    parameters:
+      formatter:
+        type: entity:formatter

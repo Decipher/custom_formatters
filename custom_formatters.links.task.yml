@@ -7,3 +7,8 @@ custom_formatters.settings_form:
   title: 'Settings'
   route_name: custom_formatters.settings_form
   base_route: entity.formatter.collection
+
+entity.formatter.edit_form:
+  title: 'Edit'
+  route_name: entity.formatter.edit_form
+  base_route: entity.formatter.edit_form

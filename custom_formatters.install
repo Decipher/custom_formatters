@@ -11,6 +11,21 @@ declare(strict_types=1);
  * Implements hook_install().
  */
 function custom_formatters_install(): void {
+  // Ensure the formatter_setting entity type schema is installed.
+  \Drupal::entityDefinitionUpdateManager()->installEntityType(
+    \Drupal::entityTypeManager()->getDefinition('formatter_setting')
+  );
+
   \Drupal::service('plugin.manager.field.formatter')
     ->clearCachedDefinitions();
+}
+
+/**
+ * Install the formatter_setting entity type for fieldable settings.
+ */
+function custom_formatters_update_8401(): void {
+  $entity_type = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
+  if (!\Drupal::entityDefinitionUpdateManager()->getEntityType($entity_type->id())) {
+    \Drupal::entityDefinitionUpdateManager()->installEntityType($entity_type);
+  }
 }
