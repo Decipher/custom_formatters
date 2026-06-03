@@ -9,13 +9,18 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters\Plugin\Field\FieldFormatter;
 
+use Drupal\Component\Uuid\Uuid;
+use Drupal\custom_formatters\Entity\FormatterSetting;
 use Drupal\custom_formatters\FormatterInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\custom_formatters\FormatterExtrasManager;
+use Drupal\field\FieldConfigInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -45,6 +50,20 @@ class CustomFormatters extends EntityReferenceFormatterBase {
   protected $formatterExtrasManager;
 
   /**
+   * The entity field manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected EntityFieldManagerInterface $entityFieldManager;
+
+  /**
+   * The loaded formatter entity, cached for form/summary building.
+   *
+   * @var \Drupal\custom_formatters\FormatterInterface|null
+   */
+  protected ?FormatterInterface $loadedFormatter = NULL;
+
+  /**
    * Constructs a CustomFormatters formatter object.
    *
    * @param string $plugin_id
@@ -65,11 +84,14 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    *   The entity type manager service.
    * @param \Drupal\custom_formatters\FormatterExtrasManager $formatter_extras_manager
    *   The formatter extras plugin manager.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager service.
    */
-  public function __construct($plugin_id, $plugin_definition, $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityTypeManagerInterface $entity_type_manager, FormatterExtrasManager $formatter_extras_manager) {
+  public function __construct($plugin_id, $plugin_definition, $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityTypeManagerInterface $entity_type_manager, FormatterExtrasManager $formatter_extras_manager, EntityFieldManagerInterface $entity_field_manager) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->entityTypeManager = $entity_type_manager;
     $this->formatterExtrasManager = $formatter_extras_manager;
+    $this->entityFieldManager = $entity_field_manager;
   }
 
   /**
@@ -85,21 +107,25 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('entity_type.manager'),
-      $container->get('plugin.manager.custom_formatters.formatter_extras')
+      $container->get('plugin.manager.custom_formatters.formatter_extras'),
+      $container->get('entity_field.manager'),
     );
   }
 
   /**
    * {@inheritdoc}
    */
+  public static function defaultSettings() {
+    return [
+      'formatter_setting_uuid' => '',
+    ] + parent::defaultSettings();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $plugin_definition = (array) $this->getPluginDefinition();
-    $formatter_id = $plugin_definition['formatter'] ?? NULL;
-
-    $formatter = $this->entityTypeManager
-      ->getStorage('formatter')
-      ->load($formatter_id);
-
+    $formatter = $this->loadFormatter();
     if (!$formatter instanceof FormatterInterface) {
       return [];
     }
@@ -109,9 +135,9 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       return [];
     }
 
-    $element = $formatter_type->viewElements($items, $langcode);
+    $settings = $this->loadSettingsFromEntity();
+    $element = $formatter_type->viewElements($items, $langcode, $settings);
     if (!$element) {
-      // @todo Fail better.
       return [];
     }
 
@@ -133,6 +159,116 @@ class CustomFormatters extends EntityReferenceFormatterBase {
   }
 
   /**
+   * Loads the formatter entity for this plugin instance.
+   *
+   * @return \Drupal\custom_formatters\FormatterInterface|null
+   *   The formatter entity or NULL.
+   */
+  protected function loadFormatter(): ?FormatterInterface {
+    if (isset($this->loadedFormatter)) {
+      return $this->loadedFormatter;
+    }
+
+    $plugin_definition = (array) $this->getPluginDefinition();
+    $formatter_id = $plugin_definition['formatter'] ?? NULL;
+    if (!$formatter_id) {
+      return NULL;
+    }
+
+    $formatter = $this->entityTypeManager
+      ->getStorage('formatter')
+      ->load($formatter_id);
+
+    if ($formatter instanceof FormatterInterface) {
+      $this->loadedFormatter = $formatter;
+    }
+
+    return $this->loadedFormatter;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $formatter = $this->loadFormatter();
+    if (!$formatter) {
+      return [];
+    }
+
+    $fields = $this->entityFieldManager->getFieldDefinitions('formatter_setting', (string) $formatter->id());
+    $configurable_fields = array_filter($fields, fn($f) => $f instanceof FieldConfigInterface);
+    if (empty($configurable_fields)) {
+      return [];
+    }
+
+    try {
+      $formatter_setting = $this->loadOrCreateSettingEntity($formatter);
+    }
+    catch (\Exception $e) {
+      $form['error'] = [
+        '#markup' => $this->t('Unable to load formatter settings. Ensure the database is up to date (run <code>drush updatedb</code>).'),
+      ];
+      return $form;
+    }
+
+    $form['formatter_setting_uuid'] = [
+      '#type' => 'value',
+      '#value' => $formatter_setting->uuid() ?: '',
+    ];
+
+    $form['formatter_setting'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Formatter settings'),
+      '#description' => $this->t('Configure settings for this formatter. These settings only apply to this field display instance.'),
+      '#tree' => TRUE,
+      '#element_validate' => [[static::class, 'validateSettingsEntity']],
+    ];
+
+    $form_display = EntityFormDisplay::collectRenderDisplay($formatter_setting, 'default');
+    $form_display->buildForm($formatter_setting, $form['formatter_setting'], $form_state);
+
+    // Store the entity for the validate callback.
+    $form['formatter_setting']['#formatter_setting_entity'] = $formatter_setting;
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsSummary() {
+    $formatter = $this->loadFormatter();
+    if (!$formatter) {
+      return [];
+    }
+
+    $fields = $this->entityFieldManager->getFieldDefinitions('formatter_setting', (string) $formatter->id());
+    $configurable_fields = array_filter($fields, fn($f) => $f instanceof FieldConfigInterface);
+    if (empty($configurable_fields)) {
+      return [];
+    }
+
+    $formatter_setting = $this->loadSettingEntity();
+    if (!$formatter_setting) {
+      return [];
+    }
+
+    $summary = [];
+    foreach ($configurable_fields as $field_name => $field_definition) {
+      if (!$formatter_setting->hasField($field_name)) {
+        continue;
+      }
+      $field_item_list = $formatter_setting->get($field_name);
+      if ($field_item_list->isEmpty()) {
+        continue;
+      }
+      $summary[] = (string) $field_definition->getLabel() . ': ' . (string) $field_item_list->getString();
+    }
+
+    return $summary;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function prepareView(array $entities_items) {
@@ -142,19 +278,102 @@ class CustomFormatters extends EntityReferenceFormatterBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Loads or creates a FormatterSetting entity for this display instance.
+   *
+   * @param \Drupal\custom_formatters\FormatterInterface $formatter
+   *   The formatter config entity.
+   *
+   * @return \Drupal\custom_formatters\Entity\FormatterSetting
+   *   The formatter setting entity.
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    // @todo Re-add form builder functionality once ported.
-    return [];
+  protected function loadOrCreateSettingEntity(FormatterInterface $formatter): FormatterSetting {
+    $existing = $this->loadSettingEntity();
+    if ($existing) {
+      return $existing;
+    }
+
+    return FormatterSetting::create([
+      'formatter' => (string) $formatter->id(),
+      'label' => $formatter->label(),
+    ]);
   }
 
   /**
-   * {@inheritdoc}
+   * Loads the FormatterSetting entity from the stored UUID.
+   *
+   * @return \Drupal\custom_formatters\Entity\FormatterSetting|null
+   *   The formatter setting entity or NULL.
    */
-  public function settingsSummary() {
-    // @todo Re-add form builder functionality once ported.
-    return [];
+  protected function loadSettingEntity(): ?FormatterSetting {
+    $uuid = $this->getSetting('formatter_setting_uuid');
+    if (empty($uuid) || !Uuid::isValid($uuid)) {
+      return NULL;
+    }
+
+    $entities = $this->entityTypeManager
+      ->getStorage('formatter_setting')
+      ->loadByProperties(['uuid' => $uuid]);
+
+    $entity = $entities ? reset($entities) : NULL;
+    return $entity instanceof FormatterSetting ? $entity : NULL;
+  }
+
+  /**
+   * Loads settings values from the FormatterSetting entity.
+   *
+   * @return array
+   *   An associative array of field name → value pairs.
+   */
+  protected function loadSettingsFromEntity(): array {
+    $formatter = $this->loadFormatter();
+    if (!$formatter) {
+      return [];
+    }
+
+    $formatter_setting = $this->loadSettingEntity();
+    if (!$formatter_setting) {
+      return [];
+    }
+
+    $fields = $this->entityFieldManager->getFieldDefinitions('formatter_setting', (string) $formatter->id());
+    $configurable_fields = array_filter($fields, fn($f) => $f instanceof FieldConfigInterface);
+
+    $settings = [];
+    foreach ($configurable_fields as $field_name => $field_definition) {
+      if (!$formatter_setting->hasField($field_name)) {
+        continue;
+      }
+      $field_item_list = $formatter_setting->get($field_name);
+      if (!$field_item_list->isEmpty()) {
+        $settings[$field_name] = $field_item_list->getValue();
+      }
+    }
+
+    return $settings;
+  }
+
+  /**
+   * Element validate callback: saves the FormatterSetting entity.
+   *
+   * Extracts form values, populates and saves the entity, then sets the
+   * UUID in the parent settings so it persists in entity_view_display config.
+   */
+  public static function validateSettingsEntity(array &$element, FormStateInterface $form_state): void {
+    $entity = $element['#formatter_setting_entity'] ?? NULL;
+    if (!$entity) {
+      return;
+    }
+
+    $form_display = EntityFormDisplay::collectRenderDisplay($entity, 'default');
+    $form_display->extractFormValues($entity, $element, $form_state);
+
+    $entity->save();
+
+    // Update the UUID value element so field_ui stores the saved UUID.
+    $uuid_parents = $element['#parents'];
+    array_pop($uuid_parents);
+    $uuid_parents[] = 'formatter_setting_uuid';
+    $form_state->setValue($uuid_parents, $entity->uuid());
   }
 
 }
