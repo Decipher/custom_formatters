@@ -130,6 +130,7 @@ class CodeMirrorEditorTest extends KernelTestBase {
       'test',
       ['id' => 'test', 'label' => 'Test'],
       \Drupal::service('module_handler'),
+      \Drupal::service('entity_field.manager'),
     ) extends FormatterTypeBase {
 
       /**
@@ -139,11 +140,13 @@ class CodeMirrorEditorTest extends KernelTestBase {
        *   The field values to be rendered.
        * @param string $langcode
        *   The language that should be used to render the field.
+       * @param array $settings
+       *   The formatter field settings.
        *
        * @return array
        *   A renderable array.
        */
-      public function viewElements(FieldItemListInterface $items, $langcode): array {
+      public function viewElements(FieldItemListInterface $items, $langcode, array $settings = []): array {
         return [];
       }
 

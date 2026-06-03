@@ -441,7 +441,8 @@ class FormatterPreviewFormTest extends KernelTestBase {
     $entity = $this->createMock(FieldableEntityInterface::class);
 
     $data = $plugin->previewDebugData($items, $entity);
-    $this->assertEquals([['value' => 'php test']], $data);
+    $this->assertEquals([['value' => 'php test']], $data['items']);
+    $this->assertArrayHasKey('settings', $data);
   }
 
   /**
@@ -494,7 +495,8 @@ class FormatterPreviewFormTest extends KernelTestBase {
     $entity = $this->createMock(FieldableEntityInterface::class);
 
     $data = $plugin->previewDebugData($items, $entity);
-    $this->assertSame($entity, $data);
+    $this->assertSame($entity, $data['entity']);
+    $this->assertArrayHasKey('settings', $data);
   }
 
   /**
