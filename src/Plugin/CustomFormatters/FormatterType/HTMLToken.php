@@ -157,24 +157,7 @@ class HTMLToken extends FormatterTypeBase {
     // Replace [formatter_setting:field_name] tokens from settings values.
     if (!empty($settings)) {
       $text = preg_replace_callback('/\[formatter_setting:([a-zA-Z0-9_]+)\]/', function ($matches) use ($settings) {
-        $field_name = $matches[1];
-        if (isset($settings[$field_name]) && !empty($settings[$field_name])) {
-          $values = $settings[$field_name];
-          if (is_array($values)) {
-            $strings = [];
-            foreach ($values as $value) {
-              if (is_array($value)) {
-                $strings[] = $value['value'] ?? $value['target_id'] ?? reset($value) ?: '';
-              }
-              else {
-                $strings[] = (string) $value;
-              }
-            }
-            return implode(', ', array_filter($strings));
-          }
-          return (string) $values;
-        }
-        return $matches[0];
+        return $settings[$matches[1]] ?? $matches[0];
       }, $text);
     }
 

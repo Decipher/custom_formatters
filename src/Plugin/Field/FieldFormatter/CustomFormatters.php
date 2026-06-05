@@ -10,16 +10,20 @@ declare(strict_types=1);
 namespace Drupal\custom_formatters\Plugin\Field\FieldFormatter;
 
 use Drupal\Component\Uuid\Uuid;
-use Drupal\custom_formatters\Entity\FormatterSetting;
-use Drupal\custom_formatters\FormatterInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\FormatterInterface as FieldFormatterInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\custom_formatters\Entity\FormatterSetting;
+use Drupal\custom_formatters\Form\FormatterForm;
 use Drupal\custom_formatters\FormatterExtrasManager;
+use Drupal\custom_formatters\FormatterInterface;
 use Drupal\field\FieldConfigInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -57,6 +61,13 @@ class CustomFormatters extends EntityReferenceFormatterBase {
   protected EntityFieldManagerInterface $entityFieldManager;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected RendererInterface $renderer;
+
+  /**
    * The loaded formatter entity, cached for form/summary building.
    *
    * @var \Drupal\custom_formatters\FormatterInterface|null
@@ -86,12 +97,15 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    *   The formatter extras plugin manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    */
-  public function __construct($plugin_id, $plugin_definition, $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityTypeManagerInterface $entity_type_manager, FormatterExtrasManager $formatter_extras_manager, EntityFieldManagerInterface $entity_field_manager) {
+  public function __construct($plugin_id, $plugin_definition, $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityTypeManagerInterface $entity_type_manager, FormatterExtrasManager $formatter_extras_manager, EntityFieldManagerInterface $entity_field_manager, RendererInterface $renderer) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->entityTypeManager = $entity_type_manager;
     $this->formatterExtrasManager = $formatter_extras_manager;
     $this->entityFieldManager = $entity_field_manager;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -109,6 +123,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       $container->get('entity_type.manager'),
       $container->get('plugin.manager.custom_formatters.formatter_extras'),
       $container->get('entity_field.manager'),
+      $container->get('renderer'),
     );
   }
 
@@ -225,6 +240,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     ];
 
     $form_display = EntityFormDisplay::collectRenderDisplay($formatter_setting, 'default');
+    FormatterForm::populateMissingFormDisplayComponents($form_display, $formatter_setting, (string) $formatter->id());
     $form_display->buildForm($formatter_setting, $form['formatter_setting'], $form_state);
 
     // Store the entity for the validate callback.
@@ -338,15 +354,26 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     $fields = $this->entityFieldManager->getFieldDefinitions('formatter_setting', (string) $formatter->id());
     $configurable_fields = array_filter($fields, fn($f) => $f instanceof FieldConfigInterface);
 
+    $view_display = EntityViewDisplay::collectRenderDisplay($formatter_setting, 'default');
+
     $settings = [];
     foreach ($configurable_fields as $field_name => $field_definition) {
       if (!$formatter_setting->hasField($field_name)) {
         continue;
       }
       $field_item_list = $formatter_setting->get($field_name);
-      if (!$field_item_list->isEmpty()) {
-        $settings[$field_name] = $field_item_list->getValue();
+      if ($field_item_list->isEmpty()) {
+        continue;
       }
+
+      $rendered = '';
+      $field_renderer = $view_display->getRenderer($field_name);
+      if ($field_renderer instanceof FieldFormatterInterface) {
+        foreach ($field_renderer->viewElements($field_item_list, 'en') as $element) {
+          $rendered .= (string) $this->renderer->renderInIsolation($element);
+        }
+      }
+      $settings[$field_name] = $rendered;
     }
 
     return $settings;
@@ -365,6 +392,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     }
 
     $form_display = EntityFormDisplay::collectRenderDisplay($entity, 'default');
+    FormatterForm::populateMissingFormDisplayComponents($form_display, $entity, $entity->bundle());
     $form_display->extractFormValues($entity, $element, $form_state);
 
     $entity->save();

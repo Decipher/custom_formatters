@@ -2,6 +2,12 @@
 
 ## 4.1.x-dev (development)
 
+### Features
+
+- Added per-instance formatter settings via Field UI: formatter entities now
+  support configurable fields (via "Manage fields" / "Manage form display"
+  tabs) that appear as inline settings in the "Manage display" UI.
+
 ## 4.1.0-beta2 (2026-05-24)
 
 ### Features

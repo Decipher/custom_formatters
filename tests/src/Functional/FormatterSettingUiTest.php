@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\custom_formatters\Functional;
 
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\custom_formatters\Entity\FormatterSetting;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 
@@ -143,6 +145,76 @@ class FormatterSettingUiTest extends CustomFormattersTestBase {
 
     $this->assertSession()->linkExists('Manage fields');
     $this->assertSession()->linkByHrefExists('admin/structure/formatters/manage/' . $formatter->id() . '/fields');
+  }
+
+  /**
+   * Tests that formatter setting field values render correctly in node output.
+   *
+   * Creates a Twig formatter with a settings field, assigns a saved
+   * FormatterSetting entity to the field display, then verifies the rendered
+   * node page contains the expected setting value.
+   */
+  public function testSettingsFieldsRenderInOutput(): void {
+    $formatter = $this->createCustomFormatter([
+      'type' => 'twig',
+      'data' => '{% for item in items %}<span class="{{ settings.field_css_class|clean_class }}">{{ item.value }}</span>{% endfor %}',
+      'field_types' => ['text_with_summary'],
+    ]);
+    $formatter_id = (string) $formatter->id();
+
+    if (!FieldStorageConfig::loadByName('formatter_setting', 'field_css_class')) {
+      FieldStorageConfig::create([
+        'field_name' => 'field_css_class',
+        'type' => 'string',
+        'entity_type' => 'formatter_setting',
+      ])->save();
+    }
+    FieldConfig::create([
+      'field_name' => 'field_css_class',
+      'entity_type' => 'formatter_setting',
+      'bundle' => $formatter_id,
+      'label' => 'CSS class',
+    ])->save();
+
+    EntityViewDisplay::create([
+      'targetEntityType' => 'formatter_setting',
+      'bundle' => $formatter_id,
+      'mode' => 'default',
+      'status' => TRUE,
+      'content' => [
+        'field_css_class' => [
+          'type' => 'string',
+          'label' => 'hidden',
+          'settings' => ['link_to_entity' => FALSE],
+          'third_party_settings' => [],
+          'weight' => 0,
+          'region' => 'content',
+        ],
+      ],
+    ])->save();
+
+    $setting = FormatterSetting::create([
+      'formatter' => $formatter_id,
+      'label' => 'Test setting',
+      'field_css_class' => 'my-custom-class',
+    ]);
+    $setting->save();
+
+    \Drupal::service('entity_display.repository')->getViewDisplay('node', 'article', 'default')
+      ->setComponent('body', [
+        'type' => 'custom_formatters:' . $formatter_id,
+        'label' => 'hidden',
+        'settings' => [
+          'formatter_setting_uuid' => $setting->uuid(),
+        ],
+      ])
+      ->save();
+
+    \Drupal::service('plugin.manager.field.formatter')->clearCachedDefinitions();
+
+    $this->drupalGet($this->node->toUrl());
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->responseContains('my-custom-class');
   }
 
 }

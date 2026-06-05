@@ -10,9 +10,12 @@ declare(strict_types=1);
 namespace Drupal\Tests\custom_formatters\Kernel;
 
 use Drupal\custom_formatters\DevelGenerateIntegration;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormState;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\RenderContext;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\custom_formatters\Form\FormatterForm;
 use Drupal\custom_formatters\FormatterInterface;
@@ -48,6 +51,7 @@ class FormatterPreviewFormTest extends KernelTestBase {
   protected static $modules = [
     'custom_formatters',
     'field',
+    'field_ui',
     'node',
     'system',
     'text',
@@ -60,6 +64,7 @@ class FormatterPreviewFormTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
     $this->installConfig(['custom_formatters', 'node']);
+    $this->installEntitySchema('formatter_setting');
     $this->installEntitySchema('node');
     $this->installEntitySchema('user');
     $this->installSchema('node', 'node_access');
@@ -767,6 +772,183 @@ class FormatterPreviewFormTest extends KernelTestBase {
   }
 
   /**
+   * Tests settings widgets render in preview without a saved form display.
+   */
+  public function testPreviewSettingsFieldsRenderWithoutSavedFormDisplay(): void {
+    FieldStorageConfig::create([
+      'field_name' => 'field_preview_text',
+      'type' => 'string',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+    FieldStorageConfig::create([
+      'field_name' => 'field_preview_flag',
+      'type' => 'boolean',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+
+    $formatter = $this->createFormatter('test_preview_settings');
+    $formatter->save();
+    FieldConfig::create([
+      'field_name' => 'field_preview_text',
+      'entity_type' => 'formatter_setting',
+      'bundle' => (string) $formatter->id(),
+      'label' => 'Preview text',
+    ])->save();
+    FieldConfig::create([
+      'field_name' => 'field_preview_flag',
+      'entity_type' => 'formatter_setting',
+      'bundle' => (string) $formatter->id(),
+      'label' => 'Preview flag',
+      'settings' => ['on_label' => 'Yes', 'off_label' => 'No'],
+    ])->save();
+
+    $renderer = $this->container->get('renderer');
+    $form_object = $this->getFormObject($formatter);
+    $form = $renderer->executeInRenderContext(new RenderContext(), function () use ($form_object) {
+      return $this->container->get('form_builder')->getForm($form_object);
+    });
+
+    $this->assertArrayHasKey('preview', $form);
+    $this->assertArrayHasKey('settings', $form['preview'], 'Preview settings fieldset exists when configurable fields are present.');
+    $this->assertArrayHasKey('field_preview_text', $form['preview']['settings'], 'String settings field widget renders in preview without saved form display.');
+    $this->assertArrayHasKey('field_preview_flag', $form['preview']['settings'], 'Boolean settings field widget renders in preview without saved form display.');
+  }
+
+  /**
+   * Tests that a string field value is extracted from form state and rendered.
+   */
+  public function testExtractPreviewSettingsReturnsRenderedValues(): void {
+    FieldStorageConfig::create([
+      'field_name' => 'field_test_text',
+      'type' => 'string',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+
+    $formatter = $this->createFormatter('test_extract_string');
+    $formatter->save();
+
+    FieldConfig::create([
+      'field_name' => 'field_test_text',
+      'entity_type' => 'formatter_setting',
+      'bundle' => (string) $formatter->id(),
+      'label' => 'Test text',
+    ])->save();
+
+    $this->createViewDisplay('formatter_setting', (string) $formatter->id(), [
+      'field_test_text' => ['type' => 'string', 'settings' => ['link_to_entity' => FALSE]],
+    ]);
+
+    [$form, $form_state, $form_object] = $this->buildFormWithState($formatter);
+    $form_state->setValue(['preview', 'settings', 'field_test_text', 0, 'value'], 'my-class');
+
+    $result = $this->invokeExtractPreviewSettings($form_object, $form, $form_state);
+
+    $this->assertArrayHasKey('field_test_text', $result);
+    $this->assertStringContainsString('my-class', $result['field_test_text']);
+  }
+
+  /**
+   * Tests an empty array is returned when the formatter has no settings fields.
+   */
+  public function testExtractPreviewSettingsReturnsEmptyWithoutFields(): void {
+    $formatter = $this->createFormatter('test_extract_empty');
+    $formatter->save();
+
+    [$form, $form_state, $form_object] = $this->buildFormWithState($formatter);
+
+    $result = $this->invokeExtractPreviewSettings($form_object, $form, $form_state);
+
+    $this->assertSame([], $result);
+  }
+
+  /**
+   * Tests that a boolean field is rendered via its view formatter, not raw 0/1.
+   */
+  public function testExtractPreviewSettingsBooleanRendersYesNo(): void {
+    FieldStorageConfig::create([
+      'field_name' => 'field_test_flag',
+      'type' => 'boolean',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+
+    $formatter = $this->createFormatter('test_extract_bool');
+    $formatter->save();
+
+    FieldConfig::create([
+      'field_name' => 'field_test_flag',
+      'entity_type' => 'formatter_setting',
+      'bundle' => (string) $formatter->id(),
+      'label' => 'Test flag',
+      'settings' => ['on_label' => 'Yes', 'off_label' => 'No'],
+    ])->save();
+
+    $this->createViewDisplay('formatter_setting', (string) $formatter->id(), [
+      'field_test_flag' => ['type' => 'boolean', 'settings' => ['format' => 'yes-no']],
+    ]);
+
+    [$form, $form_state, $form_object] = $this->buildFormWithState($formatter);
+    $form_state->setValue(['preview', 'settings', 'field_test_flag', 'value'], 1);
+    $result = $this->invokeExtractPreviewSettings($form_object, $form, $form_state);
+    $this->assertArrayHasKey('field_test_flag', $result);
+    $this->assertStringContainsString('Yes', $result['field_test_flag']);
+
+    [$form, $form_state, $form_object] = $this->buildFormWithState($formatter);
+    $form_state->setValue(['preview', 'settings', 'field_test_flag', 'value'], 0);
+    $result = $this->invokeExtractPreviewSettings($form_object, $form, $form_state);
+    $this->assertArrayHasKey('field_test_flag', $result);
+    $this->assertStringContainsString('No', $result['field_test_flag']);
+  }
+
+  /**
+   * Tests multiple settings fields are all extracted and rendered correctly.
+   */
+  public function testExtractPreviewSettingsMultipleFields(): void {
+    FieldStorageConfig::create([
+      'field_name' => 'field_multi_text',
+      'type' => 'string',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+    FieldStorageConfig::create([
+      'field_name' => 'field_multi_flag',
+      'type' => 'boolean',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+
+    $formatter = $this->createFormatter('test_extract_multi');
+    $formatter->save();
+
+    FieldConfig::create([
+      'field_name' => 'field_multi_text',
+      'entity_type' => 'formatter_setting',
+      'bundle' => (string) $formatter->id(),
+      'label' => 'Multi text',
+    ])->save();
+    FieldConfig::create([
+      'field_name' => 'field_multi_flag',
+      'entity_type' => 'formatter_setting',
+      'bundle' => (string) $formatter->id(),
+      'label' => 'Multi flag',
+      'settings' => ['on_label' => 'Yes', 'off_label' => 'No'],
+    ])->save();
+
+    $this->createViewDisplay('formatter_setting', (string) $formatter->id(), [
+      'field_multi_text' => ['type' => 'string', 'settings' => ['link_to_entity' => FALSE]],
+      'field_multi_flag' => ['type' => 'boolean', 'settings' => ['format' => 'yes-no']],
+    ]);
+
+    [$form, $form_state, $form_object] = $this->buildFormWithState($formatter);
+    $form_state->setValue(['preview', 'settings', 'field_multi_text', 0, 'value'], 'hello');
+    $form_state->setValue(['preview', 'settings', 'field_multi_flag', 'value'], 1);
+
+    $result = $this->invokeExtractPreviewSettings($form_object, $form, $form_state);
+
+    $this->assertArrayHasKey('field_multi_text', $result);
+    $this->assertStringContainsString('hello', $result['field_multi_text']);
+    $this->assertArrayHasKey('field_multi_flag', $result);
+    $this->assertStringContainsString('Yes', $result['field_multi_flag']);
+  }
+
+  /**
    * Creates a formatter entity with basic properties.
    *
    * @param string $id
@@ -818,6 +1000,84 @@ class FormatterPreviewFormTest extends KernelTestBase {
     assert($form_object instanceof FormatterForm);
     $form_object->setEntity($formatter);
     return $form_object;
+  }
+
+  /**
+   * Builds the formatter edit form, exposing the form state.
+   *
+   * Unlike buildForm(), this exposes the form state so callers can read values
+   * set by #process callbacks (e.g. preview_settings_entity) and inject widget
+   * values before calling extractPreviewSettings().
+   *
+   * @return array
+   *   Tuple of the built form array, the populated form state, and the
+   *   initialised form object.
+   */
+  private function buildFormWithState(FormatterInterface $formatter): array {
+    $form_object = $this->getFormObject($formatter);
+    $form_state = new FormState();
+    $renderer = $this->container->get('renderer');
+    $form = $renderer->executeInRenderContext(new RenderContext(), function () use ($form_object, $form_state) {
+      return $this->container->get('form_builder')->buildForm($form_object, $form_state);
+    });
+    return [$form, $form_state, $form_object];
+  }
+
+  /**
+   * Invokes the protected extractPreviewSettings method via reflection.
+   *
+   * @param \Drupal\custom_formatters\Form\FormatterForm $form_object
+   *   The form object.
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array
+   *   The extracted settings keyed by field name.
+   */
+  private function invokeExtractPreviewSettings(FormatterForm $form_object, array $form, FormStateInterface $form_state): array {
+    $ref = new \ReflectionClass($form_object);
+    $method = $ref->getMethod('extractPreviewSettings');
+    $method->setAccessible(TRUE);
+    return $method->invoke($form_object, $form, $form_state);
+  }
+
+  /**
+   * Creates and saves an EntityViewDisplay for the given entity type/bundle.
+   *
+   * @param string $entity_type
+   *   The entity type ID.
+   * @param string $bundle
+   *   The bundle name.
+   * @param array $fields
+   *   Keyed by field name; each value is ['type' => ..., 'settings' => [...]].
+   *
+   * @return \Drupal\Core\Entity\Entity\EntityViewDisplay
+   *   The saved view display.
+   */
+  private function createViewDisplay(string $entity_type, string $bundle, array $fields): EntityViewDisplay {
+    $content = [];
+    $weight = 0;
+    foreach ($fields as $field_name => $config) {
+      $content[$field_name] = [
+        'type' => $config['type'],
+        'label' => 'hidden',
+        'settings' => $config['settings'] ?? [],
+        'third_party_settings' => [],
+        'weight' => $weight++,
+        'region' => 'content',
+      ];
+    }
+    $display = EntityViewDisplay::create([
+      'targetEntityType' => $entity_type,
+      'bundle' => $bundle,
+      'mode' => 'default',
+      'status' => TRUE,
+      'content' => $content,
+    ]);
+    $display->save();
+    return $display;
   }
 
   /**

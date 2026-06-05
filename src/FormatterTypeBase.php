@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\custom_formatters;
 
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Url;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -117,7 +118,9 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
       ];
     }
 
-    $url = $this->entity->toUrl('entity.formatter_setting.field_ui_fields')->toString();
+    $url = Url::fromRoute('entity.formatter_setting.field_ui_fields', [
+      'formatter' => $this->entity->id(),
+    ])->toString();
 
     return [
       '#type' => 'details',

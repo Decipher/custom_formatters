@@ -70,6 +70,9 @@ Read the manual at:
     multiple values.
   - **Twig** — A Twig based editor with support for multiple fields and
     multiple values.
+- Per-instance formatter settings via Field UI — add configurable fields to a
+  formatter via its "Manage fields" tab; settings appear inline in "Manage
+  display" and are passed to engine templates as rendered strings.
 - Supports all fieldable entities, including but not limited to:
   - Drupal core — Comment, Node, Taxonomy term, User, and Media entities.
 - Exportable as Drupal configuration entities.
@@ -89,8 +92,6 @@ Read the manual at:
 
 Planned features for future releases:
 
-- **Formatter settings** — Per-formatter configurable fields via Drupal's
-  Field UI, exposed to engine templates as variables.
 - **Granular permissions** — Per-engine permission gates, e.g. a separate
   permission to create PHP formatters.
 - **Export** — Generate a standalone Drupal module from a custom formatter.

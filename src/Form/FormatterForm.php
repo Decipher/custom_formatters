@@ -11,7 +11,10 @@ namespace Drupal\custom_formatters\Form;
 
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\Core\Field\FormatterInterface as FieldFormatterInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldConfigInterface;
@@ -510,6 +513,8 @@ class FormatterForm extends EntityForm {
     }
 
     $form_display = EntityFormDisplay::collectRenderDisplay($preview_setting_entity, 'default');
+    self::populateMissingFormDisplayComponents($form_display, $preview_setting_entity, (string) $formatter->id());
+
     $form_display->buildForm($preview_setting_entity, $element, $form_state);
     $element['#formatter_setting_entity'] = $preview_setting_entity;
 
@@ -732,9 +737,11 @@ class FormatterForm extends EntityForm {
   /**
    * Extracts settings values from submitted form state.
    *
-   * Uses EntityFormDisplay::extractFormValues() to properly convert raw
-   * widget input into field item format, then reads the values back from
-   * the in-memory entity.
+   * Converts raw widget input to field item format via
+   * EntityFormDisplay::extractFormValues(), then renders each non-empty
+   * field through the EntityViewDisplay formatter to produce a plain HTML
+   * string per field. The rendered strings are what engine plugins receive
+   * as the $settings array.
    *
    * @param array $form
    *   The complete form array.
@@ -742,7 +749,8 @@ class FormatterForm extends EntityForm {
    *   The form state.
    *
    * @return array
-   *   An associative array of field name -> value pairs.
+   *   Rendered HTML strings keyed by field machine name. Empty fields are
+   *   omitted. Returns an empty array when no settings entity or fields exist.
    */
   protected function extractPreviewSettings(array $form, FormStateInterface $form_state): array {
     $preview_setting_entity = $form_state->get('preview_settings_entity');
@@ -761,10 +769,13 @@ class FormatterForm extends EntityForm {
     }
 
     $form_display = EntityFormDisplay::collectRenderDisplay($preview_setting_entity, 'default');
+    self::populateMissingFormDisplayComponents($form_display, $preview_setting_entity, (string) $this->entity->id());
     $form_display->extractFormValues($preview_setting_entity, $settings_element, $form_state);
 
     $fields = $this->entityFieldManager->getFieldDefinitions('formatter_setting', (string) $this->entity->id());
     $configurable_fields = array_filter($fields, fn($f) => $f instanceof FieldConfigInterface);
+
+    $view_display = EntityViewDisplay::collectRenderDisplay($preview_setting_entity, 'default');
 
     $settings = [];
     foreach ($configurable_fields as $field_name => $field_definition) {
@@ -772,9 +783,18 @@ class FormatterForm extends EntityForm {
         continue;
       }
       $field_item_list = $preview_setting_entity->get($field_name);
-      if (!$field_item_list->isEmpty()) {
-        $settings[$field_name] = $field_item_list->getValue();
+      if ($field_item_list->isEmpty()) {
+        continue;
       }
+
+      $rendered = '';
+      $field_renderer = $view_display->getRenderer($field_name);
+      if ($field_renderer instanceof FieldFormatterInterface) {
+        foreach ($field_renderer->viewElements($field_item_list, 'en') as $element) {
+          $rendered .= (string) $this->renderer->renderInIsolation($element);
+        }
+      }
+      $settings[$field_name] = $rendered;
     }
 
     return $settings;
@@ -1144,6 +1164,38 @@ class FormatterForm extends EntityForm {
     ksort($options);
 
     return $options;
+  }
+
+  /**
+   * Ensures form display has components for all configurable settings fields.
+   *
+   * When no saved entity_form_display config exists, collectRenderDisplay()
+   * returns an empty display. This method adds default components for any
+   * configurable fields missing from the display so widgets render and
+   * extractFormValues() can process submitted data.
+   *
+   * @param \Drupal\Core\Entity\Display\EntityFormDisplayInterface $form_display
+   *   The form display to populate.
+   * @param \Drupal\custom_formatters\Entity\FormatterSetting $entity
+   *   The formatter setting entity (used to determine bundle).
+   * @param string $formatter_id
+   *   The formatter config entity ID (bundle).
+   */
+  public static function populateMissingFormDisplayComponents(EntityFormDisplayInterface $form_display, FormatterSetting $entity, string $formatter_id): void {
+    $entity_field_manager = \Drupal::service('entity_field.manager');
+    $fields = $entity_field_manager->getFieldDefinitions('formatter_setting', $formatter_id);
+    $configurable_fields = array_filter($fields, fn($f) => $f instanceof FieldConfigInterface);
+
+    $weight = 0;
+    foreach ($configurable_fields as $field_name => $field_definition) {
+      if (!$form_display->getComponent($field_name)) {
+        $form_display->setComponent($field_name, [
+          'type' => NULL,
+          'weight' => $weight++,
+          'region' => 'content',
+        ]);
+      }
+    }
   }
 
 }

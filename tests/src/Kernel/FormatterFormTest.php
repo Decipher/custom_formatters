@@ -43,6 +43,7 @@ class FormatterFormTest extends KernelTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
+    $this->installEntitySchema('formatter_setting');
     $this->installConfig('custom_formatters');
   }
 
