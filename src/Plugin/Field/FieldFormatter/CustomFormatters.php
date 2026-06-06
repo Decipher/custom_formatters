@@ -16,7 +16,7 @@ use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterInterface as FieldFormatterInterface;
-use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
+use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\RendererInterface;
@@ -37,7 +37,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @phpstan-ignore generic.unusedTypeParameter
  */
-class CustomFormatters extends EntityReferenceFormatterBase {
+class CustomFormatters extends FormatterBase {
 
   /**
    * The entity type manager service.
@@ -119,7 +119,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       $configuration['settings'],
       $configuration['label'],
       $configuration['view_mode'],
-      $configuration['third_party_settings'],
+      $configuration['third_party_settings'] ?? [],
       $container->get('entity_type.manager'),
       $container->get('plugin.manager.custom_formatters.formatter_extras'),
       $container->get('entity_field.manager'),
@@ -150,7 +150,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       return [];
     }
 
-    $settings = $this->loadSettingsFromEntity();
+    $settings = $this->loadSettingsFromEntity($langcode);
     $element = $formatter_type->viewElements($items, $langcode, $settings);
     if (!$element) {
       return [];
@@ -161,9 +161,14 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       $element = [$element];
     }
 
+    $formatter_setting = $this->loadSettingEntity();
     foreach (Element::children($element) as $delta) {
       $element[$delta]['#cf_options'] = $items->viewMode ?? [];
-      $element[$delta]['#cache']['tags'] = $formatter->getCacheTags();
+      $cache_tags = $formatter->getCacheTags();
+      if ($formatter_setting) {
+        $cache_tags = array_merge($cache_tags, $formatter_setting->getCacheTags());
+      }
+      $element[$delta]['#cache']['tags'] = $cache_tags;
     }
 
     // Allow third party integrations a chance to alter the element.
@@ -240,7 +245,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     ];
 
     $form_display = EntityFormDisplay::collectRenderDisplay($formatter_setting, 'default');
-    FormatterForm::populateMissingFormDisplayComponents($form_display, $formatter_setting, (string) $formatter->id());
+    FormatterForm::populateMissingFormDisplayComponents($form_display, (string) $formatter->id());
     $form_display->buildForm($formatter_setting, $form['formatter_setting'], $form_state);
 
     // Store the entity for the validate callback.
@@ -340,7 +345,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
    * @return array
    *   An associative array of field name → value pairs.
    */
-  protected function loadSettingsFromEntity(): array {
+  protected function loadSettingsFromEntity(string $langcode = 'en'): array {
     $formatter = $this->loadFormatter();
     if (!$formatter) {
       return [];
@@ -369,7 +374,7 @@ class CustomFormatters extends EntityReferenceFormatterBase {
       $rendered = '';
       $field_renderer = $view_display->getRenderer($field_name);
       if ($field_renderer instanceof FieldFormatterInterface) {
-        foreach ($field_renderer->viewElements($field_item_list, 'en') as $element) {
+        foreach ($field_renderer->viewElements($field_item_list, $langcode) as $element) {
           $rendered .= (string) $this->renderer->renderInIsolation($element);
         }
       }
@@ -392,16 +397,34 @@ class CustomFormatters extends EntityReferenceFormatterBase {
     }
 
     $form_display = EntityFormDisplay::collectRenderDisplay($entity, 'default');
-    FormatterForm::populateMissingFormDisplayComponents($form_display, $entity, $entity->bundle());
+    FormatterForm::populateMissingFormDisplayComponents($form_display, $entity->bundle());
     $form_display->extractFormValues($entity, $element, $form_state);
 
-    $entity->save();
+    // Stash the entity for saving in submitForm().
+    $form_state->set('formatter_setting_entity_' . $entity->bundle(), $entity);
 
     // Update the UUID value element so field_ui stores the saved UUID.
     $uuid_parents = $element['#parents'];
     array_pop($uuid_parents);
     $uuid_parents[] = 'formatter_setting_uuid';
     $form_state->setValue($uuid_parents, $entity->uuid());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array $form, FormStateInterface $form_state) {
+    $formatter = $this->loadFormatter();
+    if (!$formatter) {
+      return;
+    }
+
+    $entity = $form_state->get('formatter_setting_entity_' . $formatter->id());
+    if (!$entity) {
+      return;
+    }
+
+    $entity->save();
   }
 
 }

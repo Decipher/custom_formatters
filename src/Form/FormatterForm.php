@@ -513,7 +513,7 @@ class FormatterForm extends EntityForm {
     }
 
     $form_display = EntityFormDisplay::collectRenderDisplay($preview_setting_entity, 'default');
-    self::populateMissingFormDisplayComponents($form_display, $preview_setting_entity, (string) $formatter->id());
+    self::populateMissingFormDisplayComponents($form_display, (string) $formatter->id());
 
     $form_display->buildForm($preview_setting_entity, $element, $form_state);
     $element['#formatter_setting_entity'] = $preview_setting_entity;
@@ -769,7 +769,7 @@ class FormatterForm extends EntityForm {
     }
 
     $form_display = EntityFormDisplay::collectRenderDisplay($preview_setting_entity, 'default');
-    self::populateMissingFormDisplayComponents($form_display, $preview_setting_entity, (string) $this->entity->id());
+    self::populateMissingFormDisplayComponents($form_display, (string) $this->entity->id());
     $form_display->extractFormValues($preview_setting_entity, $settings_element, $form_state);
 
     $fields = $this->entityFieldManager->getFieldDefinitions('formatter_setting', (string) $this->entity->id());
@@ -790,7 +790,7 @@ class FormatterForm extends EntityForm {
       $rendered = '';
       $field_renderer = $view_display->getRenderer($field_name);
       if ($field_renderer instanceof FieldFormatterInterface) {
-        foreach ($field_renderer->viewElements($field_item_list, 'en') as $element) {
+        foreach ($field_renderer->viewElements($field_item_list, $preview_setting_entity->language()->getId()) as $element) {
           $rendered .= (string) $this->renderer->renderInIsolation($element);
         }
       }
@@ -1176,12 +1176,10 @@ class FormatterForm extends EntityForm {
    *
    * @param \Drupal\Core\Entity\Display\EntityFormDisplayInterface $form_display
    *   The form display to populate.
-   * @param \Drupal\custom_formatters\Entity\FormatterSetting $entity
-   *   The formatter setting entity (used to determine bundle).
    * @param string $formatter_id
    *   The formatter config entity ID (bundle).
    */
-  public static function populateMissingFormDisplayComponents(EntityFormDisplayInterface $form_display, FormatterSetting $entity, string $formatter_id): void {
+  public static function populateMissingFormDisplayComponents(EntityFormDisplayInterface $form_display, string $formatter_id): void {
     $entity_field_manager = \Drupal::service('entity_field.manager');
     $fields = $entity_field_manager->getFieldDefinitions('formatter_setting', $formatter_id);
     $configurable_fields = array_filter($fields, fn($f) => $f instanceof FieldConfigInterface);
