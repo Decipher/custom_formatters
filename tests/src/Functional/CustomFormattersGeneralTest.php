@@ -50,7 +50,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
     // Ensure our pre-prepared test formatter is present on the Manage display
     // page.
-    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->drupalGet('admin/structure/types/manage/article/display/default');
     $this->assertSession()->responseContains('custom_formatters:test_formatter');
     $this->assertSession()->responseContains('Custom: Test Formatter');
 
@@ -62,7 +62,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
     // Ensure our pre-prepared test formatter is present on the Manage display
     // page with the altered label prefix.
-    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->drupalGet('admin/structure/types/manage/article/display/default');
     $this->assertSession()->responseContains((string) $this->t('@prefix: Test Formatter', ['@prefix' => $edit['label_prefix_value']]));
 
     // Remove the Label prefix.
@@ -73,7 +73,7 @@ class CustomFormattersGeneralTest extends CustomFormattersTestBase {
 
     // Ensure our pre-prepared test formatter is present on the Manage display
     // page without a label prefix.
-    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->drupalGet('admin/structure/types/manage/article/display/default');
     $this->assertSession()->responseContains('Test Formatter');
   }
 

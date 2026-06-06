@@ -160,7 +160,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
    *   A Node view mode.
    */
   protected function setCustomFormatter(string $formatter_name, string $field_name, string $bundle_name, string $view_mode = 'default'): void {
-    $this->drupalGet("admin/structure/types/manage/{$bundle_name}/display");
+    $this->drupalGet("admin/structure/types/manage/{$bundle_name}/display/{$view_mode}");
     $this->submitForm(["fields[{$field_name}][type]" => "custom_formatters:{$formatter_name}"], (string) $this->t('Save'));
     $this->assertSession()->pageTextContains((string) $this->t('Your settings have been saved.'));
   }
