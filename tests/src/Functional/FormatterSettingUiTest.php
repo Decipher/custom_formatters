@@ -93,18 +93,19 @@ class FormatterSettingUiTest extends CustomFormattersTestBase {
   }
 
   /**
-   * Test that field definitions are available in the formatter settings form.
+   * Test that field definitions added via Field UI render in node output.
    */
   public function testSettingsFormShowsFieldUiFields() {
     $formatter = $this->createCustomFormatter([
       'type' => 'html_token',
-      'data' => '[node:title]',
+      'data' => '[formatter_setting:field_custom_text]',
+      'field_types' => ['text_with_summary', 'text_long'],
     ]);
     $formatter_id = $formatter->id();
 
     FieldStorageConfig::create([
       'field_name' => 'field_custom_text',
-      'type' => 'text',
+      'type' => 'string',
       'entity_type' => 'formatter_setting',
     ])->save();
     FieldConfig::create([
@@ -114,21 +115,45 @@ class FormatterSettingUiTest extends CustomFormattersTestBase {
       'label' => 'Custom text setting',
     ])->save();
 
+    $setting = FormatterSetting::create([
+      'formatter' => $formatter_id,
+      'label' => 'Test setting',
+      'field_custom_text' => 'Hello world',
+    ]);
+    $setting->save();
+
+    EntityViewDisplay::create([
+      'targetEntityType' => 'formatter_setting',
+      'bundle' => $formatter_id,
+      'mode' => 'default',
+      'status' => TRUE,
+      'content' => [
+        'field_custom_text' => [
+          'type' => 'string',
+          'label' => 'hidden',
+          'settings' => ['link_to_entity' => FALSE],
+          'third_party_settings' => [],
+          'weight' => 0,
+          'region' => 'content',
+        ],
+      ],
+    ])->save();
+
     \Drupal::service('entity_display.repository')->getViewDisplay('node', 'article', 'default')
       ->setComponent('body', [
         'type' => 'custom_formatters:' . $formatter_id,
         'label' => 'hidden',
         'settings' => [
-          'field_custom_text' => 'Hello world',
+          'formatter_setting_uuid' => $setting->uuid(),
         ],
       ])
       ->save();
 
-    $this->drupalGet('admin/structure/types/manage/article/display');
-    $this->assertSession()->statusCodeEquals(200);
+    \Drupal::service('plugin.manager.field.formatter')->clearCachedDefinitions();
 
-    $this->drupalGet('admin/structure/types/manage/article/display');
-    $this->assertSession()->responseContains('custom_formatters:' . $formatter_id);
+    $this->drupalGet($this->node->toUrl());
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->pageTextContains('Hello world');
   }
 
   /**
@@ -158,7 +183,7 @@ class FormatterSettingUiTest extends CustomFormattersTestBase {
     $formatter = $this->createCustomFormatter([
       'type' => 'twig',
       'data' => '{% for item in items %}<span class="{{ settings.field_css_class|clean_class }}">{{ item.value }}</span>{% endfor %}',
-      'field_types' => ['text_with_summary'],
+      'field_types' => ['text_with_summary', 'text_long'],
     ]);
     $formatter_id = (string) $formatter->id();
 
