@@ -1,0 +1,20 @@
+uuid: c4e5d6f7-a8b9-4011-c2d3-e4f5a6b7c8d9
+langcode: en
+status: true
+dependencies:
+  module:
+    - custom_formatters
+third_party_settings:
+  contextual:
+    mode: '1'
+id: example_twig_title
+label: 'Example: Linkable title (Twig + settings)'
+type: twig
+description: 'A Twig example formatter demonstrating formatter settings. Uses a boolean "Link to entity" setting and a text "CSS class" setting. Values are rendered through the settings view display — change the boolean format there to control the template comparison value.'
+field_types:
+  - string
+  - string_long
+  - text
+  - text_long
+  - text_with_summary
+data: "{# Formatter settings example.\r\n   Available settings:\r\n   - settings.field_link: 'Yes' or 'No' (boolean field, controlled by view display format)\r\n   - settings.field_css_class: string value\r\n#}\r\n{% for item in items %}\r\n  {% set class = settings.field_css_class ? ' class=\"' ~ settings.field_css_class|clean_class ~ '\"' %}\r\n  {% if settings.field_link == 'Yes' %}\r\n    <a href=\"{{ path('entity.node.canonical', {'node': entity.id}) }}\"{{ class|raw }}>{{ item.value }}</a>\r\n  {% else %}\r\n    <span{{ class|raw }}>{{ item.value }}</span>\r\n  {% endif %}\r\n{% endfor %}"

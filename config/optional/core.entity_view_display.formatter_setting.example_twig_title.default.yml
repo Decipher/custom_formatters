@@ -1,0 +1,31 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - custom_formatters.formatter.example_twig_title
+    - field.field.formatter_setting.example_twig_title.field_css_class
+    - field.field.formatter_setting.example_twig_title.field_link
+id: formatter_setting.example_twig_title.default
+targetEntityType: formatter_setting
+bundle: example_twig_title
+mode: default
+content:
+  field_css_class:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_link:
+    type: boolean
+    label: hidden
+    settings:
+      format: yes-no
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

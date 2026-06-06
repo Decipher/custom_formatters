@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - custom_formatters.formatter.example_twig_title
+    - field.storage.formatter_setting.field_css_class
+id: formatter_setting.example_twig_title.field_css_class
+field_name: field_css_class
+entity_type: formatter_setting
+bundle: example_twig_title
+label: 'CSS class'
+description: 'Optional CSS class applied to the wrapper element.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
