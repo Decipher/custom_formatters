@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Drupal\custom_formatters\Plugin\CustomFormatters\FormatterType;
 
 use Drupal\Component\Plugin\DependentPluginInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -48,8 +50,8 @@ class FormatterPreset extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, FormatterPluginManager $formatter_manager) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $module_handler);
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, EntityFieldManagerInterface $entity_field_manager, FormatterPluginManager $formatter_manager) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $module_handler, $entity_field_manager);
     $this->formatterManager = $formatter_manager;
   }
 
@@ -57,7 +59,17 @@ class FormatterPreset extends FormatterTypeBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'), $container->get('plugin.manager.field.formatter'));
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'), $container->get('entity_field.manager'), $container->get('plugin.manager.field.formatter'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function previewDebugData(FieldItemListInterface $items, FieldableEntityInterface $entity): mixed {
+    return [
+      'items' => $items->getValue(),
+      'settings' => [],
+    ];
   }
 
   /**
@@ -184,7 +196,7 @@ class FormatterPreset extends FormatterTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode): array {
+  public function viewElements(FieldItemListInterface $items, $langcode, array $settings = []): array {
     $data = $this->entity->get('data');
     $field_types = $this->entity->get('field_types');
     $formatter = $this->getFormatter($data['formatter'], $field_types[0]);

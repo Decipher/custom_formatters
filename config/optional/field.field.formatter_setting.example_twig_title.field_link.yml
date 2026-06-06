@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - custom_formatters.formatter.example_twig_title
+    - field.storage.formatter_setting.field_link
+id: formatter_setting.example_twig_title.field_link
+field_name: field_link
+entity_type: formatter_setting
+bundle: example_twig_title
+label: 'Link to entity'
+description: 'Whether to wrap the field value in a link to the entity.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

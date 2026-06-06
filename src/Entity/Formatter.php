@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace Drupal\custom_formatters\Entity;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\custom_formatters\FormatterDependencyBuilder;
 use Drupal\custom_formatters\FormatterInterface;
@@ -32,6 +32,7 @@ use Drupal\custom_formatters\FormatterInterface;
  *   },
  *   config_prefix = "formatter",
  *   admin_permission = "administer custom formatters",
+ *   bundle_of = "formatter_setting",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label"
@@ -51,7 +52,7 @@ use Drupal\custom_formatters\FormatterInterface;
  *   }
  * )
  */
-class Formatter extends ConfigEntityBase implements FormatterInterface {
+class Formatter extends ConfigEntityBundleBase implements FormatterInterface {
 
   /**
    * {@inheritdoc}

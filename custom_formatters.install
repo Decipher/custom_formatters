@@ -7,10 +7,39 @@
 
 declare(strict_types=1);
 
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+
 /**
  * Implements hook_install().
  */
 function custom_formatters_install(): void {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  // On newer Drupal versions entity types may be auto-installed before
+  // hook_install() runs. Only install the schema if it isn't already present.
+  try {
+    $update_manager->getEntityType('formatter_setting');
+  }
+  catch (PluginNotFoundException) {
+    $definition = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
+    $update_manager->installEntityType($definition);
+  }
+
   \Drupal::service('plugin.manager.field.formatter')
     ->clearCachedDefinitions();
+}
+
+/**
+ * Install the formatter_setting entity type for fieldable settings.
+ */
+function custom_formatters_update_8401(): void {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  try {
+    $update_manager->getEntityType('formatter_setting');
+    // Already installed — nothing to do.
+  }
+  catch (PluginNotFoundException) {
+    $definition = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
+    $update_manager->installEntityType($definition);
+  }
 }

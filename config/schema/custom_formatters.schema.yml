@@ -84,3 +84,11 @@ custom_formatters.third_party.contextual:
     mode:
       type: string
       label: 'Mode'
+
+field.formatter.settings.custom_formatters:*:
+  type: mapping
+  label: 'Custom formatter settings'
+  mapping:
+    formatter_setting_uuid:
+      type: string
+      label: 'Formatter setting entity UUID'

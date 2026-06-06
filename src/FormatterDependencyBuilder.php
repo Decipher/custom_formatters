@@ -11,6 +11,7 @@ namespace Drupal\custom_formatters;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ConfigManagerInterface;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
@@ -123,7 +124,16 @@ class FormatterDependencyBuilder {
    *   The dependent entities.
    */
   public function getDependentEntities(FormatterInterface $entity): array {
-    return $this->configManager->findConfigEntityDependenciesAsEntities('config', [$entity->getConfigDependencyName()]);
+    $dependents = $this->configManager->findConfigEntityDependenciesAsEntities('config', [$entity->getConfigDependencyName()]);
+    return array_filter($dependents, function (ConfigEntityInterface $dependent): bool {
+      if ($dependent->getEntityTypeId() !== 'entity_view_display') {
+        return FALSE;
+      }
+      if ($dependent->getTargetEntityTypeId() === 'formatter_setting') {
+        return FALSE;
+      }
+      return TRUE;
+    });
   }
 
   /**

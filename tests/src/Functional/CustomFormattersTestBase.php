@@ -60,6 +60,12 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
   protected function setUp(): void {
     parent::setUp();
 
+    // Drupal 11.4+ caches formatter options in FormatterPluginManager::
+    // $formatterOptions per service instance and does not invalidate it when
+    // clearCachedDefinitions() is called. Reset it here so that formatters
+    // installed by test modules (e.g. custom_formatters_test) are visible.
+    $this->resetFormatterPluginCache();
+
     // Create an admin user.
     $this->adminUser = $this->drupalCreateUser([
       'access administration pages',
@@ -128,7 +134,9 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
     $defaults = [
       'label'       => $name,
       'id'          => mb_strtolower($name),
-      'field_types' => ['text_with_summary'],
+      // Include both types: Drupal 11.0 creates body as text_with_summary,
+      // while Drupal 11.1+ creates it as text_long.
+      'field_types' => ['text_with_summary', 'text_long'],
     ];
     $values += $defaults;
 
@@ -137,10 +145,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
       ->getStorage('formatter')
       ->create($values);
     $formatter->save();
-
-    // Clear cached formatters.
-    \Drupal::service('plugin.manager.field.formatter')
-      ->clearCachedDefinitions();
+    $this->resetFormatterPluginCache();
 
     \assert($formatter instanceof FormatterInterface);
 
@@ -160,9 +165,25 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
    *   A Node view mode.
    */
   protected function setCustomFormatter(string $formatter_name, string $field_name, string $bundle_name, string $view_mode = 'default'): void {
-    $this->drupalGet("admin/structure/types/manage/{$bundle_name}/display");
+    $this->drupalGet("admin/structure/types/manage/{$bundle_name}/display/{$view_mode}");
     $this->submitForm(["fields[{$field_name}][type]" => "custom_formatters:{$formatter_name}"], (string) $this->t('Save'));
     $this->assertSession()->pageTextContains((string) $this->t('Your settings have been saved.'));
+  }
+
+  /**
+   * Clears the formatter plugin manager's persistent and instance-level caches.
+   *
+   * Drupal 11.4+ caches formatter options in the FormatterPluginManager service
+   * instance ($formatterOptions) in addition to the standard plugin definitions
+   * cache. clearCachedDefinitions() only clears the latter, so this method
+   * resets both to ensure newly-created or newly-installed formatters are
+   * visible on subsequent page requests.
+   */
+  protected function resetFormatterPluginCache(): void {
+    $manager = \Drupal::service('plugin.manager.field.formatter');
+    $manager->clearCachedDefinitions();
+    $ref = new \ReflectionProperty($manager, 'formatterOptions');
+    $ref->setValue($manager, NULL);
   }
 
 }

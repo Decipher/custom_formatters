@@ -3,6 +3,7 @@ description: Allows users to easily define custom Field Formatters.
 type: module
 dependencies:
   - drupal:field
+  - drupal:field_ui
 test_dependencies:
   - devel:devel
 package: Fields

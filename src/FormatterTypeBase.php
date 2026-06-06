@@ -9,12 +9,15 @@ declare(strict_types=1);
 
 namespace Drupal\custom_formatters;
 
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Url;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\field\FieldConfigInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -37,11 +40,19 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
   protected ModuleHandlerInterface $moduleHandler;
 
   /**
+   * The entity field manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected EntityFieldManagerInterface $entityFieldManager;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, EntityFieldManagerInterface $entity_field_manager) {
     $this->entity = $configuration['entity'];
     $this->moduleHandler = $module_handler;
+    $this->entityFieldManager = $entity_field_manager;
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
 
@@ -49,7 +60,13 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'));
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('module_handler'),
+      $container->get('entity_field.manager'),
+    );
   }
 
   /**
@@ -65,7 +82,66 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
   public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form['data'] = $this->buildCodeEditorElement($this->getCodeEditorMode());
 
+    $reference = $this->buildSettingsReference();
+    if ($reference !== []) {
+      $form['settings_reference'] = $reference;
+    }
+
     return $form;
+  }
+
+  /**
+   * Builds a reference table of available formatter settings fields.
+   *
+   * @return array
+   *   A render array for the settings reference table, or empty if none.
+   */
+  protected function buildSettingsReference(): array {
+    if (!$this->entity->id()) {
+      return [];
+    }
+
+    $fields = $this->entityFieldManager->getFieldDefinitions('formatter_setting', (string) $this->entity->id());
+    $configurable_fields = array_filter($fields, fn($f) => $f instanceof FieldConfigInterface);
+
+    if (empty($configurable_fields)) {
+      return [];
+    }
+
+    $rows = [];
+    foreach ($configurable_fields as $field_name => $field_definition) {
+      $rows[] = [
+        $field_name,
+        $field_definition->getType(),
+        $field_definition->getLabel(),
+        $field_definition->getDescription(),
+      ];
+    }
+
+    $url = Url::fromRoute('entity.formatter_setting.field_ui_fields', [
+      'formatter' => $this->entity->id(),
+    ])->toString();
+
+    return [
+      '#type' => 'details',
+      '#title' => $this->t('Available settings fields'),
+      '#description' => $this->t('The following fields are available via the <code>$settings</code> variable. Add fields on the <a href=":url">Manage fields</a> tab.', [
+        ':url' => $url,
+      ]),
+      '#open' => TRUE,
+      '#weight' => 100,
+      'table' => [
+        '#type' => 'table',
+        '#header' => [
+          $this->t('Field name'),
+          $this->t('Type'),
+          $this->t('Label'),
+          $this->t('Description'),
+        ],
+        '#rows' => $rows,
+        '#empty' => $this->t('No settings fields configured.'),
+      ],
+    ];
   }
 
   /**
