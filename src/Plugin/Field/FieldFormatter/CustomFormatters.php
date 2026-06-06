@@ -16,6 +16,8 @@ use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterInterface as FieldFormatterInterface;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
@@ -73,6 +75,11 @@ class CustomFormatters extends FormatterBase {
    * @var \Drupal\custom_formatters\FormatterInterface|null
    */
   protected ?FormatterInterface $loadedFormatter = NULL;
+
+  /**
+   * Accumulated cache metadata from the most recent loadSettingsFromEntity().
+   */
+  protected ?CacheableMetadata $settingsCacheMetadata = NULL;
 
   /**
    * Constructs a CustomFormatters formatter object.
@@ -168,7 +175,40 @@ class CustomFormatters extends FormatterBase {
       if ($formatter_setting) {
         $cache_tags = array_merge($cache_tags, $formatter_setting->getCacheTags());
       }
-      $element[$delta]['#cache']['tags'] = $cache_tags;
+      $element[$delta]['#cache']['tags'] = Cache::mergeTags(
+        $element[$delta]['#cache']['tags'] ?? [],
+        $cache_tags
+      );
+    }
+
+    // Bubble cache contexts and max-age from the rendered settings fields.
+    // Use explicit merges rather than applyTo(), which overwrites in older
+    // Drupal versions instead of merging.
+    if ($this->settingsCacheMetadata) {
+      $contexts = $this->settingsCacheMetadata->getCacheContexts();
+      $tags = $this->settingsCacheMetadata->getCacheTags();
+      $max_age = $this->settingsCacheMetadata->getCacheMaxAge();
+      foreach (Element::children($element) as $delta) {
+        if ($contexts) {
+          $element[$delta]['#cache']['contexts'] = Cache::mergeContexts(
+            $element[$delta]['#cache']['contexts'] ?? [],
+            $contexts
+          );
+        }
+        if ($tags) {
+          $element[$delta]['#cache']['tags'] = Cache::mergeTags(
+            $element[$delta]['#cache']['tags'] ?? [],
+            $tags
+          );
+        }
+        if ($max_age !== Cache::PERMANENT) {
+          $element[$delta]['#cache']['max-age'] = Cache::mergeMaxAges(
+            $element[$delta]['#cache']['max-age'] ?? Cache::PERMANENT,
+            $max_age
+          );
+        }
+      }
+      $this->settingsCacheMetadata = NULL;
     }
 
     // Allow third party integrations a chance to alter the element.
@@ -362,6 +402,7 @@ class CustomFormatters extends FormatterBase {
     $view_display = EntityViewDisplay::collectRenderDisplay($formatter_setting, 'default');
 
     $settings = [];
+    $metadata = new CacheableMetadata();
     foreach ($configurable_fields as $field_name => $field_definition) {
       if (!$formatter_setting->hasField($field_name)) {
         continue;
@@ -375,12 +416,14 @@ class CustomFormatters extends FormatterBase {
       $field_renderer = $view_display->getRenderer($field_name);
       if ($field_renderer instanceof FieldFormatterInterface) {
         foreach ($field_renderer->viewElements($field_item_list, $langcode) as $element) {
+          $metadata->merge(CacheableMetadata::createFromRenderArray($element));
           $rendered .= (string) $this->renderer->renderInIsolation($element);
         }
       }
       $settings[$field_name] = $rendered;
     }
 
+    $this->settingsCacheMetadata = $metadata;
     return $settings;
   }
 

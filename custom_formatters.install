@@ -7,20 +7,22 @@
 
 declare(strict_types=1);
 
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+
 /**
  * Implements hook_install().
  */
 function custom_formatters_install(): void {
-  // Ensure the formatter_setting entity type schema is installed.
-  try {
-    $definition = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
-  }
-  catch (\Exception) {
-    $definition = NULL;
-  }
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
 
-  if ($definition) {
-    \Drupal::entityDefinitionUpdateManager()->installEntityType($definition);
+  // On newer Drupal versions entity types may be auto-installed before
+  // hook_install() runs. Only install the schema if it isn't already present.
+  try {
+    $update_manager->getEntityType('formatter_setting');
+  }
+  catch (PluginNotFoundException) {
+    $definition = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
+    $update_manager->installEntityType($definition);
   }
 
   \Drupal::service('plugin.manager.field.formatter')
@@ -31,8 +33,13 @@ function custom_formatters_install(): void {
  * Install the formatter_setting entity type for fieldable settings.
  */
 function custom_formatters_update_8401(): void {
-  $entity_type = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
-  if (!\Drupal::entityDefinitionUpdateManager()->getEntityType($entity_type->id())) {
-    \Drupal::entityDefinitionUpdateManager()->installEntityType($entity_type);
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  try {
+    $update_manager->getEntityType('formatter_setting');
+    // Already installed — nothing to do.
+  }
+  catch (PluginNotFoundException) {
+    $definition = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
+    $update_manager->installEntityType($definition);
   }
 }

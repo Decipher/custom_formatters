@@ -106,7 +106,6 @@ class FormatterSettingEdgeCasesTest extends KernelTestBase {
     $no_id_entity = \Drupal::entityTypeManager()
       ->getStorage('formatter')
       ->create([
-        'id' => 'no_id_test',
         'label' => 'No ID',
         'type' => 'html_token',
       ]);

@@ -134,7 +134,9 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
     $defaults = [
       'label'       => $name,
       'id'          => mb_strtolower($name),
-      'field_types' => ['text_with_summary'],
+      // Include both types: Drupal 11.0 creates body as text_with_summary,
+      // while Drupal 11.1+ creates it as text_long.
+      'field_types' => ['text_with_summary', 'text_long'],
     ];
     $values += $defaults;
 

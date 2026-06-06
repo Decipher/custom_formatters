@@ -129,7 +129,7 @@ class FormatterDependencyBuilder {
       if ($dependent->getEntityTypeId() !== 'entity_view_display') {
         return FALSE;
       }
-      if (method_exists($dependent, 'getTargetEntityTypeId') && $dependent->getTargetEntityTypeId() === 'formatter_setting') {
+      if ($dependent->getTargetEntityTypeId() === 'formatter_setting') {
         return FALSE;
       }
       return TRUE;

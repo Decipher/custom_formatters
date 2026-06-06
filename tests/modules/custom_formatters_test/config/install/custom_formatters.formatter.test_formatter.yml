@@ -11,4 +11,5 @@ type: php
 description: ''
 field_types:
   - text_with_summary
+  - text_long
 data:
