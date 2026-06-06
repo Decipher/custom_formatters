@@ -28,7 +28,6 @@ use Drupal\custom_formatters\FormatterSettingInterface;
  *   },
  *   admin_permission = "administer custom formatters",
  *   base_table = "formatter_setting",
- *   data_table = "formatter_setting_data",
  *   translatable = FALSE,
  *   entity_keys = {
  *     "id" = "id",
@@ -49,8 +48,8 @@ class FormatterSetting extends ContentEntityBase implements FormatterSettingInte
   /**
    * {@inheritdoc}
    */
-  public static function baseFieldDefinitions(EntityTypeInterface $entity_type_id): array {
-    $fields = parent::baseFieldDefinitions($entity_type_id);
+  public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
+    $fields = parent::baseFieldDefinitions($entity_type);
 
     $fields['label'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Label'))

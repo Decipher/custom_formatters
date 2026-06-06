@@ -12,9 +12,16 @@ declare(strict_types=1);
  */
 function custom_formatters_install(): void {
   // Ensure the formatter_setting entity type schema is installed.
-  \Drupal::entityDefinitionUpdateManager()->installEntityType(
-    \Drupal::entityTypeManager()->getDefinition('formatter_setting')
-  );
+  try {
+    $definition = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
+  }
+  catch (\Exception) {
+    $definition = NULL;
+  }
+
+  if ($definition) {
+    \Drupal::entityDefinitionUpdateManager()->installEntityType($definition);
+  }
 
   \Drupal::service('plugin.manager.field.formatter')
     ->clearCachedDefinitions();
