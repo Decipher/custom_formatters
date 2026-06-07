@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.1.x-dev (development)
+## 4.1.0-beta3 (2026-06-07)
 
 ### Features
 
