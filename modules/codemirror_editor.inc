@@ -48,7 +48,8 @@ function custom_formatters_codemirror_editor_assets_alter(array &$assets): void 
 function custom_formatters_library_info_alter(array &$libraries, string $extension): void {
   // Require codemirror_editor/editor so CodeMirror instances exist in the
   // DOM before codemirror-hints.js runs its attach().
-  if ($extension === 'custom_formatters' && isset($libraries['formatter_form'])) {
+  if ($extension === 'custom_formatters' && isset($libraries['formatter_form'])
+    && \Drupal::moduleHandler()->moduleExists('codemirror_editor')) {
     $libraries['formatter_form']['dependencies'][] = 'codemirror_editor/editor';
   }
 }

@@ -173,10 +173,11 @@ class HTMLToken extends FormatterTypeBase {
     // Replace [formatter_setting:field] tokens; the optional :raw modifier
     // substitutes the unformatted value from settings['_raw'].
     if (!empty($settings)) {
-      $text = preg_replace_callback('/\[formatter_setting:([a-zA-Z0-9_]+)(:raw)?\]/', function ($matches) use ($settings) {
+      $text = preg_replace_callback('/\[formatter_setting:([a-z0-9_]+)(:raw)?\]/', function ($matches) use ($settings) {
         $field_name = $matches[1];
         if (!empty($matches[2])) {
-          return $settings['_raw'][$field_name] ?? $matches[0];
+          $raw = is_array($settings['_raw'] ?? NULL) ? $settings['_raw'] : [];
+          return $raw[$field_name] ?? $matches[0];
         }
         return $settings[$field_name] ?? $matches[0];
       }, $text);

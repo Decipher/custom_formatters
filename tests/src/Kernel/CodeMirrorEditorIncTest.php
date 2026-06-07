@@ -145,6 +145,11 @@ class CodeMirrorEditorIncTest extends KernelTestBase {
    * exist in the DOM when our hints behavior's attach() runs.
    */
   public function testLibraryInfoAlterAddsCmEditorDependency(): void {
+    if (!\Drupal::service('extension.list.module')->exists('codemirror_editor')) {
+      $this->markTestSkipped('The codemirror_editor module is not available.');
+    }
+    $this->enableModules(['codemirror_editor']);
+
     $libraries = [
       'formatter_form' => [
         'js' => [],
@@ -159,6 +164,33 @@ class CodeMirrorEditorIncTest extends KernelTestBase {
     $this->assertContains(
       'codemirror_editor/editor',
       $libraries['formatter_form']['dependencies'],
+      'The codemirror_editor/editor dependency is added when the module is enabled.',
+    );
+  }
+
+  /**
+   * Tests that no dependency is added when codemirror_editor is not enabled.
+   *
+   * Verifies the moduleExists() guard in hook_library_info_alter() so that
+   * functional tests without codemirror_editor do not receive an unresolvable
+   * library dependency.
+   */
+  public function testLibraryInfoAlterSkipsDependencyWhenCmEditorAbsent(): void {
+    $libraries = [
+      'formatter_form' => [
+        'js' => [],
+        'css' => [],
+        'dependencies' => ['core/claro', 'core/once'],
+      ],
+    ];
+
+    $extension = 'custom_formatters';
+    \Drupal::moduleHandler()->alter('library_info', $libraries, $extension);
+
+    $this->assertNotContains(
+      'codemirror_editor/editor',
+      $libraries['formatter_form']['dependencies'],
+      'No codemirror_editor/editor dependency is added when the module is absent.',
     );
   }
 
