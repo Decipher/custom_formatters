@@ -58,6 +58,26 @@ function custom_formatters_theme(): array {
 }
 
 /**
+ * Implements hook_module_implements_alter().
+ */
+function custom_formatters_module_implements_alter(array &$implementations, string $hook): void {
+  // Load companion .inc files once per request.
+  static $loaded = FALSE;
+  if (!$loaded) {
+    $loaded = TRUE;
+    // glob() is used because the service container may not be ready yet.
+    foreach (glob(__DIR__ . '/modules/*.inc') ?: [] as $file) {
+      require_once $file;
+    }
+  }
+
+  // Register any implementation that became available after loading .inc files.
+  if (!isset($implementations['custom_formatters']) && function_exists('custom_formatters_' . $hook)) {
+    $implementations['custom_formatters'] = FALSE;
+  }
+}
+
+/**
  * Prepares variables for list of available formatter type templates.
  *
  * Default template: formatter-add-list.html.twig.
