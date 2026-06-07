@@ -7,6 +7,25 @@
 - Added per-instance formatter settings via Field UI: formatter entities now
   support configurable fields (via "Manage fields" / "Manage form display"
   tabs) that appear as inline settings in the "Manage display" UI.
+- Added raw settings access alongside rendered settings in all engine plugins:
+  - **PHP**: `$raw_settings['field_name']` — unformatted `getString()` value.
+  - **Twig**: `raw_settings.field_name` — unformatted `getString()` value.
+  - **HTML+Token**: `[formatter_setting:field_name:raw]` token — unformatted value.
+  - Raw values are also available in the formatter preview form.
+- Added context-aware CodeMirror autocomplete hints (requires optional
+  [CodeMirror Editor](https://www.drupal.org/project/codemirror_editor) module):
+  - `{{` auto-triggers Twig variable completions (`items`, `settings`,
+    `raw_settings`, `settings.field`, `raw_settings.field`, etc.).
+  - Typing letters inside a `{{ expr` expression re-triggers completions.
+  - `[` auto-triggers Drupal token completions including
+    `[formatter_setting:field]` and `[formatter_setting:field:raw]` entries.
+  - `<` auto-triggers HTML tag completions (HTML+Token and Twig engines).
+  - `Ctrl+Space` provides mode-appropriate completions: PHP context variables
+    (`$items`, `$settings`, `$raw_settings`) with structure-aware
+    `$settings['field']` / `$raw_settings['field']` completions; Twig context
+    variables; HTML tag and attribute completions.
+- Added settings reference table to the formatter edit form, listing each
+  configurable field's machine name, type, and label for quick reference.
 
 ## 4.1.0-beta2 (2026-05-24)
 
