@@ -795,6 +795,9 @@ class FormatterForm extends EntityForm {
         }
       }
       $settings[$field_name] = $rendered;
+      // Populate _raw so the preview settings array matches what engine plugins
+      // receive from the field formatter at render time.
+      $settings['_raw'][$field_name] = $preview_setting_entity->get($field_name)->getString();
     }
 
     return $settings;
