@@ -79,6 +79,7 @@ login:
 
 provision:
 	./.devtools/provision
+	build/vendor/bin/drush pm:enable devel_generate -y
 
 lint:
 	$(call title,Running CSpell)
