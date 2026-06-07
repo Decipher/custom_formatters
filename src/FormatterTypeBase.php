@@ -201,6 +201,22 @@ abstract class FormatterTypeBase extends PluginBase implements FormatterTypeInte
         'styleActiveLine'  => TRUE,
         'toolbar'          => FALSE,
       ] + $this->getCodeMirrorExtraSettings();
+
+      // Pass the formatter's settings field names for code editor autocomplete.
+      $settings_fields = [];
+      if ($this->entity->id()) {
+        $fields = $this->entityFieldManager->getFieldDefinitions(
+          'formatter_setting',
+          (string) $this->entity->id(),
+        );
+        $settings_fields = array_keys(
+          array_filter($fields, fn($f) => $f instanceof FieldConfigInterface),
+        );
+      }
+      $element['#attached']['drupalSettings']['customFormatters']['context'] = [
+        'mode'           => $mode,
+        'settingsFields' => $settings_fields,
+      ];
     }
 
     return $element;

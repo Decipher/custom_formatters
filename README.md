@@ -36,7 +36,9 @@ The following modules are recommended:
   formatted field and field property tokens for the HTML + Token engine.
 - [CodeMirror Editor](https://www.drupal.org/project/codemirror_editor) —
   Provides syntax-highlighted code editing for the PHP, HTML+Token, and Twig
-  formatter engines.
+  formatter engines, with context-aware autocomplete (`{{`, `[`, `<` triggers
+  and Ctrl+Space) including structure-aware `$settings['field']` /
+  `settings.field` / `[formatter_setting:field:raw]` completions.
 - [Devel](https://www.drupal.org/project/devel) — Provides the Devel Generate
   sub-module for generating sample preview entities.
 
@@ -72,7 +74,14 @@ Read the manual at:
     multiple values.
 - Per-instance formatter settings via Field UI — add configurable fields to a
   formatter via its "Manage fields" tab; settings appear inline in "Manage
-  display" and are passed to engine templates as rendered strings.
+  display" and are passed to engine templates as both rendered strings and raw
+  unformatted values:
+  - **PHP**: `$settings['field_name']` (rendered), `$raw_settings['field_name']`
+    (raw `getString()` value).
+  - **Twig**: `{{ settings.field_name }}` (rendered), `{{ raw_settings.field_name }}`
+    (raw `getString()` value).
+  - **HTML+Token**: `[formatter_setting:field_name]` (rendered),
+    `[formatter_setting:field_name:raw]` (raw `getString()` value).
 - Supports all fieldable entities, including but not limited to:
   - Drupal core — Comment, Node, Taxonomy term, User, and Media entities.
 - Exportable as Drupal configuration entities.

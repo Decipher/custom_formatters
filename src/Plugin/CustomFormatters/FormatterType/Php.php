@@ -35,7 +35,8 @@ class Php extends FormatterTypeBase {
    * {@inheritdoc}
    */
   protected function getCodeEditorMode(): ?string {
-    return 'application/x-httpd-php';
+    // Pure PHP mode; the formatter evaluates bare code without <?php tags.
+    return 'text/x-php';
   }
 
   /**
@@ -44,7 +45,7 @@ class Php extends FormatterTypeBase {
   public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form = parent::settingsForm($form, $form_state);
 
-    $form['data']['#description'] = $this->t('Enter the PHP code that will be evaluated. You should NOT include %php tags.<br /><br /><strong>Available parameters:</strong><dl><dt><em><a href=":field_item_list_interface" target="_blank">FieldItemListInterface</a></em> $items</dt><dd>The field values to be rendered.</dd><dt><em>string</em> $langcode</dt><dd>The language that should be used to render the field.</dd><dt><em>array</em> $settings</dt><dd>Formatter settings fields keyed by field machine name. Values are rendered strings from the configured view display. Access with <code>$settings[\'field_name\']</code>.</dd></dt></dl>', [
+    $form['data']['#description'] = $this->t('Enter the PHP code that will be evaluated. You should NOT include %php tags.<br /><br /><strong>Available parameters:</strong><dl><dt><em><a href=":field_item_list_interface" target="_blank">FieldItemListInterface</a></em> $items</dt><dd>The field values to be rendered.</dd><dt><em>string</em> $langcode</dt><dd>The language that should be used to render the field.</dd><dt><em>array</em> $settings</dt><dd>Formatter settings keyed by field machine name. Values are rendered strings from the configured view display. Access with <code>$settings[\'field_name\']</code>.</dd><dt><em>array</em> $raw_settings</dt><dd>Same fields as <code>$settings</code>, but as unformatted plain-text values. Access with <code>$raw_settings[\'field_name\']</code>.</dd></dt></dl>', [
       '%php'                      => '<?php ?>',
       ':field_item_list_interface' => 'https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Field%21FieldItemListInterface.php/interface/FieldItemListInterface',
     ]);
@@ -82,6 +83,10 @@ class Php extends FormatterTypeBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode, array $settings = []) {
+    // Extracted for eval scope; $raw_settings['field'] is shorter than
+    // $settings['_raw']['field'].
+    // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used inside eval()
+    $raw_settings = $settings['_raw'] ?? [];
     ob_start();
     $output = eval($this->entity->get('data')); // phpcs:ignore Drupal.Functions.DiscouragedFunctions.Discouraged
     $output = !empty($output) ? $output : ob_get_contents();

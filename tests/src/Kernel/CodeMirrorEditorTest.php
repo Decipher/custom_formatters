@@ -76,7 +76,7 @@ class CodeMirrorEditorTest extends KernelTestBase {
     $form = $this->buildSettingsForm('php', 'test_php_cm');
 
     $this->assertSame('codemirror', $form['data']['#type']);
-    $this->assertCodeMirrorSettings($form['data'], 'application/x-httpd-php');
+    $this->assertCodeMirrorSettings($form['data'], 'text/x-php');
     $this->assertArrayNotHasKey('autoCloseTags', $form['data']['#codemirror']);
   }
 
@@ -100,7 +100,7 @@ class CodeMirrorEditorTest extends KernelTestBase {
     $form = $this->buildSettingsForm('twig', 'test_twig_cm');
 
     $this->assertSame('codemirror', $form['data']['#type']);
-    $this->assertCodeMirrorSettings($form['data'], 'twig');
+    $this->assertCodeMirrorSettings($form['data'], 'html_twig');
     $this->assertTrue($form['data']['#codemirror']['autoCloseTags']);
   }
 

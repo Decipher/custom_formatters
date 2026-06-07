@@ -421,6 +421,9 @@ class CustomFormatters extends FormatterBase {
         }
       }
       $settings[$field_name] = $rendered;
+      // Raw getString() value, stored under _raw to avoid a BC-breaking change
+      // to the engine interface.
+      $settings['_raw'][$field_name] = $field_item_list->getString();
     }
 
     $this->settingsCacheMetadata = $metadata;

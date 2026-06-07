@@ -204,6 +204,72 @@ class FormatterSettingsRenderTest extends KernelTestBase {
   }
 
   /**
+   * Tests that [formatter_setting:field:raw] returns the value from _raw.
+   */
+  public function testHtmlTokenRawModifierReturnsRawValue(): void {
+    $formatter = $this->createFormatter('html_token_raw', 'html_token', '[formatter_setting:field_raw_text:raw]');
+
+    FieldStorageConfig::create([
+      'field_name' => 'field_raw_text',
+      'type' => 'string',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+    FieldConfig::create([
+      'field_name' => 'field_raw_text',
+      'entity_type' => 'formatter_setting',
+      'bundle' => 'html_token_raw',
+      'label' => 'Raw text',
+    ])->save();
+
+    $node = $this->createNodeWithBody('Node body');
+    $formatter_type = $this->formatterType($formatter);
+    $result = $formatter_type->viewElements($node->get('body'), 'en', [
+      'field_raw_text' => 'rendered-value',
+      '_raw' => ['field_raw_text' => 'raw-value'],
+    ]);
+
+    $this->assertNotEmpty($result);
+    $this->assertStringContainsString('raw-value', (string) $result[0]['#markup']);
+    $this->assertStringNotContainsString('rendered-value', (string) $result[0]['#markup']);
+  }
+
+  /**
+   * Tests that [formatter_setting:field:raw] falls back when _raw is absent.
+   *
+   * When _raw is not an array, the token is not replaced and is cleared by the
+   * token service (clear => TRUE), resulting in an empty output.
+   */
+  public function testHtmlTokenRawModifierFallsBackWhenRawAbsent(): void {
+    $formatter = $this->createFormatter('html_token_no_raw', 'html_token', 'before:[formatter_setting:field_no_raw:raw]:after');
+
+    FieldStorageConfig::create([
+      'field_name' => 'field_no_raw',
+      'type' => 'string',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+    FieldConfig::create([
+      'field_name' => 'field_no_raw',
+      'entity_type' => 'formatter_setting',
+      'bundle' => 'html_token_no_raw',
+      'label' => 'No raw',
+    ])->save();
+
+    $node = $this->createNodeWithBody('Body');
+    $formatter_type = $this->formatterType($formatter);
+
+    // Pass _raw as a non-array scalar — the is_array guard treats it as [].
+    $result = $formatter_type->viewElements($node->get('body'), 'en', [
+      'field_no_raw' => 'rendered',
+      '_raw' => 'not-an-array',
+    ]);
+
+    $this->assertNotEmpty($result);
+    // Token is not replaced (falls back to the literal), then cleared by the
+    // token service, so the substitution slot is removed from the output.
+    $this->assertStringNotContainsString('rendered', (string) $result[0]['#markup']);
+  }
+
+  /**
    * Tests that settings values are accessible in the PHP formatter's $settings.
    */
   public function testPhpSettingsRendered(): void {

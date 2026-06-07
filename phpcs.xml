@@ -18,6 +18,9 @@
     <exclude-pattern>.*\/node_modules\/.*</exclude-pattern>
     <exclude-pattern>*\.min\.*</exclude-pattern>
 
+    <!-- Exclude Drupal's compiled Twig cache. -->
+    <exclude-pattern>*/sites/default/files/*</exclude-pattern>
+
     <!-- Force no empty lines after function opening brace. -->
     <rule ref="Squiz.WhiteSpace.FunctionOpeningBraceSpace">
         <type>warning</type>

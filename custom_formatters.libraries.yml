@@ -3,5 +3,9 @@ formatter_form:
   css:
     component:
       styles/custom_formatters.css: {}
+  js:
+    js/codemirror-sync.js: {}
+    js/codemirror-hints.js: {}
   dependencies:
     - core/claro
+    - core/once

@@ -900,6 +900,100 @@ class FormatterPreviewFormTest extends KernelTestBase {
   }
 
   /**
+   * Tests that extractPreviewSettings() populates the _raw sub-array.
+   *
+   * Verifies that each configurable field produces both a rendered value and
+   * an unformatted getString() value under _raw, matching the settings
+   * structure passed to engine plugins at render time.
+   */
+  public function testExtractPreviewSettingsPopulatesRawArray(): void {
+    FieldStorageConfig::create([
+      'field_name' => 'field_raw_text',
+      'type' => 'string',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+
+    $formatter = $this->createFormatter('test_extract_raw');
+    $formatter->save();
+
+    FieldConfig::create([
+      'field_name' => 'field_raw_text',
+      'entity_type' => 'formatter_setting',
+      'bundle' => (string) $formatter->id(),
+      'label' => 'Raw text',
+    ])->save();
+
+    $this->createViewDisplay('formatter_setting', (string) $formatter->id(), [
+      'field_raw_text' => ['type' => 'string', 'settings' => ['link_to_entity' => FALSE]],
+    ]);
+
+    [$form, $form_state, $form_object] = $this->buildFormWithState($formatter);
+    $form_state->setValue(['preview', 'settings', 'field_raw_text', 0, 'value'], 'plain-value');
+
+    $result = $this->invokeExtractPreviewSettings($form_object, $form, $form_state);
+
+    $this->assertArrayHasKey('_raw', $result, 'The _raw key is present in extracted settings.');
+    $this->assertArrayHasKey('field_raw_text', $result['_raw'], 'The raw value for field_raw_text is present in _raw.');
+    $this->assertEquals('plain-value', $result['_raw']['field_raw_text'], 'The raw value is the unformatted field string.');
+  }
+
+  /**
+   * Tests that the _raw value differs from the rendered value for boolean.
+   *
+   * Boolean fields render via their formatter label (e.g. "Yes"), while the
+   * _raw sub-array contains the unformatted getString() output ("1" or "0").
+   */
+  public function testExtractPreviewSettingsRawDiffersFromRenderedForBoolean(): void {
+    FieldStorageConfig::create([
+      'field_name' => 'field_raw_bool',
+      'type' => 'boolean',
+      'entity_type' => 'formatter_setting',
+    ])->save();
+
+    $formatter = $this->createFormatter('test_extract_raw_bool');
+    $formatter->save();
+
+    FieldConfig::create([
+      'field_name' => 'field_raw_bool',
+      'entity_type' => 'formatter_setting',
+      'bundle' => (string) $formatter->id(),
+      'label' => 'Raw bool',
+      'settings' => ['on_label' => 'Yes', 'off_label' => 'No'],
+    ])->save();
+
+    $this->createViewDisplay('formatter_setting', (string) $formatter->id(), [
+      'field_raw_bool' => ['type' => 'boolean', 'settings' => ['format' => 'yes-no']],
+    ]);
+
+    [$form, $form_state, $form_object] = $this->buildFormWithState($formatter);
+    $form_state->setValue(['preview', 'settings', 'field_raw_bool', 'value'], 1);
+
+    $result = $this->invokeExtractPreviewSettings($form_object, $form, $form_state);
+
+    $this->assertStringContainsString('Yes', $result['field_raw_bool'], 'The rendered value uses the boolean formatter label.');
+    $this->assertArrayHasKey('_raw', $result);
+    $this->assertEquals('1', $result['_raw']['field_raw_bool'], 'The raw value is the unformatted getString() output.');
+  }
+
+  /**
+   * Tests that no _raw key is added when there are no configurable fields.
+   *
+   * Verifies that extractPreviewSettings() returns an empty array and does
+   * not inject a _raw key when there are no configurable fields to populate.
+   */
+  public function testExtractPreviewSettingsNoRawWithoutFields(): void {
+    $formatter = $this->createFormatter('test_extract_no_raw');
+    $formatter->save();
+
+    [$form, $form_state, $form_object] = $this->buildFormWithState($formatter);
+
+    $result = $this->invokeExtractPreviewSettings($form_object, $form, $form_state);
+
+    $this->assertSame([], $result, 'The settings array is empty when no configurable fields exist.');
+    $this->assertArrayNotHasKey('_raw', $result, 'No _raw key is present when there are no configurable fields.');
+  }
+
+  /**
    * Tests multiple settings fields are all extracted and rendered correctly.
    */
   public function testExtractPreviewSettingsMultipleFields(): void {

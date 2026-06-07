@@ -109,6 +109,22 @@ class HTMLToken extends FormatterTypeBase {
       ];
     }
 
+    // Build the token list for code editor autocomplete. Guarded with Throwable
+    // because token hooks may call services absent in some test environments.
+    $token_list = [];
+    try {
+      $token_info = $this->tokenService->getInfo();
+      foreach ($token_info['tokens'] as $type => $tokens) {
+        foreach (array_keys($tokens) as $name) {
+          $token_list[] = "[$type:$name]";
+        }
+      }
+    }
+    catch (\Throwable) {
+      // Token service unavailable; autocomplete proceeds without suggestions.
+    }
+    $form['#attached']['drupalSettings']['customFormatters']['tokens'] = $token_list;
+
     return $form;
   }
 
@@ -154,10 +170,16 @@ class HTMLToken extends FormatterTypeBase {
 
     $text = $this->entity->get('data');
 
-    // Replace [formatter_setting:field_name] tokens from settings values.
+    // Replace [formatter_setting:field] tokens; the optional :raw modifier
+    // substitutes the unformatted value from settings['_raw'].
     if (!empty($settings)) {
-      $text = preg_replace_callback('/\[formatter_setting:([a-zA-Z0-9_]+)\]/', function ($matches) use ($settings) {
-        return $settings[$matches[1]] ?? $matches[0];
+      $text = preg_replace_callback('/\[formatter_setting:([a-z0-9_]+)(:raw)?\]/', function ($matches) use ($settings) {
+        $field_name = $matches[1];
+        if (!empty($matches[2])) {
+          $raw = is_array($settings['_raw'] ?? NULL) ? $settings['_raw'] : [];
+          return $raw[$field_name] ?? $matches[0];
+        }
+        return $settings[$field_name] ?? $matches[0];
       }, $text);
     }
 

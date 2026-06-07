@@ -34,7 +34,9 @@ class Twig extends FormatterTypeBase {
    * {@inheritdoc}
    */
   protected function getCodeEditorMode(): ?string {
-    return 'twig';
+    // html_twig overlays Twig syntax on HTML, giving autoCloseTags and
+    // HTML-aware indentation alongside Twig highlighting.
+    return 'html_twig';
   }
 
   /**
@@ -70,7 +72,7 @@ class Twig extends FormatterTypeBase {
   public function settingsForm(array &$form, FormStateInterface $form_state): array {
     $form = parent::settingsForm($form, $form_state);
 
-    $form['data']['#description'] = $this->t('Enter the Twig code that will be evaluated.<br /><br /><strong>Available parameters:</strong><dl><dt><em><a href=":field_item_list_interface" target="_blank">FieldItemListInterface</a></em> {{ items }}</dt><dd>The field values to be rendered.</dd><dt><em>string</em> {{ langcode }}</dt><dd>The language that should be used to render the field.</dd><dt><em><a href=":entity_interface" target="_blank">EntityInterface</a></em> {{ entity }}</dt><dd>The parent entity the field is attached to.</dd><dt><em>array</em> {{ settings }}</dt><dd>Formatter settings fields keyed by field machine name. Values are rendered strings from the configured view display. Access with <code>{{ settings.field_name }}</code>.</dd></dl>', [
+    $form['data']['#description'] = $this->t('Enter the Twig code that will be evaluated.<br /><br /><strong>Available parameters:</strong><dl><dt><em><a href=":field_item_list_interface" target="_blank">FieldItemListInterface</a></em> {{ items }}</dt><dd>The field values to be rendered.</dd><dt><em>string</em> {{ langcode }}</dt><dd>The language that should be used to render the field.</dd><dt><em><a href=":entity_interface" target="_blank">EntityInterface</a></em> {{ entity }}</dt><dd>The parent entity the field is attached to.</dd><dt><em>array</em> {{ settings }}</dt><dd>Formatter settings keyed by field machine name. Values are rendered strings from the configured view display. Access with <code>{{ settings.field_name }}</code>.</dd><dt><em>array</em> {{ raw_settings }}</dt><dd>Same fields as <code>settings</code>, but as unformatted plain-text values. Access with <code>{{ raw_settings.field_name }}</code>.</dd></dl>', [
       ':field_item_list_interface' => 'https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Field%21FieldItemListInterface.php/interface/FieldItemListInterface',
       ':entity_interface' => 'https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Entity%21EntityInterface.php/interface/EntityInterface',
     ]);
@@ -122,10 +124,11 @@ class Twig extends FormatterTypeBase {
 
     try {
       $output = $this->twigService->createTemplate((string) $this->entity->get('data'))->render([
-        'items'    => $items,
-        'langcode' => $langcode,
-        'entity'   => $items->getEntity(),
-        'settings' => $settings,
+        'items'        => $items,
+        'langcode'     => $langcode,
+        'entity'       => $items->getEntity(),
+        'settings'     => $settings,
+        'raw_settings' => $settings['_raw'] ?? [],
       ]);
     }
     catch (Error $e) {
