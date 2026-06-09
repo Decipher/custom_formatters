@@ -117,10 +117,11 @@ class InsertIntegrationTest extends CustomFormattersTestBase {
   public function testInsertRender(): void {
     $this->assertTrue(\Drupal::moduleHandler()->moduleExists('insert'), 'Insert stub module is active.');
 
+    // Use $items->getEntity() to exercise InsertFieldItemList::getEntity().
     $formatter = $this->createCustomFormatter([
       'type' => 'php',
       'field_types' => ['image'],
-      'data' => "return 'RENDERED:' . \$items->first()->entity->getFilename();",
+      'data' => "return 'RENDERED:' . \$items->getEntity()->getFilename();",
     ]);
 
     $images = $this->getTestFiles('image');
@@ -149,6 +150,25 @@ class InsertIntegrationTest extends CustomFormattersTestBase {
 
     // Missing file returns empty.
     $this->assertSame('', custom_formatters_insert_render($style_name, [], []), 'Missing file returns empty string.');
+
+    // Formatter targeting a non-Insert-compatible type returns empty
+    // (covers the $field_type === NULL early return).
+    $text_fmt = $this->createCustomFormatter([
+      'type' => 'php',
+      'field_types' => ['text'],
+      'data' => "return 'text';",
+    ]);
+    $text_style = 'custom_formatters__' . $text_fmt->id();
+    $this->assertSame('', custom_formatters_insert_render($text_style, ['file' => $file], []), 'Non-file formatter returns empty string.');
+
+    // Formatter whose PHP throws covers the catch(\Throwable) error path.
+    $broken_fmt = $this->createCustomFormatter([
+      'type' => 'php',
+      'field_types' => ['image'],
+      'data' => "throw new \\RuntimeException('insert render test error');",
+    ]);
+    $broken_style = 'custom_formatters__' . $broken_fmt->id();
+    $this->assertSame('', custom_formatters_insert_render($broken_style, ['file' => $file], []), 'Formatter exception returns empty string.');
   }
 
   /**

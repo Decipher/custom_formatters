@@ -80,12 +80,16 @@ function custom_formatters_insert_render(string $style_name, array $vars, array 
 
   // Determine the field type based on what the formatter supports.
   $formatter_field_types = $formatter->get('field_types') ?? [];
-  $field_type = 'entity_reference';
+  $field_type = NULL;
   foreach (['image', 'file', 'entity_reference'] as $type) {
     if (in_array($type, $formatter_field_types, TRUE)) {
       $field_type = $type;
       break;
     }
+  }
+
+  if ($field_type === NULL) {
+    return '';
   }
 
   // Create a temporary field definition matching the formatter's field type.
@@ -119,24 +123,38 @@ function custom_formatters_insert_render(string $style_name, array $vars, array 
   }
   $items->appendItem($value);
 
-  // Instantiate the field formatter plugin.
-  $plugin_manager = \Drupal::service('plugin.manager.field.formatter');
-  $formatter_instance = $plugin_manager->createInstance(
-    'custom_formatters:' . $formatter_id,
-    [
-      'field_definition' => $field_definition,
-      'settings' => [],
-      'label' => 'hidden',
-      'view_mode' => '_custom',
-      'third_party_settings' => [],
-    ],
-  );
+  // Instantiate the field formatter plugin and render.
+  $ob_level = ob_get_level();
+  try {
+    $plugin_manager = \Drupal::service('plugin.manager.field.formatter');
+    $formatter_instance = $plugin_manager->createInstance(
+      'custom_formatters:' . $formatter_id,
+      [
+        'field_definition' => $field_definition,
+        'settings' => [],
+        'label' => 'hidden',
+        'view_mode' => '_custom',
+        'third_party_settings' => [],
+      ],
+    );
 
-  \assert($formatter_instance instanceof FormatterInterface);
-  $elements = $formatter_instance->viewElements($items, $items->getLangcode());
-  if (empty($elements)) {
+    \assert($formatter_instance instanceof FormatterInterface);
+    $elements = $formatter_instance->viewElements($items, $items->getLangcode());
+    if (empty($elements)) {
+      return '';
+    }
+
+    return (string) \Drupal::service('renderer')->renderInIsolation($elements);
+  }
+  catch (\Throwable $e) {
+    // Close any output buffers the formatter engine opened before throwing.
+    while (ob_get_level() > $ob_level) {
+      ob_end_clean();
+    }
+    \Drupal::logger('custom_formatters')->error(
+      'Insert render failed for formatter %id: @message',
+      ['%id' => $formatter_id, '@message' => $e->getMessage()],
+    );
     return '';
   }
-
-  return (string) \Drupal::service('renderer')->renderInIsolation($elements);
 }
