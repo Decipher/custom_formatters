@@ -72,6 +72,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
       'administer content types',
       'administer custom formatters',
       'administer node display',
+      'administer node form display',
     ]);
 
     // Ensure relevant configuration present if profile isn't 'standard'.

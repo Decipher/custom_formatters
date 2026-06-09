@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.1.x-dev
+
+### Features
+
+- Added [Insert](https://www.drupal.org/project/insert) module integration —
+  custom formatters targeting `image`, `file`, or `entity_reference` fields
+  are automatically exposed as Insert styles, allowing formatted output to be
+  inserted directly into WYSIWYG editors.
+
 ## 4.1.0-beta3 (2026-06-07)
 
 ### Features

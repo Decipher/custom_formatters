@@ -96,6 +96,11 @@ Read the manual at:
   - **Devel Generate** _(optional)_ — Generates sample entities with dummy
     field data for the live preview system when no real entities exist with
     the target field type.
+  - **Insert** _(optional)_ — Exposes custom formatters as
+    [Insert](https://www.drupal.org/project/insert) styles for `image`,
+    `file`, and `entity_reference` fields, allowing formatted output to be
+    inserted directly into WYSIWYG editors. Activate by installing the Insert
+    module alongside Custom Formatters; no additional configuration required.
 
 ## Roadmap
 
@@ -108,8 +113,6 @@ Planned features for future releases:
   against Drupal coding standards directly in the formatter edit form.
 - **Display Suite integration** — Format Display Suite fields with custom
   formatters.
-- **Insert integration** — Expose custom formatters as Insert styles for
-  image and file fields.
 - **JSON:API integration** — Apply custom formatters to JSON:API field
   output.
 - **Field type management** — Change a formatter's field types after

@@ -22,12 +22,14 @@
     },
     "require-dev": {
         "drupal/devel": "^5",
+        "drupal/insert": "^3",
         "drupal/token": "^1"
     },
     "suggest": {
         "drupal/codemirror_editor": "Provides syntax-highlighted code editing via CodeMirror for the PHP, HTML+Token, and Twig formatter engines.",
         "drupal/devel": "Provides debug output options for the preview feature and Devel Generate integration for generating sample preview content.",
         "drupal/field_tokens": "Provides field-level token support, useful for testing HTML+Token formatters.",
+        "drupal/insert": "Allows custom formatters targeting image, file, and entity_reference fields to appear as Insert styles.",
         "drupal/token": "Provides token replacement support for the HTML Token formatter type."
     }
 }
