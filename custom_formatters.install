@@ -7,8 +7,6 @@
 
 declare(strict_types=1);
 
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-
 /**
  * Implements hook_install().
  */
@@ -17,10 +15,7 @@ function custom_formatters_install(): void {
 
   // On newer Drupal versions entity types may be auto-installed before
   // hook_install() runs. Only install the schema if it isn't already present.
-  try {
-    $update_manager->getEntityType('formatter_setting');
-  }
-  catch (PluginNotFoundException) {
+  if (!$update_manager->getEntityType('formatter_setting')) {
     $definition = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
     $update_manager->installEntityType($definition);
   }
@@ -34,11 +29,21 @@ function custom_formatters_install(): void {
  */
 function custom_formatters_update_8401(): void {
   $update_manager = \Drupal::entityDefinitionUpdateManager();
-  try {
-    $update_manager->getEntityType('formatter_setting');
-    // Already installed — nothing to do.
+  if (!$update_manager->getEntityType('formatter_setting')) {
+    $definition = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
+    $update_manager->installEntityType($definition);
   }
-  catch (PluginNotFoundException) {
+}
+
+/**
+ * Retroactively installs the formatter_setting schema.
+ *
+ * For sites that ran the broken 8401 update and need to install the schema
+ * that was never created.
+ */
+function custom_formatters_update_8402(): void {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  if (!$update_manager->getEntityType('formatter_setting')) {
     $definition = \Drupal::entityTypeManager()->getDefinition('formatter_setting');
     $update_manager->installEntityType($definition);
   }
