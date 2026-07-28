@@ -509,7 +509,7 @@ class FormatterPreviewFormTest extends KernelTestBase {
    */
   public function testGetPreviewEntities(): void {
     $user = $this->createUser(['bypass node access']);
-    assert($user instanceof AccountInterface);
+    \assert($user instanceof AccountInterface);
     $this->container->get('current_user')->setAccount($user);
 
     /** @var \Drupal\node\NodeInterface $node */
@@ -745,7 +745,7 @@ class FormatterPreviewFormTest extends KernelTestBase {
    */
   public function testGetPreviewEntitiesLabelFormat(): void {
     $user = $this->createUser(['bypass node access']);
-    assert($user instanceof AccountInterface);
+    \assert($user instanceof AccountInterface);
     $this->container->get('current_user')->setAccount($user);
 
     /** @var \Drupal\node\NodeInterface $node */

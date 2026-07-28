@@ -54,10 +54,11 @@ class CustomFormatters extends DeriverBase implements ContainerDeriverInterface 
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
     $formatters = $this->dependencyBuilder->getEntityStorage()->loadMultiple();
+    $base = (array) $base_plugin_definition;
     /** @var \Drupal\custom_formatters\FormatterInterface $formatter */
     foreach ($formatters as $formatter) {
       if ($formatter->get('status')) {
-        $this->derivatives[$formatter->id()] = $base_plugin_definition;
+        $this->derivatives[$formatter->id()] = $base;
         $this->derivatives[$formatter->id()]['label'] = $this->getLabel((string) ($formatter->label() ?? ''));
         $field_types = $formatter->get('field_types');
         if (!is_array($field_types)) {

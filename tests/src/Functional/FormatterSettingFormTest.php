@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\custom_formatters\Functional;
 
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\custom_formatters\Entity\FormatterSetting;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -34,7 +35,7 @@ class FormatterSettingFormTest extends CustomFormattersTestBase {
       'administer formatter_setting form display',
       'administer formatter_setting display',
     ]);
-    $this->assertNotFalse($admin);
+    \assert($admin instanceof AccountInterface);
     $this->drupalLogin($admin);
   }
 

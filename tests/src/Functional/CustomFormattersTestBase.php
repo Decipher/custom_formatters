@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\custom_formatters\Functional;
 
 use Drupal\custom_formatters\FormatterInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Tests\field_ui\Traits\FieldUiTestTrait;
 use Drupal\Tests\BrowserTestBase;
@@ -22,7 +23,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
   /**
    * Admin user.
    *
-   * @var \Drupal\user\Entity\User|false
+   * @var \Drupal\Core\Session\AccountInterface
    */
   protected $adminUser = NULL;
 
@@ -67,13 +68,15 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
     $this->resetFormatterPluginCache();
 
     // Create an admin user.
-    $this->adminUser = $this->drupalCreateUser([
+    $admin = $this->drupalCreateUser([
       'access administration pages',
       'administer content types',
       'administer custom formatters',
       'administer node display',
       'administer node form display',
     ]);
+    \assert($admin instanceof AccountInterface);
+    $this->adminUser = $admin;
 
     // Ensure relevant configuration present if profile isn't 'standard'.
     if ($this->profile !== 'standard') {
@@ -91,9 +94,7 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
     $this->node = $this->drupalCreateNode(['type' => 'article']);
 
     // Login as admin user.
-    if ($this->adminUser !== FALSE) {
-      $this->drupalLogin($this->adminUser);
-    }
+    $this->drupalLogin($this->adminUser);
   }
 
   /**

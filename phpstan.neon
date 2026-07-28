@@ -99,4 +99,17 @@ parameters:
         - '#Call to an undefined method.*DevelDumperManagerInterface#'
       reportUnmatched: false
 
+    -
+      # ConfigEntityListBuilder requires $storage in constructor via createInstance.
+      # Scoped to FormatterListBuilder only.
+      message: '#Direct injection of entity storage via \$storage is not recommended#'
+      path: web/modules/custom/custom_formatters/src/FormatterListBuilder.php
+
+    -
+      # Deprecated in Drupal 11.4, removal in 12/13 — no replacement available yet
+      messages:
+        - '#Call to deprecated function node_access_rebuild\(\)#'
+        - '#Call to deprecated function _contextual_links_to_id\(\)#'
+      reportUnmatched: false
+
   reportUnmatchedIgnoredErrors: false
