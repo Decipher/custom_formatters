@@ -32,7 +32,30 @@ class FormatterSettingUpdatePathTest extends KernelTestBase {
   }
 
   /**
+   * Tests that update_8401 installs the missing formatter_setting schema.
+   */
+  public function testUpdate8401InstallsFormatterSettingSchema(): void {
+    $update_manager = \Drupal::entityDefinitionUpdateManager();
+
+    $this->assertNull(
+      $update_manager->getEntityType('formatter_setting'),
+      'formatter_setting should not be installed before running update_8401.'
+    );
+
+    \custom_formatters_update_8401();
+
+    $this->assertNotNull(
+      $update_manager->getEntityType('formatter_setting'),
+      'formatter_setting should be installed after running update_8401.'
+    );
+  }
+
+  /**
    * Tests that update_8402 installs the missing formatter_setting schema.
+   *
+   * Simulates a site that already ran the broken update_8401 (which did
+   * nothing), leaving the schema uninstalled. update_8402 retroactively
+   * installs it.
    */
   public function testUpdate8402InstallsFormatterSettingSchema(): void {
     $update_manager = \Drupal::entityDefinitionUpdateManager();
