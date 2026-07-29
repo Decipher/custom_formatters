@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\custom_formatters\Kernel;
 
-use Drupal\Core\Session\AccountInterface;
 use Drupal\custom_formatters\Entity\FormatterSetting;
 use Drupal\custom_formatters\FormatterInterface;
 use Drupal\KernelTests\KernelTestBase;
@@ -61,10 +60,8 @@ class FormatterSettingAccessControlTest extends KernelTestBase {
     $this->installConfig(['custom_formatters', 'filter']);
 
     $admin = $this->createUser(['administer custom formatters']);
-    \assert($admin instanceof AccountInterface);
     $this->adminUser = $admin;
     $regular = $this->createUser([]);
-    \assert($regular instanceof AccountInterface);
     $this->regularUser = $regular;
 
     $formatter = \Drupal::entityTypeManager()
