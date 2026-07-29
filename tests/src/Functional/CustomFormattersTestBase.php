@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\Tests\custom_formatters\Functional;
 
 use Drupal\custom_formatters\FormatterInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Tests\field_ui\Traits\FieldUiTestTrait;
 use Drupal\Tests\BrowserTestBase;
@@ -75,7 +74,6 @@ abstract class CustomFormattersTestBase extends BrowserTestBase {
       'administer node display',
       'administer node form display',
     ]);
-    \assert($admin instanceof AccountInterface);
     $this->adminUser = $admin;
 
     // Ensure relevant configuration present if profile isn't 'standard'.

@@ -101,9 +101,12 @@ parameters:
 
     -
       # ConfigEntityListBuilder requires $storage in constructor via createInstance.
-      # Scoped to FormatterListBuilder only.
+      # Scoped to FormatterListBuilder only. Leading-wildcard path: GitHub Actions
+      # runs phpstan from an outer build/ dir (web/modules/custom/custom_formatters/...)
+      # while Drupal.org's pipeline runs from the module root (src/...) — a rooted
+      # path only matches one of the two.
       message: '#Direct injection of entity storage via \$storage is not recommended#'
-      path: web/modules/custom/custom_formatters/src/FormatterListBuilder.php
+      path: '*/FormatterListBuilder.php'
 
     -
       # Deprecated in Drupal 11.4, removal in 12/13 — no replacement available yet
