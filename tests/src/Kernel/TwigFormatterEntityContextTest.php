@@ -123,6 +123,113 @@ class TwigFormatterEntityContextTest extends KernelTestBase {
     $description = (string) $result['data']['#description'];
     $this->assertStringContainsString('EntityInterface', $description);
     $this->assertStringContainsString('{{ entity }}', $description);
+    $this->assertStringContainsString('{{ entity_url }}', $description);
+  }
+
+  /**
+   * Tests that entity_url gives the canonical URL without a sandbox error.
+   *
+   * Drupal's default Twig sandbox policy does not allow calling toUrl()
+   * directly on an entity object in a template (SecurityError). entity_url
+   * is computed in PHP instead, replicating the shipped example_twig_title
+   * formatter's "Link to entity" behavior.
+   *
+   * @covers ::viewElements
+   */
+  public function testViewElementsExposesEntityUrl(): void {
+    NodeType::create(['type' => 'article'])->save();
+    FieldStorageConfig::create([
+      'field_name' => 'body',
+      'type' => 'text_with_summary',
+      'entity_type' => 'node',
+    ])->save();
+    FieldConfig::create([
+      'field_name' => 'body',
+      'entity_type' => 'node',
+      'bundle' => 'article',
+      'label' => 'Body',
+    ])->save();
+
+    $node = Node::create([
+      'type' => 'article',
+      'title' => 'Linkable article',
+      'body' => [
+        'value' => 'Test body content',
+        'summary' => 'Test summary',
+      ],
+    ]);
+    $node->save();
+
+    $formatter = \Drupal::entityTypeManager()
+      ->getStorage('formatter')
+      ->create([
+        'id' => 'twig_entity_url_test',
+        'label' => 'Twig Entity URL Test',
+        'type' => 'twig',
+        'field_types' => ['text_with_summary'],
+        'data' => '<a href="{{ entity_url }}">{{ entity.label }}</a>',
+      ]);
+    $formatter->save();
+
+    $formatter_type = $formatter->getFormatterType();
+    $this->assertNotFalse($formatter_type);
+
+    $items = $node->get('body');
+    $result = $formatter_type->viewElements($items, 'en');
+
+    $this->assertNotEmpty($result);
+    $this->assertArrayHasKey('#markup', $result);
+    $markup = (string) $result['#markup'];
+    $this->assertStringContainsString($node->toUrl('canonical')->toString(), $markup);
+    $this->assertStringContainsString('Linkable article', $markup);
+  }
+
+  /**
+   * Tests that entity_url is an empty string for an entity with no ID.
+   *
+   * @covers ::viewElements
+   */
+  public function testViewElementsEntityUrlEmptyForUnsavedEntity(): void {
+    NodeType::create(['type' => 'article'])->save();
+    FieldStorageConfig::create([
+      'field_name' => 'body',
+      'type' => 'text_with_summary',
+      'entity_type' => 'node',
+    ])->save();
+    FieldConfig::create([
+      'field_name' => 'body',
+      'entity_type' => 'node',
+      'bundle' => 'article',
+      'label' => 'Body',
+    ])->save();
+
+    $node = Node::create([
+      'type' => 'article',
+      'title' => 'Unsaved article',
+      'body' => [
+        'value' => 'Test body content',
+      ],
+    ]);
+
+    $formatter = \Drupal::entityTypeManager()
+      ->getStorage('formatter')
+      ->create([
+        'id' => 'twig_entity_url_unsaved_test',
+        'label' => 'Twig Entity URL Unsaved Test',
+        'type' => 'twig',
+        'field_types' => ['text_with_summary'],
+        'data' => '[{{ entity_url }}]',
+      ]);
+    $formatter->save();
+
+    $formatter_type = $formatter->getFormatterType();
+    $this->assertNotFalse($formatter_type);
+
+    $items = $node->get('body');
+    $result = $formatter_type->viewElements($items, 'en');
+
+    $this->assertNotEmpty($result);
+    $this->assertSame('[]', (string) $result['#markup']);
   }
 
 }
