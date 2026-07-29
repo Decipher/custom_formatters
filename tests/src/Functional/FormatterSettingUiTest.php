@@ -35,7 +35,6 @@ class FormatterSettingUiTest extends CustomFormattersTestBase {
       'administer formatter_setting display',
       'administer node display',
     ]);
-    $this->assertNotFalse($admin);
     $this->drupalLogin($admin);
   }
 

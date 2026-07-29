@@ -85,7 +85,7 @@ class Php extends FormatterTypeBase {
   public function viewElements(FieldItemListInterface $items, $langcode, array $settings = []) {
     // Extracted for eval scope; $raw_settings['field'] is shorter than
     // $settings['_raw']['field'].
-    // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used inside eval()
+    // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable,DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable -- used inside eval()
     $raw_settings = $settings['_raw'] ?? [];
     ob_start();
     $output = eval($this->entity->get('data')); // phpcs:ignore Drupal.Functions.DiscouragedFunctions.Discouraged
