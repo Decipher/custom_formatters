@@ -433,6 +433,13 @@ class CustomFormatters extends FormatterBase {
   /**
    * Element validate callback: saves the FormatterSetting entity.
    *
+   * Field formatter plugins (FormatterInterface/PluginSettingsInterface)
+   * have no submitForm() hook invoked by core: Field UI's
+   * EntityDisplayFormBase::copyFormValuesToEntity() only intersects raw form
+   * values against defaultSettings(), so a real submit handler is never
+   * called. Save here instead, since #element_validate callbacks on the
+   * Manage Display form's fieldset do run on the outer form's submit.
+   *
    * Extracts form values, populates and saves the entity, then sets the
    * UUID in the parent settings so it persists in entity_view_display config.
    */
@@ -446,31 +453,13 @@ class CustomFormatters extends FormatterBase {
     FormatterForm::populateMissingFormDisplayComponents($form_display, $entity->bundle());
     $form_display->extractFormValues($entity, $element, $form_state);
 
-    // Stash the entity for saving in submitForm().
-    $form_state->set('formatter_setting_entity_' . $entity->bundle(), $entity);
+    $entity->save();
 
     // Update the UUID value element so field_ui stores the saved UUID.
     $uuid_parents = $element['#parents'];
     array_pop($uuid_parents);
     $uuid_parents[] = 'formatter_setting_uuid';
     $form_state->setValue($uuid_parents, $entity->uuid());
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array $form, FormStateInterface $form_state) {
-    $formatter = $this->loadFormatter();
-    if (!$formatter) {
-      return;
-    }
-
-    $entity = $form_state->get('formatter_setting_entity_' . $formatter->id());
-    if (!$entity) {
-      return;
-    }
-
-    $entity->save();
   }
 
 }

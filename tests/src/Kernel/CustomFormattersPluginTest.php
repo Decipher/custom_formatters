@@ -236,9 +236,13 @@ class CustomFormattersPluginTest extends KernelTestBase {
   }
 
   /**
-   * Tests that validateSettingsEntity stashes the entity in form state.
+   * Tests that validateSettingsEntity saves the entity.
+   *
+   * Field formatter plugins have no submitForm() hook invoked by core, so
+   * the entity must be persisted during validation rather than a later
+   * submit handler.
    */
-  public function testValidateSettingsEntityStashesEntity(): void {
+  public function testValidateSettingsEntitySavesEntity(): void {
     $this->addSettingField();
     $form_state = new FormState();
     $element = $this->buildSettingsElement($form_state);
@@ -246,13 +250,17 @@ class CustomFormattersPluginTest extends KernelTestBase {
       $this->markTestSkipped('Settings form returned no element; cannot validate.');
     }
 
-    $form_state->setValue(['formatter_setting', 'field_setting_label', 0, 'value'], 'stashed-value');
+    $form_state->setValue(['formatter_setting', 'field_setting_label', 0, 'value'], 'saved-value');
     CustomFormatters::validateSettingsEntity($element, $form_state);
 
-    $stashed = $form_state->get('formatter_setting_entity_' . $this->formatter->id());
-    $this->assertInstanceOf(FormatterSetting::class, $stashed);
-    $this->assertTrue($stashed->isNew(), 'Entity should not be saved during validation.');
-    $this->assertEquals('stashed-value', $stashed->get('field_setting_label')->value);
+    $entity = $element['#formatter_setting_entity'];
+    $this->assertInstanceOf(FormatterSetting::class, $entity);
+    $this->assertFalse($entity->isNew(), 'Entity must be saved during validation.');
+    $this->assertEquals('saved-value', $entity->get('field_setting_label')->value);
+
+    $loaded = $this->entityTypeManager->getStorage('formatter_setting')
+      ->loadByProperties(['uuid' => $entity->uuid()]);
+    $this->assertCount(1, $loaded, 'Entity must be loadable from storage after validation.');
   }
 
   /**
@@ -272,30 +280,6 @@ class CustomFormattersPluginTest extends KernelTestBase {
     $uuid_value = $form_state->getValue(['formatter_setting_uuid']);
     $this->assertNotNull($uuid_value);
     $this->assertTrue(Uuid::isValid($uuid_value), 'UUID in form state must be valid.');
-  }
-
-  /**
-   * Tests that submitForm persists the stashed entity from form state.
-   */
-  public function testSubmitFormSavesStashedEntity(): void {
-    $this->addSettingField();
-    $form_state = new FormState();
-    $element = $this->buildSettingsElement($form_state);
-    if (empty($element)) {
-      $this->markTestSkipped('Settings form returned no element.');
-    }
-
-    $form_state->setValue(['formatter_setting', 'field_setting_label', 0, 'value'], 'saved-value');
-    CustomFormatters::validateSettingsEntity($element, $form_state);
-
-    $uuid = $form_state->getValue(['formatter_setting_uuid']);
-    $this->assertNotNull($uuid);
-
-    $this->plugin->submitForm([], $form_state);
-
-    $entities = $this->entityTypeManager->getStorage('formatter_setting')
-      ->loadByProperties(['uuid' => $uuid]);
-    $this->assertCount(1, $entities, 'Entity must be saved after submitForm.');
   }
 
   /**
