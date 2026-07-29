@@ -29,6 +29,15 @@ class FormatterSettingUpdatePathTest extends KernelTestBase {
     // Include the install file so update/install functions are available.
     require_once \Drupal::service('extension.path.resolver')
       ->getPath('module', 'custom_formatters') . '/custom_formatters.install';
+
+    // Enabling the module above already ran hook_install(), which installs
+    // the formatter_setting schema. Uninstall it so each test starts from
+    // the pre-8401 "schema missing" state it's actually meant to cover.
+    $update_manager = \Drupal::entityDefinitionUpdateManager();
+    $entity_type = $update_manager->getEntityType('formatter_setting');
+    if ($entity_type) {
+      $update_manager->uninstallEntityType($entity_type);
+    }
   }
 
   /**
