@@ -261,6 +261,9 @@ class CustomFormattersPluginTest extends KernelTestBase {
     $loaded = $this->entityTypeManager->getStorage('formatter_setting')
       ->loadByProperties(['uuid' => $entity->uuid()]);
     $this->assertCount(1, $loaded, 'Entity must be loadable from storage after validation.');
+    $loaded_entity = reset($loaded);
+    $this->assertInstanceOf(FormatterSetting::class, $loaded_entity);
+    $this->assertSame('saved-value', $loaded_entity->get('field_setting_label')->value);
   }
 
   /**

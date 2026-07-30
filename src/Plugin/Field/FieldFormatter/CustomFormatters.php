@@ -442,6 +442,15 @@ class CustomFormatters extends FormatterBase {
    *
    * Extracts form values, populates and saves the entity, then sets the
    * UUID in the parent settings so it persists in entity_view_display config.
+   *
+   * Known limitation: this save happens during validation, before Field
+   * UI's own copyFormValuesToEntity() validation of the outer Manage
+   * Display form has necessarily succeeded. If a later validator on that
+   * form rejects the submission, this FormatterSetting entity is left
+   * saved with no entity_view_display config pointing at it. There is no
+   * submitForm()-equivalent hook for formatter plugins to defer the save
+   * to, so this trade-off is accepted for now; tracked as a follow-up
+   * alongside the similar edge case in the formatter-settings work.
    */
   public static function validateSettingsEntity(array &$element, FormStateInterface $form_state): void {
     $entity = $element['#formatter_setting_entity'] ?? NULL;
