@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.1.x-dev
+## 4.1.0 (2026-07-31)
 
 ### Features
 
@@ -8,6 +8,30 @@
   custom formatters targeting `image`, `file`, or `entity_reference` fields
   are automatically exposed as Insert styles, allowing formatted output to be
   inserted directly into WYSIWYG editors.
+
+### Bug fixes
+
+- Fixed the `formatter_setting` entity schema not being installed when updating
+  from earlier 4.1.x betas. The `update_8401` hook shipped in 4.1.0-beta3 never
+  installed the schema (it awaited a `PluginNotFoundException` that is never
+  thrown); the condition is now corrected, and a new `update_8402`
+  retroactively installs the schema for sites that already ran the broken
+  update.
+- Fixed per-instance formatter settings (the `FormatterSetting` entity) not
+  being persisted when saved from the Field UI "Manage display" form. Field
+  formatter plugins receive no submit hook from core, so the entity is now
+  saved during the settings fieldset's `#element_validate`.
+- Fixed the example Twig formatter (`example_twig_title`) link branch throwing
+  under Drupal's Twig sandbox. The link `href` now uses the sandbox-safe `path()`
+  function instead of the blocked `entity.toUrl()` method call.
+
+### Known limitations
+
+- Per-instance formatter settings are saved during form validation. If a
+  later validator rejects the "Manage display" submission, an orphaned
+  `FormatterSetting` entity may be left in the database with no
+  `entity_view_display` referencing it. This has no functional impact and is
+  tracked as a follow-up.
 
 ## 4.1.0-beta3 (2026-06-07)
 
